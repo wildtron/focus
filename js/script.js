@@ -5,32 +5,35 @@
         var self = this,
             username = document.getElementById('username_input'),
             password = document.getElementById('password_input');
-
+        password.disabled = username.disabled = 'disabled';
         if (username.value === "ravenjohn" && password.value === "ravengwapo") {
             self.innerHTML = "SUCCESS!";
             $$.addClass(self, 'sign_in_success');
-            setTimeout(function () {
+            setTimeout(function () {            
+                password.disabled = username.disabled = '';
                 $$.removeClass(self, 'sign_in_success');
                 $$.addClass(document.getElementById('front_section'), 'current-to-left');
                 $$.addClass(document.getElementById('feed_section'), 'right-to-current');
                 $$.addClass(document.getElementById('nav_section'), 'left-to-current');
                 $$.addClass(document.getElementById('header_section'), 'top-to-current');
             }, 1000);
-        }
-        else {
+        } else {
             self.innerHTML = "ERROR!";
             $$.addClass(self, 'sign_in_error');
             setTimeout(function () {
                 $$.removeClass(self, 'sign_in_error');
                 self.innerHTML = "SIGN IN!";
+                password.disabled = username.disabled = '';
                 username.focus();
             }, 1000);
         }
     };
 
-    /* page('/records');
+    /*
+    page('/records');
     page('/records');
     page('/submissions');
     page('/logs');
-    page('/logout'); */
+    page('/logout');
+    */
 }(this));

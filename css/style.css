@@ -437,19 +437,67 @@ section{
     padding-bottom: 2px;
     font-size: 12px;
 }
+.window_div:last-child{
+    margin-bottom: 50px;
+}
 .window_div.off{
     background: #FF6666;
+    border: 2px solid #C0392B;
 }
 .window_div.idle{
     background: #FFCC00;
+    border: 2px solid #D35400;
 }
 .window_div.active{
     background: #33CC66;
+    border: 2px solid #27AE60;
+}
+.window_div.locked{
+    background: #333333;
+    border: 2px solid #000000;
+}
+.window_div.locked img{
+    background-color: #000;
+    background-image: url(../img/click-to-unlock.png);
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .window_div img{
     width: 350px;
     height: 200px;
     display: block;
+    cursor: pointer;
+}
+.window_div:hover .unit_mngr_div{
+    display: block;
+}
+.unit_mngr_div{
+    display: none;
+    position: absolute;
+    top: -2px;
+    right: -27px;
+    width: 25px;
+    line-height: 0;
+}
+.unit_mngr_div button{
+    border: 0;
+    width: 25px;
+    height: 25px;
+    background-color: #4D4D4D;
+    background-image: url(../img/unit-mngmnt-icons.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+.unit_mngr_div button:nth-child(2){
+    background-color: #808080;
+    background-position: 0 -25px;
+}
+.unit_mngr_div button:nth-child(3){
+    background-color: #B3B3B3;
+    background-position: 0 -50px;
 }
 .chat_button{
     position: absolute;
