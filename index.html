@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no" />
         <title>:FOCUS</title>
         <link rel="stylesheet" href="css/style.css" />
     </head>
@@ -10,7 +12,7 @@
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" />
                 <br /><br />
-                <input type="text" placeholder="Username" id="username_input" required="required"/>
+                <input type="text" placeholder="Username" id="username_input" required="required" autofocus="autofocus"/>
                 <br />
                 <input type="password" placeholder="Password" id="password_input" required="required"/>
                 <br /><br />
@@ -18,9 +20,32 @@
             </form>
         </section>
 
+        <section id="nav_section" data-position="left">
+            <ul>
+                <li><a href="#"></a></li>
+                <li><a href="#feed" class="active">Feed</a></li>
+                <li><a href="#records">Records</a></li>
+                <li><a href="#submissions">Submissions</a></li>
+                <li><a href="#logs">Logs</a></li>
+                <li><a href="#logout">Logout</a></li>
+            </ul>
+        </section>
+
+        <section id="header_section" data-position="top">
+            <div id="header_title_div">CMSC 190-2 <span class="twilight">X-3L</span> on <span class="twilight">PC Lab 8</span></div>
+            <div id="profile_div">
+                <img src="img/default-profile.png" alt="You :)" width="43" height="40" />
+                <div>
+                    Good Afternoon!<br />
+                    <b>Ma'am Kat</b>
+                </div>
+            </div>
+        </section>
+
         <section id="feed_section" data-position="right">
         </section>
 
+        <script type="text/javascript" src="js/pages.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
     </body>
