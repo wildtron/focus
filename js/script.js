@@ -92,7 +92,7 @@
                 document.getElementById('front_section').className = 'current-to-left active_section';
                 document.getElementById('nav_section').className = 'left-to-current';
                 document.getElementById('header_section').className = 'top-to-current';
-                page.show('feed');
+                page.show('records');
             }, 250);
         } else {
             self.innerHTML = 'ERROR!';

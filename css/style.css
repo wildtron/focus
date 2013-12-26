@@ -636,3 +636,29 @@ section{
     right: 0;
     cursor: pointer;
 }
+
+#records_section table{
+    margin: 0 auto;
+    margin-top: 25px;
+}
+#records_section table td{
+    font-family: OpenSans;
+}
+#records_section table td:nth-child(2){
+    text-align: center;
+}
+#records_section table td:last-child{
+    text-align: right;
+}
+#records_section select{
+    clear: both;
+    font-family: Nexa;
+    font-weight: bold;
+}
+#records_section button{
+    background: #463D8A;
+    padding: 20px 15px;
+    color: #FFF;
+    border: 0;
+    cursor: pointer;
+}
