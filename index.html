@@ -5,7 +5,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
         <title>OCUS</title>
-        <link rel="shortcut icon" href="favicon.png">
+        <link rel="shortcut icon" href="favicon.png" />
         <link rel="stylesheet" href="css/style.css" />
     </head>
 
@@ -27,12 +27,12 @@
                 <li><a href="records" id="records_a" onclick="page.show('records'); return false;">Records</a></li>
                 <li><a href="submissions" id="submissions_a" onclick="page.show('submissions'); return false;">Submissions</a></li>
                 <li><a href="logs" id="logs_a" onclick="page.show('logs'); return false;">Logs</a></li>
-                <li><a href="login" onclick="page.show('logout'); return false;">Logout</a></li>
+                <li><a href="login" id="logout_a" onclick="page.show('logout'); return false;">Logout</a></li>
             </ul>
         </section>
 
         <section id="header_section" data-position="top">
-            <div id="header_title_div">CMSC 190-2 <span class="twilight">X-3L</span> on <span class="twilight">PC Lab 8</span></div>
+            <div id="header_title_div"></div>
             <div id="profile_div">
                 <img src="img/default-profile.png" alt="You :)" width="43" height="40" />
                 <div>
@@ -44,6 +44,9 @@
 
         <section id="feed_section" data-position="right" data-order="1" >
             <div class="section_div">
+                <br class="clearfix" />
+                Refresh screen shots every <input type="number" value="10" min="5" max="300" id="scrnsht_interval_input"/> seconds.<br />
+                <br class="clearfix" />
                 <div class="window_div off">
                     <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
@@ -55,7 +58,7 @@
                     </div>
                 </div>
                 <div class="window_div idle">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht2.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -65,7 +68,7 @@
                     </div>
                 </div>
                 <div class="window_div active">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -85,7 +88,7 @@
                     </div>
                 </div>
                 <div class="window_div off">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht4.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -95,7 +98,7 @@
                     </div>
                 </div>
                 <div class="window_div active">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -105,7 +108,7 @@
                     </div>
                 </div>
                 <div class="window_div idle">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht2.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -115,7 +118,7 @@
                     </div>
                 </div>
                 <div class="window_div active">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
+                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
                     Raven Lagrimas | 2010-43168
                     <button class="chat_button" title="Chat with Raven"></button>
                     <div class="unit_mngr_div">
@@ -134,6 +137,7 @@
                         <button title="Logout"></button>
                     </div>
                 </div>
+                <br class="clearfix" />
             </div>
         </section>
 
@@ -154,7 +158,6 @@
         </section>
 
         <script type="text/javascript" src="js/pages.js"></script>
-        <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
 
     </body>
