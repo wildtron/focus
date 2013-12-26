@@ -413,6 +413,53 @@ section{
     line-height: 18px;
 }
 
-#feed_section{
+.section_div{
+    margin-left: 70px;
+    margin-top: 74px;
+    width: calc(100% - 70px);
+    height: calc(100% - 74px);
+    overflow-y: auto;
     background: #FFF;
+}
+
+.window_div{
+    width: 350px;
+    height: 220px;
+    margin-left: 50px;
+    margin-top: 50px;
+    float: left;
+    background: #000;
+    text-align: center;
+    color: #FFF;
+    font-family: Nexa;
+    position: relative;
+    line-height: 23px;
+    padding-bottom: 2px;
+    font-size: 12px;
+}
+.window_div.off{
+    background: #FF6666;
+}
+.window_div.idle{
+    background: #FFCC00;
+}
+.window_div.active{
+    background: #33CC66;
+}
+.window_div img{
+    width: 350px;
+    height: 200px;
+    display: block;
+}
+.chat_button{
+    position: absolute;
+    background: url(../img/chat-icon.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 0;
+    height: 23px;
+    width: 25px;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
 }
