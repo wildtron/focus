@@ -1,0 +1,282 @@
+@font-face {
+	font-family: 'Nexa Bold';
+	src: url('../font/nexa-bold.woff');
+}
+@font-face {
+	font-family: 'Nexa Light';
+	src: url('../font/nexa-light.woff');
+}
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../font/OpenSans-Regular.woff');
+}
+@font-face {
+    font-family: 'OpenSansLight';
+    src: url('../font/OpenSans-CondLight.woff');
+}
+@font-face {
+    font-family: 'OpenSansBold';
+    src: url('../font/OpenSans-Bold.woff');
+}
+
+/* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+.current-to-left{
+    animation: currentToLeft 0.4s forwards;
+    -o-animation: currentToLeft 0.4s forwards;
+    -moz-animation: currentToLeft 0.4s forwards;
+    -webkit-animation: currentToLeft 0.4s forwards;
+}
+.right-to-current{
+    animation: rightToCurrent 0.4s forwards;
+    -o-animation: rightToCurrent 0.4s forwards;
+    -moz-animation: rightToCurrent 0.4s forwards;
+    -webkit-animation: rightToCurrent 0.4s forwards;
+}
+.left-to-current{
+    animation: leftToCurrent 0.4s forwards;
+    -o-animation: leftToCurrent 0.4s forwards;
+    -moz-animation: leftToCurrent 0.4s forwards;
+    -webkit-animation: leftToCurrent 0.4s forwards;
+}
+.current-to-right{
+    animation: currentToRight 0.4s forwards;
+    -o-animation: currentToRight 0.4s forwards;
+    -moz-animation: currentToRight 0.4s forwards;
+    -webkit-animation: currentToRight 0.4s forwards;
+}
+.current-to-bottom{
+    animation: currentToBottom 0.4s forwards;
+    -o-animation: currentToBottom 0.4s forwards;
+    -moz-animation: currentToBottom 0.4s forwards;
+    -webkit-animation: currentToBottom 0.4s forwards;
+}
+.top-to-current{
+    animation: topToCurrent 0.4s forwards;
+    -o-animation: topToCurrent 0.4s forwards;
+    -moz-animation: topToCurrent 0.4s forwards;
+    -webkit-animation: topToCurrent 0.4s forwards;
+}
+.current-to-top{
+    animation: currentToTop 0.4s forwards;
+    -o-animation: currentToTop 0.4s forwards;
+    -moz-animation: currentToTop 0.4s forwards;
+    -webkit-animation: currentToTop 0.4s forwards;
+}
+.bottom-to-current{
+    animation: bottomToCurrent 0.4s forwards;
+    -o-animation: bottomToCurrent 0.4s forwards;
+    -moz-animation: bottomToCurrent 0.4s forwards;
+    -webkit-animation: bottomToCurrent 0.4s forwards;
+}
+
+@keyframes currentToLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+@keyframes rightToCurrent {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+@keyframes leftToCurrent {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+@keyframes currentToRight {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+@keyframes currentToBottom {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+@keyframes topToCurrent {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@keyframes currentToTop {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@keyframes bottomToCurrent {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+@-webkit-keyframes currentToLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+@-webkit-keyframes rightToCurrent {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+@-webkit-keyframes leftToCurrent {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+@-webkit-keyframes currentToRight {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+@-webkit-keyframes currentToBottom {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+@-webkit-keyframes topToCurrent {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@-webkit-keyframes currentToTop {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@-webkit-keyframes bottomToCurrent {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+@-moz-keyframes currentToLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+@-moz-keyframes rightToCurrent {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+@-moz-keyframes leftToCurrent {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+@-moz-keyframes currentToRight {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+@-moz-keyframes currentToBottom {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+@-moz-keyframes topToCurrent {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@-moz-keyframes currentToTop {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@-moz-keyframes bottomToCurrent {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+@-o-keyframes currentToLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+@-o-keyframes rightToCurrent {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+@-o-keyframes leftToCurrent {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+@-o-keyframes currentToRight {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+@-o-keyframes currentToBottom {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+@-o-keyframes topToCurrent {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@-o-keyframes currentToTop {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+@-o-keyframes bottomToCurrent {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+
+*{
+    font-family: 'Nexa Light';
+    outline: 0;
+}
+body{
+    overflow: hidden;
+}
+section{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+[data-position="right"]{
+  transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+}
+
+#front_section{
+    background: #3e3d47;
+    text-align: center;
+}
+#login_form{
+    margin-top: 10%;
+}
+#login_form img{
+    margin-bottom: 90px;
+}
+#login_form button{
+    margin-top: 90px;
+    width: 244px;
+    color: #FFF;
+    font-family: 'OpenSansBold';
+    font-size: 20px;
+    border: 0;
+    background: #2C1DA1;
+    box-shadow: -4px 4px #1A1063;
+    padding: 4px 0 8px;
+    cursor: pointer;
+}
+button.sign_in_error {
+    animation: redShake 1s forwards;    
+}
+@keyframes redShake {
+	0% {transform: translate(2px, 1px) rotate(0deg);
+        background: #e74c3c;
+        box-shadow: -4px 4px #c0392b;
+    }
+	10% { transform: translate(-1px, -2px) rotate(-1deg); }
+	20% { transform: translate(-3px, 0px) rotate(1deg); }
+	30% { transform: translate(0px, 2px) rotate(0deg); }
+	40% { transform: translate(1px, -1px) rotate(1deg); }
+	50% { transform: translate(-1px, 2px) rotate(-1deg); }
+	60% { transform: translate(-3px, 1px) rotate(0deg); }
+	70% {
+        transform: translate(2px, 1px) rotate(-1deg);        
+        background: #e74c3c;
+        box-shadow: -4px 4px #c0392b;
+    }
+	80% { transform: translate(-1px, -1px) rotate(1deg); }
+	90% { transform: translate(2px, 2px) rotate(0deg); }
+	100%{
+        transform: translate(1px, -2px) rotate(-1deg);
+        background: #2C1DA1;
+        box-shadow: -4px 4px #1A1063;
+    }
+}
+#login_form input{
+    padding: 3px 0;
+    width: 244px;
+    font-size: 25px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+#feed_section{
+    background: #FFF;
+}
