@@ -507,6 +507,7 @@ section{
 }
 #header_title_div{
     height: inherit;
+    width: calc(100% - 290px);
     line-height: 74px;
     font-size: 30px;
     font-family: OpenSans;
@@ -528,6 +529,7 @@ section{
     font-family: Nexa;
     text-align: center;
     font-size: 13px;
+    padding-right: 20px;
 }
 #profile_div img{
     float: left;
@@ -662,3 +664,32 @@ section{
     border: 0;
     cursor: pointer;
 }
+
+.section_header_div{
+    margin: 30px auto;
+    border-top: 1px solid #808080;
+    border-bottom: 1px solid #808080;
+    font-family: OpenSansCondensed;
+    text-align: center;
+    width: 80%;
+    height: 50px;
+    line-height: 50px;
+}
+
+#files_div{
+    margin: 0 auto;
+    width: 80%;
+}
+.file_div{
+    float: left;
+    width: 128px;
+    height: 128px;
+    text-align: center;
+    font-family: Nexa;
+}
+.file_div img{
+    cursor: pointer;
+}
+.file_div img.c{background: #69D0D0;}
+.file_div img.java{background: #33CC66;}
+.file_div img.zip, .file_div img.rar{background: #3498DB;}
