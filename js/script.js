@@ -36,7 +36,7 @@
     var feed = function () {
         var active = document.getElementsByClassName('active_section')[0];
         if (!+active.attributes['data-order'].value) {
-            active.className = '';
+            active.className = 'current-to-' + randomEffect();
             document.getElementById('feed_section').className = randomEffect() + '-to-current active_section';
         } else if (active.id !== 'feed_section'){
             active.className = 'current-to-' + randomEffect();
@@ -95,7 +95,7 @@
             self.innerHTML = 'SUCCESS!';
             self.className = 'sign_in_success';
             setTimeout(function () {
-                document.getElementById('front_section').className = 'current-to-' + randomEffect() + ' active_section';
+                document.getElementById('front_section').className = 'active_section';
                 document.getElementById('nav_section').className = 'left-to-current';
                 document.getElementById('header_section').className = 'top-to-current';
                 self.className = '';
