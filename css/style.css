@@ -549,6 +549,7 @@ section{
     width: calc(100% - 70px);
     overflow-y: auto;
     background: #FFF;
+    text-align: center;
 }
 
 #scrnsht_interval_input{
@@ -642,27 +643,9 @@ section{
     cursor: pointer;
 }
 
-#records_section table{
-    margin: 0 auto;
-    margin-top: 25px;
-}
-#records_section table td{
-    font-family: OpenSans;
-}
-#records_section table td:nth-child(2){
-    text-align: center;
-}
-#records_section table td:last-child{
-    text-align: right;
-}
-#records_section select{
-    clear: both;
-    font-family: Nexa;
-    font-weight: bold;
-}
 #records_section button{
     background: #463D8A;
-    padding: 20px 15px;
+    padding: 13px;
     color: #FFF;
     border: 0;
     cursor: pointer;
@@ -682,17 +665,49 @@ section{
 #files_div{
     margin: 0 auto;
     width: 80%;
+    text-align: center;
 }
 .file_div{
-    float: left;
     width: 128px;
     height: 128px;
     text-align: center;
     font-family: Nexa;
+    position: relative;
+    display: inline-block;
 }
 .file_div img{
     cursor: pointer;
 }
+.file_name_div{
+    position: absolute;
+    bottom: 7px;
+    height: 15px;
+    width: inherit;
+    width: calc(100% - 10px);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 12px;
+}
 .file_div img.c{background: #69D0D0;}
+.file_div img.tar{background: #95A5A6;}
+.file_div img.php{background: #B3B3B3;}
+.file_div img.txt{background: #9B59B6;}
+.file_div img.asm{background: #E74C3C;}
 .file_div img.java{background: #33CC66;}
 .file_div img.zip, .file_div img.rar{background: #3498DB;}
+
+
+#log_div{
+    width: 80%;
+    margin: 0 auto;
+    height: 70%;
+    resize: none;
+    font-family: 'Lucida Console';
+    text-align: left;
+    font-size: 12px;
+    border: 1px solid #CCC;
+}
+.off_span{color: #C0392B;}
+.active_span{color: #27AE60;}
+.idle_span{color: #F39C12;}

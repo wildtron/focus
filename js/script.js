@@ -100,7 +100,7 @@
                 document.getElementById('header_section').className = 'top-to-current';
                 self.className = '';
                 self.innerHTML = 'SIGN IN!';
-                password.disabled = username.disabled = '';
+                password.value = username.value = password.disabled = username.disabled = '';
                 page.show('feed');
             }, 250);
         } else {
