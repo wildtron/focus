@@ -2,6 +2,7 @@
 	font-family: Nexa;
 	src: url(../font/nexa-light.woff);
 }
+
 @font-face {
     font-family: OpenSans;
     src: url(../font/OpenSans-Regular.woff);
@@ -120,13 +121,9 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
     font-family: OpenSansCondensed;
     outline: 0;
 }
-html{
-}
 body{
-    width: 300px;
-    height: 400px;
-    overflow: hidden;
     position: fixed;
+    overflow: hidden;
 }
 section{
     width: 100%;
@@ -136,6 +133,20 @@ section{
     left: 0;
     background: #FFF;
     text-align: center;
+}
+
+.clearfix {
+  clear: both;
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  line-height: 0;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
 }
 
 [data-position="right"]{
@@ -298,6 +309,9 @@ section{
     border: 0;
 }
 
+#main_section{
+    
+}
 #name_div{
     display: inline-block;
     height: 40px;
