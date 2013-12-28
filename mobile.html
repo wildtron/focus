@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no" />
         <title>:FOCUS</title>
         <link rel="shortcut icon" href="favicon.png" />
-        <link rel="stylesheet" href="css/client.css" />
+        <link rel="stylesheet" href="css/mobile.css" />
     </head>
 
     <body>
@@ -20,30 +20,43 @@
             </form>
         </section>
 
-        <section id="main_section" data-position="right">
-            <div id="name_div">Raven Lagrimas</div>
+        <section id="students_section" data-position="right">
+            <div class="header_div">Ma'am Kat</div>
             <button id="logout_button"></button>
-            <div id="chat_div">
+            <div id="list_div">
                 <ul>
-                    <li class="incoming">Welcome Mr. Lagrimas</li>
-                    <li>Hi po</li>
-                    <li class="incoming">Bakit ang gwapo mo? May sikreto ka ba. Sabihin mo na.</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
-                    <li>Hi po</li>
+                    <li class="idle details_button" id="1">
+                        Cedric Abuso
+                        <button></button>
+                    </li>
+                    <li class="off details_button" id="2">
+                        Sherwin Ferrer
+                        <button></button>
+                    </li>
+                    <li class="active details_button" id="3">
+                        Raven Lagrimas
+                        <button></button>
+                    </li>
+                    <li class="absent details_button" id="4">
+                        Carlo Virtucio
+                        <button></button>
+                    </li>
                 </ul>
             </div>
-            <textarea></textarea>
         </section>
 
-        <script type="text/javascript" src="js/client.js"></script>
+        <section id="details_section" data-position="right">
+            <button id="back_button"></button>
+            <div class="header_div" id="student_name_div"></div>
+            <div id="details_div"></div>
+            <div id="buttons_div">
+                <button id="shutdown_button">Shutdown</button>
+                <button id="lock_button">Lock</button>
+                <button id="logoff_button">Log Off</button>
+            </div>
+        </section>
+
+        <script type="text/javascript" src="js/mobile.js"></script>
 
     </body>
 
