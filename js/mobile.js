@@ -68,7 +68,7 @@
                 document.getElementById('front_section').className = 'current-to-left';
                 document.getElementById('students_section').className = 'right-to-current';
                 self.className = '';
-                self.innerHTML = 'Login via SystemOne';
+                self.innerHTML = 'Sign In';
                 password.value = username.value = password.disabled = username.disabled = '';
             }, 250);
         } else {
@@ -76,7 +76,7 @@
             self.className = 'sign_in_error';
             setTimeout(function () {
                 self.className = '';
-                self.innerHTML = 'Login via SystemOne';
+                self.innerHTML = 'Sign In';
                 password.disabled = username.disabled = '';
                 username.focus();
             }, 1000);
