@@ -28,20 +28,9 @@
             }
         },
         i;
-
-    root.onresize = function () {
-        var temp1 = document.getElementsByTagName('section');
-        for (i in temp1) {
-            if (i > -1) {
-                temp1[i].style.height = root.innerHeight + 'px';
-                temp1[i].style.width = root.innerWidth + 'px';
-            }
-        }
-    };
-    root.onresize();
     
     for (i in temp1) {
-        if (i > -1) {
+        if (i > -1 && temp1.hasOwnProperty(i)) {
             temp1[i].onclick = function (e) {
                 document.getElementById('students_section').className = 'current-to-left';
                 document.getElementById('details_section').className = 'right-to-current';
@@ -50,6 +39,17 @@
             };
         }
     }
+
+    root.onresize = function () {
+        var temp1 = document.getElementsByTagName('section');
+        for (i in temp1) {
+            if (i > -1 && temp1.hasOwnProperty(i)) {
+                temp1[i].style.height = root.innerHeight + 'px';
+                temp1[i].style.width = root.innerWidth + 'px';
+            }
+        }
+    };
+    root.onresize();
 
     document.getElementById('back_button').onclick = function () {
         document.getElementById('details_section').className = 'current-to-right';
