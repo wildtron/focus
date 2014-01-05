@@ -563,7 +563,6 @@ section{
 .window_div{
     background: #000;
     width: 350px;
-    /* width: calc(33% - 50px - (50px/3)); */
     height: 220px;
     margin-left: 50px;
     margin-bottom: 50px;

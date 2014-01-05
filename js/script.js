@@ -13,14 +13,14 @@
         var temp1 = document.getElementsByClassName('section_div'),
             i;
         for (i in temp1) {
-            if (i > -1 && temp1.hasOwnProperty(i)) {
+            if (i > -1) {
                 temp1[i].style.height = root.innerHeight - 74 + 'px',
                 temp1[i].style.width = root.innerWidth - 70 + 'px';
             }
         }
         temp1 = document.getElementsByTagName('section');
         for (i in temp1) {
-            if (i > -1 && temp1.hasOwnProperty(i)) {
+            if (i > -1) {
                 temp1[i].id !== 'header_section' && (temp1[i].style.height = root.innerHeight + 'px');
                 temp1[i].id !== 'nav_section' && (temp1[i].style.width = root.innerWidth + 'px');
             }
