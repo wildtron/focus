@@ -1,0 +1,1 @@
+<?php header('location: /focus/instructor/index.html');

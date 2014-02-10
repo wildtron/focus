@@ -1,13 +1,14 @@
 (function(root){
 
-    var randomEffect = function () {
-        switch (parseInt(Math.random() * 4, 10)) {
-        case 0: return 'top';
-        case 1: return 'bottom';
-        case 2: return 'left';
-        case 3: return 'right';
+    var api = document.body.attributes['data-api'].value,
+        randomEffect = function () {
+            switch (parseInt(Math.random() * 4, 10)) {
+            case 0: return 'top';
+            case 1: return 'bottom';
+            case 2: return 'left';
+            case 3: return 'right';
+            };
         };
-    };
 
     root.onresize = function () {
         var temp1 = document.getElementsByClassName('section_div'),
@@ -89,30 +90,47 @@
     document.getElementById('sign_in_button').onclick = function () {
         var self = this,
             username = document.getElementById('username_input'),
-            password = document.getElementById('password_input');
+            password = document.getElementById('password_input'),
+            request = new XMLHttpRequest()
         password.disabled = username.disabled = 'disabled';
-        if (username.value === 'ravenjohn' && password.value === 'ravengwapo') {
-            self.innerHTML = 'SUCCESS!';
-            self.className = 'sign_in_success';
-            setTimeout(function () {
-                document.getElementById('front_section').className = 'active_section';
-                document.getElementById('nav_section').className = 'left-to-current';
-                document.getElementById('header_section').className = 'top-to-current';
-                self.className = '';
-                self.innerHTML = 'SIGN IN!';
-                password.value = username.value = password.disabled = username.disabled = '';
-                page.show('feed');
-            }, 250);
-        } else {
-            self.innerHTML = 'ERROR!';
-            self.className = 'sign_in_error';
-            setTimeout(function () {
-                self.className = '';
-                self.innerHTML = 'SIGN IN!';
-                password.disabled = username.disabled = '';
-                username.focus();
-            }, 1000);
-        }
+        
+        
+        request.open('POST', api + 'instructor/login', true);
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(JSON.stringify({
+            username : username.value,
+            password : password.value
+        }));
+
+
+        request.onreadystatechange = function() {
+            if (request.readyState + request.status == 204) {
+                var response = JSON.parse(request.responseText);
+                if (response.message) {
+                    self.innerHTML = 'ERROR!';
+                    self.className = 'sign_in_error';
+                    setTimeout(function () {
+                        self.className = '';
+                        self.innerHTML = 'SIGN IN!';
+                        password.disabled = username.disabled = '';
+                        username.focus();
+                    }, 1000);
+                }
+                else {
+                    self.innerHTML = 'SUCCESS!';
+                    self.className = 'sign_in_success';
+                    setTimeout(function () {
+                        document.getElementById('front_section').className = 'active_section';
+                        document.getElementById('nav_section').className = 'left-to-current';
+                        document.getElementById('header_section').className = 'top-to-current';
+                        self.className = '';
+                        self.innerHTML = 'SIGN IN!';
+                        password.value = username.value = password.disabled = username.disabled = '';
+                        page.show('feed');
+                    }, 250);
+                }
+            }
+        };
     };
     
     var logout = function () {

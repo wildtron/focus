@@ -320,7 +320,7 @@ section{
     height: 40px;
     border: 0;
     background-color: #28282B;
-    background-image: url(../img/client/logout.png);
+    background-image: url(../img/logout.png);
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;

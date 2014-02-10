@@ -27,7 +27,7 @@
         ],
         animate = function (o, d) {
             var end_value = parseFloat(o.style.width),
-                delta = end_value / 600 / 0.06,
+                delta = end_value / 300 / 0.06,
                 frame = 0,
                 handle = setInterval(function() {
                     var value = delta * (frame += 1);
