@@ -1,6 +1,7 @@
 (function(root){
 
-    var api = document.body.attributes['data-api'].value,
+    var socket,
+        url = document.body.attributes['data-url'].value,
         randomEffect = function () {
             switch (parseInt(Math.random() * 4, 10)) {
             case 0: return 'top';
@@ -95,7 +96,7 @@
         password.disabled = username.disabled = 'disabled';
         
         
-        request.open('POST', api + 'instructor/login', true);
+        request.open('POST', url + 'instructor/login', true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.send(JSON.stringify({
             username : username.value,
@@ -117,6 +118,13 @@
                     }, 1000);
                 }
                 else {
+                    socket = io.connect(url);
+                    socket.on('news', function (data) {
+                        console.log(data);
+                        socket.emit('my other event', { my: 'data' });
+                    });
+                
+                
                     self.innerHTML = 'SUCCESS!';
                     self.className = 'sign_in_success';
                     setTimeout(function () {
