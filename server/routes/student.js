@@ -1,49 +1,121 @@
 var mongo = require('mongodb'),
+    crypto = require('crypto'),
+    http = require('http'),
     util = require('./util'),
+    config = require(__dirname + '/../config/config'),
+    
     Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure,
-    server = new Server('localhost', 27017, {auto_reconnect: true}),
-    db = new Db('focusdb', server),
-    collectionName = 'students';
- 
+    db = new Db('focusdb', new Server('localhost', 27017, {auto_reconnect: true})),
+    collectionName = 'students',
+    hash = function (string) {
+        return crypto.createHash('md5').update(string).digest('hex');
+    };
+
 db.open(function(err, db) {
-    if (!err) {
-        console.log("Connected to 'focusdb' database");
-        db.collection(collectionName, {strict : true}, function (err, collection) {
-            if (err) {
-                console.log("The '" + collectionName + "' collection doesn't exist. Creating it with sample data...");
-                populateDB();
-            }
-        });
-    }
-    else {
-        console.dir(err);
-        throw err;
-    }
+    err && console.log("Student cant connect to database", err);
 });
 
 exports.login = function (req, res) {
     try {
-        var data = util.chk_rqd(['username', 'password'], req);
-        
+        var data = util.chk_rqd(['username', 'password', 'student_number'], req);
+
         db.collection(collectionName, function(err, collection) {
             collection.findOne({
-                'student_number'  : data.username,
-                'password'  : data.password
+                'username'  : data.username,
+                'student_number'  : data.student_number,
+                'password'  : hash(hash(data.password) + config.SALT)
             }, function (err, item) {
-                if (item == null) {
-                    res.send({message : 'Wrong username or password'});
+                if (item) {
+                    item.access_token = hash(+new Date + config.SALT);
+                    item.last_login = +new Date;
+                    collection.update({'_id' : item._id}, {$set : {
+                        access_token : item.access_token,
+                        last_login : +new Date
+                    }}, {safe:true}, function (err, result) {
+                        err && console.log(err);
+                    });
+                    res.send({
+                        access_token : item.access_token,
+                        first_name : item.first_name,
+                        last_name : item.last_name
+                    });
+                    console.log("logged in locally", data.username, data.student_number);
                 }
                 else {
-                    res.send(item);
+                    loginViaSystemOne(data.username, data.student_number, data.password, res, function (temp, username, student_number, password, res) {
+                        if (temp.message) {
+                            console.log("login failed", data.username, data.student_number);
+                            res.send(temp);
+                        }
+                        else {
+                            temp.username = username;
+                            temp.student_number = student_number;
+                            temp.password = hash(hash(password) + config.SALT);
+                            temp.access_token = hash(+new Date + config.SALT);
+                            temp.last_login = +new Date;
+                            collection.remove({'student_number': student_number}, {safe:true}, function (err, result) {
+                                err && console.log(err);
+                            });
+                            collection.insert(temp, {safe:true}, function (err, result) {                                
+                                err && console.log(err);
+                            });
+                            res.send({
+                                access_token : temp.access_token,
+                                first_name : temp.first_name,
+                                last_name : temp.last_name
+                            });
+                            console.log("logged in via systemone", data.username, data.student_number);
+                        }
+                    });
                 }
             });
         });
-    } catch (e) {
-        console.dir(e);
+    }
+    catch (e) {
         res.send({message : e.message});
     }
+};
+
+exports.logout = function (req, res) {
+    try{
+        var data = util.chk_rqd(['access_token'], req);
+        db.collection(collectionName, function(err, collection) {
+            collection.findOne({'access_token': data.access_token}, function (err, item) {
+                if (err) {
+                    res.send({message : "Invalid access_token"});
+                }
+                else {
+                    collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, {safe: true}, function (err, result) {
+                        err && console.log(err);
+                    });
+                    res.send({message : "Logout successful"});
+                    console.log("Logout successful");
+                }
+            });
+        });
+    }
+    catch (e) {
+        res.send({message : e.message});
+    }
+};
+
+exports.setSocket = function (access_token, id) {
+    db.collection(collectionName, function(err, collection) {
+        collection.update({'access_token' : access_token}, {$set : {socket_id: id}}, {safe: true}, function (err, result) {
+            err && console.log(err);
+        });
+    });
+};
+
+exports.validateSocket = function (access_token, id, cb) {
+    db.collection(collectionName, function(err, collection) {
+        collection.findOne({
+            'access_token' : access_token,
+            'socket_id' : id
+        }, cb);
+    });
 };
  
 exports.findById = function(req, res) {
@@ -63,189 +135,32 @@ exports.findAll = function(req, res) {
         });
     });
 };
- 
-exports.addstudent = function(req, res) {
-    var student = req.body;
-    console.log('Adding student: ' + JSON.stringify(student));
-    db.collection(collectionName, function(err, collection) {
-        collection.insert(student, {safe:true}, function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('Success: ' + JSON.stringify(result[0]));
-                res.send(result[0]);
-            }
-        });
-    });
-}
- 
-exports.updatestudent = function(req, res) {
-    var id = req.params.id,
-        student = req.body;
-    console.log('Updating student: ' + id);
-    console.log(JSON.stringify(student));
-    db.collection(collectionName, function(err, collection) {
-        collection.update({'_id':new BSON.ObjectID(id)}, student, {safe:true}, function(err, result) {
-            if (err) {
-                console.log('Error updating student: ' + err);
-                res.send({'error':'An error has occurred'});
-            } else {
-                console.log('' + result + ' document(s) updated');
-                res.send(student);
-            }
-        });
-    });
-}
- 
-exports.deletestudent = function(req, res) {
-    var id = req.params.id;
-    console.log('Deleting student: ' + id);
-    db.collection(collectionName, function(err, collection) {
-        collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
-            if (err) {
-                res.send({'error':'An error has occurred - ' + err});
-            } else {
-                console.log('' + result + ' document(s) deleted');
-                res.send(req.body);
-            }
-        });
-    });
-}
 
 
-/*--------------------------------------------------------------------------------------------------------------------*/
-// Populate database with sample data -- Only used once: the first time the application is started.
-// You'd typically not find this code in a real-life app, since the database would already exist.
-var populateDB = function() {
 
-    var students = [
-        {
-            first_name: "Raven John",
-            middle_name : "Martinez",
-            last_name : "Lagrimas",
-            student_number : "2010-43168",
-            password : '12345',
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        },
-        {
-            first_name: "Sherwin Jet",
-            middle_name : "Bilog",
-            last_name : "Ferrer",
-            student_number : "2010-41794",
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        },
-        {
-            first_name: "Sharmaine",
-            middle_name : "D",
-            last_name : "Tablada",
-            student_number : "2010-04510",
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        },
-        {
-            first_name: "Ray Cedric Louis",
-            middle_name : "H",
-            last_name : "Abuso",
-            student_number : "2010-04916",
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        },
-        {
-            first_name: "Reuel Carlo",
-            middle_name : "P",
-            last_name : "Virtucio",
-            student_number : "2010-19864",
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        },
-        {
-            first_name: "Jude Allen",
-            middle_name : "B",
-            last_name : "Mailom",
-            student_number : "2010-42985",
-            classes : [
-                {
-                    course : 'CMSC 125',
-                    section_name : 'ST-9L',
-                    day : 'M',
-                    time : '1-4'
-                },
-                {
-                    course : 'CMSC 170',
-                    section_name : 'U-7L',
-                    day : 'F',
-                    time : '4-7'
-                }
-            ]
-        }
-    ];
- 
-    db.collection(collectionName, function(err, collection) {
-        collection.insert(students, {safe : true}, function(err, result) {
-            console.dir(err);
+function loginViaSystemOne (username, student_number, password, res, cb) {
+    var payload = 'password=' + hash(hash(password) + config.SALT) +
+                '&username=' +  hash(hash(username) + config.SALT) +
+                '&student_number=' + hash(hash(student_number) + config.SALT) +
+                '&access_token=' + config.ACCESS_TOKEN,
+        req = http.request({
+            host: 'rodolfo.uplb.edu.ph',
+            port: 80,
+            path: '/systemone/focus.php',
+            method: 'POST',
+            headers : {
+                "Content-Type" : 'application/x-www-form-urlencoded',
+                "Content-Length" : payload.length
+            }
+        }, function(response) {
+            response.setEncoding('utf8');
+            response.on('data', function (chunk) {
+                cb(JSON.parse(chunk), username, student_number, password, res);
+            });
         });
+    req.on('error', function(e) {
+        console.log('problem with request: ' + e.message);
     });
- 
-};
+    req.write(payload);
+    req.end();
+}

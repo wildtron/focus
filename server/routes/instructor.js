@@ -9,7 +9,7 @@ var mongo = require('mongodb'),
  
 db.open(function(err, db) {
     if (!err) {
-        console.log("Connected to 'focusdb' database");
+        console.log("Instructor connected to 'focusdb' database");
         db.collection(collectionName, {strict : true}, function (err, collection) {
             if (err) {
                 console.log("The '" + collectionName + "' collection doesn't exist. Creating it with sample data...");
@@ -37,7 +37,23 @@ exports.login = function (req, res) {
                     res.send({message : 'Wrong username or password'});
                 }
                 else {
+                    // using server date, get the class happening right now
+                    var date = new Date(),
+                        hour = date.getHours(),
+                        day = "UMTWHFS"[date.getDay()],
+                        i = item.classes.length,
+                        temp;
+
+                    // iterate through instructor's classes
+                    while(i--) {
+                        temp = item.classes[i].time.split("-");
+                        if (item.classes[i].day.split("-")[0] === day && hour >= +temp[0] && hour < +temp[1]) {
+                            
+                        }
+                    }
+                    
                     res.send(item);
+                    
                 }
             });
         });
@@ -114,9 +130,8 @@ exports.deleteinstructor = function(req, res) {
 }
 
 
-/*--------------------------------------------------------------------------------------------------------------------*/
-// Populate database with sample data -- Only used once: the first time the application is started.
-// You'd typically not find this code in a real-life app, since the database would already exist.
+
+
 var populateDB = function() {
 
     var instructors = [
@@ -130,11 +145,15 @@ var populateDB = function() {
             classes : [
                 {
                     course_name : 'CMSC 125',
-                    section_name : 'ST-9L'
+                    section_name : 'ST-9L',
+                    day : 'M',
+                    time : '1-4'
                 },
                 {
                     course_name : 'CMSC 170',
-                    section_name : 'U-7L'
+                    section_name : 'U-7L',
+                    day : 'F',
+                    time : '4-7'
                 }
             ]
         }
