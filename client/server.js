@@ -8,13 +8,23 @@
 
 var http = require('http'),
     qs = require('querystring'),
-    exec = require('child_process').exec;
+    exec = require('child_process').exec,
+    fs = require('fs');
 
 var host = '127.0.0.1',
     port = '8286';
 
 http.createServer(function (req, res) {
-    if(req.method == 'POST'){
+    if(req.method == 'GET') {
+        console.log('Received GET Request.');
+        var dir = "/tmp/c9251dada3e9a6216026906764c37c16.png";
+        var cmd = "scrot "+dir;
+        var child = exec(cmd, function (err, stdout, stderr) {
+            if(err) throw err;
+            res.writeHead(200, {'Content-Type' : 'image/png'});
+            fs.createReadStream(dir).pipe(res);
+        });
+    } else if(req.method == 'POST'){
         console.log('Received POST Request.');
         var postData = '';
 
@@ -39,20 +49,30 @@ http.createServer(function (req, res) {
                     break;
                 // lock
                 case 'e6d41daeb91d3390e512a1a7ecfe99a2dc572caa':
-                    action = 'xinput set-int-prop 10 "Device Enabled" 8 0';
+                    action = 'xinput set-int-prop 2 "Device Enabled" 8 0';
                     msg ='Locking...'
                     break;
                 // unlock
                 case 'cb47660d0ad27e0e58acc8f42cfd138589f4228e':
-                    action = 'xinput set-int-prop 10 "Device Enabled" 8 1'
+                    action = 'xinput set-int-prop 2 "Device Enabled" 8 1'
                     msg = 'Unlocking...'
-                default: break;
+                default:
+                    action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
+                    method='';
+                    break;
             }
                 if(!(action === '')){
-                    var child = exec(action, function (error, stdout, stderr) {
-                        console.log(error, stdout, stderr);
+                    var child = exec(action, function (err, stdout, stderr) {
+                        if(err) throw err;
+                        console.log(err, stdout, stderr);
+                        if(method==''){
+                            msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                            var t = msg.split("WM_CLASS(STRING) = ");
+                            msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                            console.log(msg);
+                        }
                         res.writeHead(200, "OK", {"Content-Type": 'text/json'});
-                        res.end('{"Status" : "'+msg+'"}');
+                        res.end('{"Status" : '+msg+'}');
                     });
                 }
         });
