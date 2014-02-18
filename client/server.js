@@ -5,6 +5,27 @@
  *      logoff
  *      lock
  * */
+/*
+ * usage:
+ *  http://host:8286
+ *
+ *  GET /
+ *      returns screenshot of image
+ *
+ *  POST /
+ *      method=
+ *          returns currently active window
+ *      method=d343cb3959edc5a5516dc4ed1c6c5c8a7ab9f5a5
+ *          shuts down the system
+ *      method=8ffc8019bbc93e32e1133b5a4bd221fc65fbd36a
+ *          logs off the system
+ *      method=e6d41daeb91d3390e512a1a7ecfe99a2dc572caa
+ *          disables the mouse and keyboard and turns of the screen
+ *      method=cb47660d0ad27e0e58acc8f42cfd138589f4228e
+ *          enables the mouse and keyboard and turns on the screen
+ *
+ * */
+
 
 var http = require('http'),
     qs = require('querystring'),
