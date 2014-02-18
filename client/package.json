@@ -1,0 +1,10 @@
+{
+    "name": "focus",
+    "main": "index.html",
+    "window" : {
+        "toolbar" : false,
+        "height" : 400,
+        "width" : 300
+    }
+}
+
