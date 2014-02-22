@@ -3,12 +3,7 @@
     var socket,
         url = document.body.attributes['data-url'].value,
         randomEffect = function () {
-            switch (parseInt(Math.random() * 4, 10)) {
-            case 0: return 'top';
-            case 1: return 'bottom';
-            case 2: return 'left';
-            case 3: return 'right';
-            };
+            return ['top', 'bottom', 'left', 'right'][parseInt(Math.random() * 4, 10)];
         };
 
     root.onresize = function () {

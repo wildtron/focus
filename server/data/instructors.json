@@ -1,0 +1,12 @@
+[
+    {
+        "_id" : "mamkat",
+        "first_name" : "Katrina Joy",
+        "middle_name"  : "H",
+        "last_name" : "Magno",
+        "password" : "12345",
+        "classes" : [
+            "CMSC 161 UV-2L"
+        ]
+    }
+]
