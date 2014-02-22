@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-zip focus.nw index.html package.json css/* font/* img/* js/* && nodewebkit focus.nw
+zip focus.nw index.html package.json css/* font/* img/* js/*

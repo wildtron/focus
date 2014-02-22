@@ -30,10 +30,16 @@
 var http = require('http'),
     qs = require('querystring'),
     exec = require('child_process').exec,
-    fs = require('fs');
+    fs = require('fs'),
+    port = '8286',
+    os = require('os')
+    interfaces = os.networkInterfaces(),
+    addresses='\n';
 
-var host = '127.0.0.1',
-    port = '8286';
+for(var z in interfaces){
+    addresses+=interfaces[z][0].address+'\n';
+}
+
 
 http.createServer(function (req, res) {
     if(req.method == 'GET') {
@@ -70,11 +76,22 @@ http.createServer(function (req, res) {
                     break;
                 // lock
                 case 'e6d41daeb91d3390e512a1a7ecfe99a2dc572caa':
+                    /*
+                     *  turn off screen and enable screensaver
+                     *  xset dpms force off
+                     * */
                     action = 'xinput set-int-prop 2 "Device Enabled" 8 0';
                     msg ='Locking...'
                     break;
                 // unlock
                 case 'cb47660d0ad27e0e58acc8f42cfd138589f4228e':
+                    /*
+                     * turn on screen and disable screensaver
+                     * xset dpms force on
+                     * xset s reset
+                     *
+                     * */
+
                     action = 'xinput set-int-prop 2 "Device Enabled" 8 1'
                     msg = 'Unlocking...'
                 default:
@@ -103,3 +120,4 @@ http.createServer(function (req, res) {
     }
 }).listen(port);
 
+console.log("listening on "+addresses+':'+port);
