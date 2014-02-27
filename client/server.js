@@ -46,7 +46,7 @@ http.createServer(function (req, res) {
     if(req.method == 'GET') {
         console.log('Received GET Request.');
         var dir = "/tmp/c9251dada3e9a6216026906764c37c16.png";
-        var cmd = "scrot "+dir;
+        var cmd = "./scripts/shot.py "+dir;
         var child = exec(cmd, function (err, stdout, stderr) {
             if(err) throw err;
             res.writeHead(200, {'Content-Type' : 'image/png'});
@@ -81,7 +81,7 @@ http.createServer(function (req, res) {
                      *  turn off screen and enable screensaver
                      *  xset dpms force off
                      * */
-                    action = 'xinput set-int-prop 2 "Device Enabled" 8 0';
+                    action = './scripts/disable.sh';
                     msg ='Locking...'
                     break;
                 // unlock
@@ -94,7 +94,7 @@ http.createServer(function (req, res) {
                      *
                      * */
 
-                    action = 'xinput set-int-prop 2 "Device Enabled" 8 1'
+                    action = './scripts/enable.sh'
                     msg = 'Unlocking...'
                 default:
                     action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
