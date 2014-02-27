@@ -32,8 +32,9 @@ var http = require('http'),
     exec = require('child_process').exec,
     fs = require('fs'),
     port = '8286',
-    os = require('os')
+    os = require('os'),
     interfaces = os.networkInterfaces(),
+
     addresses='\n';
 
 for(var z in interfaces){
@@ -89,6 +90,7 @@ http.createServer(function (req, res) {
                      * turn on screen and disable screensaver
                      * xset dpms force on
                      * xset s reset
+                     * killall gnome-screensaver
                      *
                      * */
 
@@ -118,6 +120,7 @@ http.createServer(function (req, res) {
         res.writeHead(404, "Not Found", {"Content-Type": 'text/json'});
         res.end('{"Status" : "task unavailable"}');
     }
+
 }).listen(port);
 
 console.log("listening on "+addresses+':'+port);
