@@ -66,26 +66,30 @@ http.createServer(function (req, res) {
                 msg = '';
             switch(decodedBody.method){
                 // shutdown
-                case 'd343cb3959edc5a5516dc4ed1c6c5c8a7ab9f5a5':
+                case 'shutdown':
+                    console.log('Shutdown command initiated.');
                     action = 'shutdown -h now';
-                    msg = 'Shutting down'
+                    msg = 'Shutting down';
                     break;
                 // logoff
-                case '8ffc8019bbc93e32e1133b5a4bd221fc65fbd36a':
+                case 'logoff':
+                    console.log('Logoff command initiated.');
                     action = '';
-                    msg = 'Logging off...';
+                    msg = 'Logging off';
                     break;
                 // lock
-                case 'e6d41daeb91d3390e512a1a7ecfe99a2dc572caa':
+                case 'lock':
+                    console.log('System Lock On');
                     /*
                      *  turn off screen and enable screensaver
                      *  xset dpms force off
                      * */
                     action = './scripts/disable.sh';
-                    msg ='Locking...'
+                    msg ='Locking';
                     break;
                 // unlock
-                case 'cb47660d0ad27e0e58acc8f42cfd138589f4228e':
+                case 'unlock':
+                    console.log('System Lock Off');
                     /*
                      * turn on screen and disable screensaver
                      * xset dpms force on
@@ -94,18 +98,20 @@ http.createServer(function (req, res) {
                      *
                      * */
 
-                    action = './scripts/enable.sh'
-                    msg = 'Unlocking...'
+                    action = './scripts/enable.sh';
+                    msg = 'Unlocking';
+                    break;
                 default:
                     action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
                     method='';
                     break;
             }
+                console.log(decodedBody.method, action);
                 if(!(action === '')){
+                    try{
                     var child = exec(action, function (err, stdout, stderr) {
-                        if(err) throw err;
                         console.log(err, stdout, stderr);
-                        if(method==''){
+                        if(decodedBody.method === ''){
                             msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
                             var t = msg.split("WM_CLASS(STRING) = ");
                             msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
@@ -114,6 +120,9 @@ http.createServer(function (req, res) {
                         res.writeHead(200, "OK", {"Content-Type": 'text/json'});
                         res.end('{"Status" : '+msg+'}');
                     });
+                    } catch (e){
+                        console.log(e);
+                    }
                 }
         });
     } else {

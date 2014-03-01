@@ -5,6 +5,7 @@
         "toolbar" : false,
         "height" : 400,
         "width" : 300
-    }
+    },
+    "snapshot" : "focus.bin"
 }
 
