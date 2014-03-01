@@ -1,17 +1,24 @@
 (function (root) {
-    $$ = {};
+    root.xhr = function (method, url, data, success_cb, error_cb, headers) {
+        var request = new XMLHttpRequest,
+            i;
+        request.open(method, url, true);
+        request.setRequestHeader('Content-Type', 'application/json');
 
-    $$.addClass = function (e, c) {
-        (e.className && (e.className += " "+c)) || (e.className = c);
-    };
+        if (headers)
+            for (i in headers)
+                request.setRequestHeader(i, headers[i]);
+        
+        request.onload = function() {
+            if (request.status >= 200 && request.status < 400) {
+                success_cb && success_cb(JSON.parse(request.responseText), request);
+            }
+        };
 
-    $$.removeClass = function (e, c) {
-        e.className = e.className.replace(c,"");
-    };
+        request.onerror = function() {
+            error_cb && error_cb(request);
+        };
 
-    $$.hasClass = function (e, c) {
-        return (" " + e.className + " ").replace(/[\n\t]/g, " ").indexOf(" " + c + " ") > -1;
-    };
-
-    root.$$ = $$;
+        request.send(JSON.stringify(data || {}));
+    }
 }(this));

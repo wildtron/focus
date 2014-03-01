@@ -11,10 +11,12 @@
 
     <body data-url="http://localhost:3000/">
 
+        <img id="fs_shot" src="//:0" alt="" width="0" height="0"/>
+
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Username" id="username_input" required="required" value="mamkat" autofocus="true"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required" value="mamka" autofocus="true"/><br />
                 <input type="password" placeholder="Password" id="password_input" required="required" value="12345"/><br />
                 <button id="sign_in_button">SIGN IN</button>
             </form>
@@ -37,107 +39,18 @@
                 <img src="img/default-profile.png" alt="You :)" width="43" height="40" />
                 <div>
                     Good Afternoon!<br />
-                    <b>Ma'am Kat</b>
+                    <b id="user_greeting_b">Ma'am Kat</b>
                 </div>
             </div>
         </section>
 
         <section id="feed_section" data-position="right" data-order="1" >
-            <div class="section_div">
+            <div class="section_div" id="screenshot_div">
                 <div class="section_header_div">
-                    Refresh screen shots every <input type="number" value="10" min="5" max="300" id="scrnsht_interval_input"/> seconds.<br />
+                    Refresh screen shots every <input type="number" value="10" min="3" max="300" id="scrnsht_interval_input"/> seconds.<br />
                 </div>
-                <div class="window_div off">
-                    <img src="img/scrnsht1.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
+                <div id="feed_body_div">
                 </div>
-                <div class="window_div idle">
-                    <img src="img/scrnsht2.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div active">
-                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div locked">
-                    <img src="img/click-to-unlock.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div off">
-                    <img src="img/scrnsht4.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div active">
-                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div idle">
-                    <img src="img/scrnsht2.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div active">
-                    <img src="img/scrnsht3.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <div class="window_div locked">
-                    <img src="img/click-to-unlock.png" alt="Raven's Computer" width="350" height="200" />
-                    Raven Lagrimas | 2010-43168
-                    <button class="chat_button" title="Chat with Raven"></button>
-                    <div class="unit_mngr_div">
-                        <button title="Shutdown"></button>
-                        <button title="Lock"></button>
-                        <button title="Logout"></button>
-                    </div>
-                </div>
-                <br class="clearfix" />
             </div>
         </section>
 
@@ -300,8 +213,8 @@ Date: 12/25/2013 1:48:31 PM"/>
             </div>
         </section>
 
-        <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/pages.js"></script>
+        <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
     </body>
 

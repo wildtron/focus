@@ -1,11 +1,7 @@
-var db = require('./../config/database'),
-    config = require('./../config/config'),
-    crypto = require('crypto'),
+var db = require(__dirname + '/../config/database'),
+    config = require(__dirname + '/../config/config').config,
+    util = require(__dirname + '/../helpers/util'),
     http = require('http'),
-    util = require('./../helpers/util'),
-    hash = function (string) {
-        return crypto.createHash('md5').update(string).digest('hex');
-    },
     collectionName = 'students';
 
 exports.collectionName = collectionName,
@@ -22,10 +18,10 @@ exports.login = function (req, res) {
                 collection.findOne({
                     '_id'  : data.student_number,
                     'username'  : data.username,
-                    'password'  : hash(hash(data.password) + config.SALT)
+                    'password'  : util.hash(util.hash(data.password) + config.SALT)
                 }, function (err, item) {
                     if (item) {
-                        item.access_token = hash(+new Date + config.SALT);
+                        item.access_token = util.hash(+new Date + config.SALT);
                         item.last_login = +new Date;
                         collection.update({'_id' : item._id}, {$set : {
                             access_token : item.access_token,
@@ -51,8 +47,8 @@ exports.login = function (req, res) {
                             else {
                                 temp.username = username;
                                 temp._id = student_number;
-                                temp.password = hash(hash(password) + config.SALT);
-                                temp.access_token = hash(+new Date + config.SALT);
+                                temp.password = util.hash(util.hash(password) + config.SALT);
+                                temp.access_token = util.hash(+new Date + config.SALT);
                                 temp.last_login = +new Date;
                                 temp.ip_address = data.ip_address;
                                 i = temp.classes.length;
@@ -96,18 +92,20 @@ exports.login = function (req, res) {
 exports.logout = function (req, res) {
     try{
         var data = util.chk_rqd(['access_token'], req.body);
-        db.collection(collectionName, function(err, collection) {
-            collection.findOne({'access_token': data.access_token}, function (err, item) {
-                if (err) {
-                    res.send({message : "Invalid access_token"});
-                }
-                else {
-                    collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, {safe: true}, function (err, result) {
-                        err && console.log(err);
-                    });
-                    res.send({message : "Logout successful"});
-                    console.log("Logout successful");
-                }
+        db.get(function(db){
+            db.collection(collectionName, function(err, collection) {
+                collection.findOne({'access_token': data.access_token}, function (err, item) {
+                    if (err) {
+                        res.send({message : "Invalid access_token"});
+                    }
+                    else {
+                        collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, {safe: true}, function (err, result) {
+                            err && console.log(err);
+                        });
+                        res.send({message : "Logout successful"});
+                        console.log("Logout successful");
+                    }
+                });
             });
         });
     }
@@ -116,22 +114,6 @@ exports.logout = function (req, res) {
     }
 };
 
-exports.setSocket = function (access_token, id) {
-    db.collection(collectionName, function(err, collection) {
-        collection.update({'access_token' : access_token}, {$set : {socket_id: id}}, {safe: true}, function (err, result) {
-            err && console.log(err);
-        });
-    });
-};
-
-exports.validateSocket = function (access_token, id, cb) {
-    db.collection(collectionName, function(err, collection) {
-        collection.findOne({
-            'access_token' : access_token,
-            'socket_id' : id
-        }, cb);
-    });
-};
  
 exports.findbyId = function(req, res) {
     var id = req.params.id;
@@ -156,9 +138,9 @@ exports.findAll = function(req, res) {
 
 
 function loginViaSystemOne (username, student_number, password, res, cb) {
-    var payload = 'password=' + hash(hash(password) + config.SALT) +
-                '&username=' +  hash(hash(username) + config.SALT) +
-                '&student_number=' + hash(hash(student_number) + config.SALT) +
+    var payload = 'password=' + util.hash(util.hash(password) + config.SALT) +
+                '&username=' +  util.hash(util.hash(username) + config.SALT) +
+                '&student_number=' + util.hash(util.hash(student_number) + config.SALT) +
                 '&access_token=' + config.ACCESS_TOKEN,
         req = http.request({
             host: 'rodolfo.uplb.edu.ph',

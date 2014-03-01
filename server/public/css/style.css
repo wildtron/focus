@@ -553,6 +553,12 @@ section{
     text-align: center;
 }
 
+#fs_shot{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 500;
+}
 #scrnsht_interval_input{
     width: 40px;
 }

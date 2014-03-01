@@ -1,7 +1,12 @@
 [
     {
         "_id": "CMSC 161 UV-2L",
-        "daysLaboratory": "MWF",
-        "timeLaboratory": "1-4"
+        "days": "MWFS",
+        "from": "1",
+        "to" : "4",
+        "students" : [
+            "2010-43168",
+            "2010-41794"
+        ]
     }
 ]

@@ -1,3 +1,5 @@
+var crypto = require('crypto');
+
 exports.chk_rqd = function (reqd, body) {
     var i = reqd.length,
         ret = {},
@@ -17,4 +19,8 @@ exports.toDay = function (str) {
                 .replace(/Thurs|Th/g, "H")
                 .replace("Fri", "F")
                 .replace("Sat", "S");
+};
+
+exports.hash = function (string) {
+    return crypto.createHash('md5').update('' + string).digest('hex');
 };

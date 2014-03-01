@@ -4,7 +4,7 @@ var db = require('./database');
     instructor = require('../controllers/instructor');
 
 // imports
-db.importData(section.collectionName);
+// db.importData(section.collectionName);
 db.importData(instructor.collectionName);
 
 exports.use = function (app) {
@@ -13,6 +13,7 @@ exports.use = function (app) {
     app.get('/students', student.findAll);
 
     app.post('/instructor/login', instructor.login);
+    app.post('/instructor/logout', instructor.logout);
     app.get('/instructors', instructor.findAll);
 
     app.get('*', function (req, res) {

@@ -26,10 +26,6 @@ exports.get = function(cb) {
     }
 };
 
-exports.getClient = function () {
-    return client;
-};
-
 exports.importData = function (collectionName) {
     var file = __dirname + './../data/' + collectionName + '.json'
 
