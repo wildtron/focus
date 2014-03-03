@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/*
+/* best run when root
+ *
  * node server to receive command from instructor server
  *  for shutdown
  *      logoff
@@ -7,7 +8,7 @@
  * */
 /*
  * usage:
- *  http://host:8286
+ *  http://localhost:8286
  *
  *  GET /
  *      returns screenshot of image
@@ -31,16 +32,14 @@ var http = require('http'),
     qs = require('querystring'),
     exec = require('child_process').exec,
     fs = require('fs'),
-    port = '8286',
+    port = 8286,
     os = require('os'),
     interfaces = os.networkInterfaces(),
-
     addresses='\n';
 
 for(var z in interfaces){
     addresses+=interfaces[z][0].address+'\n';
 }
-
 
 http.createServer(function (req, res) {
     var headers = {};
@@ -51,6 +50,13 @@ http.createServer(function (req, res) {
     headers["Access-Control-Allow-Credentials"] = false;
     headers["Access-Control-Max-Age"] = '86400'; // 24 hours
     headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept";
+
+    // turn on the monitor and enable everything first or else screen shot crashes
+    exec('./scripts/enable.sh', function(err, stdout, stderr) {
+        if(err) throw err;
+    });
+
+
     if (req.method === 'OPTIONS') {
       console.log('OPTIONS');
       res.writeHead(200, headers);
@@ -110,7 +116,6 @@ http.createServer(function (req, res) {
                      * killall gnome-screensaver
                      *
                      * */
-
                     action = './scripts/enable.sh';
                     msg = 'Unlocking';
                     break;
@@ -145,4 +150,5 @@ http.createServer(function (req, res) {
 
 }).listen(port);
 
-console.log("listening on "+addresses+':'+port);
+
+console.log("listening on server:"+port);
