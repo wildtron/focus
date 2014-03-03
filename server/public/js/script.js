@@ -1,9 +1,9 @@
-(function(root){
-
-    var socket,
+//(function (root) {
+root = this;
+    var temp,
         _this,
+        socket,
         refreshInterval,
-        temp,
         url = document.body.attributes['data-url'].value,
         toTitleCase = function (str) {
             return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -32,10 +32,17 @@
             document.getElementById('feed_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
-            setupScreenshots(_this.class.students);
+            setTimeout(function(){
+                setupScreenshots(_this.class.students);
+            }, 500);
         },
         records = function (a) {
-            var active = document.getElementsByClassName('active_section')[0];
+            var active = document.getElementsByClassName('active_section')[0],
+                temp = document.getElementById('records_section_select');
+            temp.innerHTML = '';
+            for (i = _this.classes.length; i--;) {
+                temp.innerHTML += '<option value="' + _this.classes[i] + '">' + _this.classes[i] + '</option>';
+            }
             if (+active.attributes['data-order'].value < 2) {
                 active.className = 'current-to-' + randomEffect();
                 document.getElementById('records_section').className = randomEffect() + '-to-current active_section';
@@ -71,6 +78,7 @@
             document.getElementById('header_title_div').innerHTML = 'LOGS';
         },
         logout = function () {
+            _this = null;
             xhr('POST', url + 'instructor/logout');
             document.getElementsByClassName('active_nav')[0].className = '';
             document.getElementsByClassName('active_section')[0].className = 'current-to-' + randomEffect();
@@ -85,13 +93,14 @@
                 i = students.length,
                 dom = document.getElementById('feed_body_div'),
                 now = new Date();
+            document.getElementById('scrnsht_interval_input').value = getCookie('interval') || 10;
             dom.innerHTML = '';
             while (i--) {
                 dom.innerHTML += '  \
                     <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
                         <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" />    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
-                        <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '"></button>   \
+                        <button class="chat" title="Chat with '+ toTitleCase(students[i].first_name) + '"></button>   \
                         <div class="unit_mngr_div"> \
                             <button title="Shutdown" class="shutdown"></button>  \
                             <button title="Lock" class="lock"></button>  \
@@ -110,6 +119,7 @@
             else {
                 interval = document.getElementById('scrnsht_interval_input').value;
             }
+            document.cookie = 'interval='+interval+';path=/;';
             // console.log('Setting auto-refresh to ', interval);
             clearInterval(refreshInterval);
             refreshInterval = setInterval(function () {
@@ -154,7 +164,7 @@
             username : username.value,
             password : password.value
         }, function (response) {
-            var temp;
+            var temp, i;
             if (response.message) {
                 self.innerHTML = 'ERROR!';
                 self.className = 'sign_in_error';
@@ -168,13 +178,20 @@
             else {
                 _this = response;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
+
                 
-                // socket = io.connect(url);
-                // socket.on('news', function (data) {
-                    // console.log(data);
-                    // socket.emit('my other event', { my: 'data' });
-                // });
-                
+                if (_this.class) {
+                    socket = io.connect(url);
+                    socket.emit('create_rooms', {
+                        'access_token' : getCookie('focus'),
+                        'students' : _this.class.students.map(function(a){return a._id})
+                    });
+                    socket.on('warning', function (data) {
+                        alert(data);
+                    });
+                    console.log('socket emit');
+                }
+
                 self.innerHTML = 'SUCCESS!';
                 self.className = 'sign_in_success';
                 setTimeout(function () {
@@ -196,7 +213,9 @@
         }, function (e) {
             console.dir(e);
             throw e;
-        }, { 'Access-Control-Allow-Credentials' : 'true'});
+        }, {
+            'Access-Control-Allow-Credentials' : 'true'
+        });
     });
     
     document.getElementById('feed_body_div').addEventListener('click', function (e) {
@@ -222,9 +241,11 @@
                                     console.dir(data);
                                 });
                                 break;
+                case 'chat' :   
+                                break;
             }
         }
-        else if(temp.nodeName === 'IMG') {
+        else if (temp.nodeName === 'IMG') {
             window = temp.parentNode;
             ip = 'http://' + window.dataset.ip + ':8286';
             if (window.classList.contains('locked')) {
@@ -242,14 +263,15 @@
                 temp.style.height = root.innerHeight + 'px';
             }
         }
+        console.dir(temp);
     });
     
     document.body.addEventListener('keyup', function (e) {
         var temp;
         if (e.keyCode === 27) {            
             temp = document.getElementById('fs_shot');
-            temp.style.height = temp.style.width = '0px';
             temp.setAttribute('src', '//:0');
+            temp.style.height = temp.style.width = '0px';
         }
         else if(e.keyCode === 32) {
             temp = document.getElementById('fs_shot');
@@ -266,5 +288,5 @@
 
     page.show('');
 
-    getCookie('focusdb') && document.getElementById('sign_in_button').click();
-}(this));
+    getCookie('focus') && document.getElementById('sign_in_button').click() && console.log('ra');
+//}(this));

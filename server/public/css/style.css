@@ -704,7 +704,7 @@ section{
 .file_div img.zip, .file_div img.rar{background: #3498DB;}
 
 
-#log_div{
+#log_div {
     width: 80%;
     margin: 0 auto;
     height: 70%;
@@ -717,3 +717,28 @@ section{
 .off_span{color: #C0392B;}
 .active_span{color: #27AE60;}
 .idle_span{color: #F39C12;}
+
+#chat_div{
+    width: 260px;
+    height: 285px;
+    border: 1px solid #CCC;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+}
+#chat_name_div{
+    width: 100%;
+    height: 20px;
+    background: #CCC;
+}
+#chat_list{
+    overflow: auto;
+    background: #FFF;
+    width: 100%;
+    height: 225px;
+}
+#chat_textarea{
+    width: 100%;
+    resize: none;
+    height: 40px;
+}

@@ -49,7 +49,11 @@
                 <div class="section_header_div">
                     Refresh screen shots every <input type="number" value="10" min="3" max="300" id="scrnsht_interval_input"/> seconds.<br />
                 </div>
-                <div id="feed_body_div">
+                <div id="feed_body_div"></div>
+                <div id="chat_div">
+                    <div id="chat_name_div"></div>
+                    <ul id="chat_list"></ul>
+                    <textarea id="chat_textarea"></textarea>
                 </div>
             </div>
         </section>
@@ -58,12 +62,7 @@
             <div class="section_div">
                 <div class="section_header_div">
                     Show records in
-                    <select>
-                        <option value="">CMSC 100 S-1L</option>
-                        <option value="">CMSC 100 S-2L</option>
-                        <option value="">CMSC 100 S-3L</option>
-                        <option value="">CMSC 22 U-5L</option>
-                    </select>
+                    <select id="records_section_select"></select>
                     <button>Edit on Google Drive</button>
                     Publicly available on <a href="http://bit.ly/hi_po" class="twilight" target="_blank">http://bit.ly/rVn7061</a>
                 </div>
@@ -213,6 +212,7 @@ Date: 12/25/2013 1:48:31 PM"/>
             </div>
         </section>
 
+        <script type="text/javascript" src="//localhost:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/pages.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/script.js"></script>

@@ -9,43 +9,49 @@
         <link rel="stylesheet" href="css/client.css" />
     </head>
 
-    <body data-url="http://localhost:3000/">
+    <body data-url="http://10.0.5.49:3000/">
 
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Student Number" id="student_number_input" required="required" value="2010-43168" autofocus="true"/><br />
-                <input type="text" placeholder="Username" id="username_input" required="required" value="ravenjohn" autofocus="true"/><br />
+                <input type="text" placeholder="Student Number" id="student_number_input" required="required" value="2010-41794" autofocus="true"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required" value="wildtron" autofocus="true"/><br />
                 <input type="password" placeholder="Password" id="password_input" required="required" value=""/>
                 <button id="sign_in_button">Login via SystemOne</button>
             </form>
         </section>
 
         <section id="main_section" data-position="right">
-            <div id="name_div">Student</div>
+            <div id="name_div"></div>
             <button id="logout_button"></button>
             <div id="chat_div">
                 <ul id="chat_content"></ul>
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-
-        <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
-        <script type="text/javascript" src="js/Cookies.js"></script>
+        <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript">
             (function(root){
                 var url = document.body.attributes['data-url'].value,
                     chat_content = document.getElementById('chat_content'),
-                    socket,
-                    name;
+                    name,
+                    username = document.getElementById('username_input'),
+                    student_number = document.getElementById('student_number_input'),
+                    password = document.getElementById('password_input');
 
+                if(cookies.has('FOCUSSESSID')){
+                    setTimeout(function () {
+                        document.getElementById('front_section').className = 'current-to-left';
+                        document.getElementById('main_section').className = 'right-to-current';
+                        self.className = '';
+                        self.innerHTML = 'Login via SystemOne';
+                        student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
+                        chat_content.focus();
+                    }, 250);
+                }
                 document.getElementById('sign_in_button').onclick = function () {
                     var self = this,
-                        username = document.getElementById('username_input'),
-                        student_number = document.getElementById('student_number_input'),
-                        password = document.getElementById('password_input'),
-                        request = new XMLHttpRequest();
-
+                    request = new XMLHttpRequest();
                     student_number.disabled = password.disabled = username.disabled = 'disabled';
 
                     request.open('POST', url + 'student/login', true);
@@ -61,6 +67,7 @@
                                 return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
                             },
                             response;
+
                         if (request.readyState + request.status == 204) {
                             response = JSON.parse(request.responseText);
                             if (response.message) {
@@ -75,17 +82,11 @@
                             }
                             else {
                                 // set cookie, expire in 3 hours
-                                Cookies.set('FOCUSSESSID', response.access_token, { expires: 60 * 60 * 3 });
+                                cookies.set('FOCUSSESSID', response.access_token, 10800);
+                                cookies.set('first_name', response.first_name, 10800);
+                                cookies.set('last_name', response.last_name, 10800);
 
-                                socket = io.connect(url);
-                                socket.on('start', function (data) {
-                                    socket.emit('set_id', {id : Cookies.get('FOCUSSESSID')});
-                                });
-                                socket.on('chat', function (data) {
-                                    chat_content.innerHTML += '<li class="incoming">' + data.message + '</li>';
-                                });
-
-                                document.getElementById('name_div').innerHTML = name = toTitleCase(response.first_name.split(" ")[0]) + " " + toTitleCase(response.last_name);
+                                document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
                                 self.innerHTML = 'Login Success!';
                                 self.className = 'sign_in_success';
                                 setTimeout(function () {
@@ -106,9 +107,11 @@
                     request.open('POST', url + 'student/logout', true);
                     request.setRequestHeader('Content-Type', 'application/json');
                     request.send(JSON.stringify({
-                        access_token : Cookies.get('FOCUSSESSID')
+                        access_token : cookies.get('FOCUSSESSID')
                     }));
-                    Cookies.expire('FOCUSSESSID');
+                    cookies.remove('FOCUSSESSID');
+                    cookies.remove('first_name');
+                    cookies.remove('last_name');
                     document.getElementById('front_section').className = 'left-to-current';
                     document.getElementById('main_section').className = 'current-to-right';
                     document.getElementById('username_input').focus();

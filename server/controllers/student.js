@@ -9,11 +9,11 @@ exports.collectionName = collectionName,
 exports.login = function (req, res) {
     try {
         var data = util.chk_rqd(['username', 'password', 'student_number'], req.body);
-        
+
         data.ip_address = req.connection.remoteAddress;
 
         db.get(function(db){
-        
+
             db.collection(collectionName, function(err, collection) {
                 collection.findOne({
                     '_id'  : data.student_number,
@@ -52,7 +52,7 @@ exports.login = function (req, res) {
                                 temp.last_login = +new Date;
                                 temp.ip_address = data.ip_address;
                                 i = temp.classes.length;
-                                
+
                                 // format classes
                                 while (i--){
                                     temp3 = temp.classes[i].laboratory.split(" ");
@@ -66,8 +66,8 @@ exports.login = function (req, res) {
                                 collection.remove({'_id': student_number}, {safe:true}, function (err, result) {
                                     err && console.log(err);
                                 });
-                                
-                                collection.insert(temp, {safe:true}, function (err, result) {                                
+
+                                collection.insert(temp, {safe:true}, function (err, result) {
                                     err && console.log(err);
                                 });
                                 res.send({
@@ -114,7 +114,7 @@ exports.logout = function (req, res) {
     }
 };
 
- 
+
 exports.findbyId = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving student: ' + id);
@@ -124,7 +124,7 @@ exports.findbyId = function(req, res) {
         });
     });
 };
- 
+
 exports.findAll = function(req, res) {
     db.get(function(db){
         db.collection(collectionName, function(err, collection) {
