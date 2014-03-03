@@ -3,9 +3,19 @@
     "main": "index.html",
     "window" : {
         "toolbar" : false,
-        "height" : 400,
-        "width" : 300
+        "min_height" : 400,
+        "min_width" : 300,
+        "max_height" : 400,
+        "max_width" : 300,
+        "resizable" : false,
+        "always-on-top" : false,
+        "show_in_taskbar" : true,
+        "position" : "center",
+        "icon" : "img/logo-full.png"
     },
-    "snapshot" : "focus.bin"
+    "webkit" : {
+        "plugin" : true
+    },
+    "single-instance" : true
 }
 

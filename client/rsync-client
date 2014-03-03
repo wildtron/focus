@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+rsync -r -a -v -e "sshpass -p user ssh -l ics-user" --delete /var/www/focus/focus/client/ 10.0.5.136:/home/ics-user/Desktop/focus

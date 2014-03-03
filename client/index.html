@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/client.css" />
     </head>
 
-    <body data-url="http://localhost:3000/">
+    <body data-url="http://10.0.5.49:3000/">
 
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
@@ -30,13 +30,10 @@
             <textarea id="chat_area"></textarea>
         </section>
 
-        <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
-        <script type="text/javascript" src="js/Cookies.js"></script>
         <script type="text/javascript">
             (function(root){
                 var url = document.body.attributes['data-url'].value,
                     chat_content = document.getElementById('chat_content'),
-                    socket,
                     name;
 
                 document.getElementById('sign_in_button').onclick = function () {
@@ -77,14 +74,6 @@
                                 // set cookie, expire in 3 hours
                                 Cookies.set('FOCUSSESSID', response.access_token, { expires: 60 * 60 * 3 });
 
-                                socket = io.connect(url);
-                                socket.on('start', function (data) {
-                                    socket.emit('set_id', {id : Cookies.get('FOCUSSESSID')});
-                                });
-                                socket.on('chat', function (data) {
-                                    chat_content.innerHTML += '<li class="incoming">' + data.message + '</li>';
-                                });
-
                                 document.getElementById('name_div').innerHTML = name = toTitleCase(response.first_name.split(" ")[0]) + " " + toTitleCase(response.last_name);
                                 self.innerHTML = 'Login Success!';
                                 self.className = 'sign_in_success';
@@ -115,15 +104,6 @@
                 };
 
                 document.getElementById('chat_area').onkeypress = function (e) {
-                    if (e.ctrlKey && e.keyCode == 10) {
-                        socket.emit('chat', {
-                            id : Cookies.get('FOCUSSESSID'),
-                            message : e.target.value
-                        });
-                        chat_content.innerHTML += '<li>' + e.target.value + '</li>';
-                        e.target.value = '';
-                        chat_content.scrollTop = chat_content.scrollHeight;
-                    }
                 }
 
                 document.getElementById('username_input').focus();
