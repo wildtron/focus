@@ -100,7 +100,7 @@ root = this;
                     <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
                         <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" />    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
-                        <button class="chat" title="Chat with '+ toTitleCase(students[i].first_name) + '"></button>   \
+                        <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
                             <button title="Shutdown" class="shutdown"></button>  \
                             <button title="Lock" class="lock"></button>  \
@@ -131,6 +131,33 @@ root = this;
                         temp.childNodes[1].setAttribute('src', 'http://' + _this.class.students[i].ip_address + ':8286');
                 }
             }, (+interval) * 1000);
+        },
+        buildChatHistory = function (student_number) {
+            var cache = _this.class.students,
+                dom = document.getElementById('chat_list'),
+                i = cache.length,
+                j,
+                k;
+            while (i--) {
+                if (cache[i]._id === student_number) {
+                    dom.innerHTML = '';
+                    cache = cache[i].messages;
+                    for (j = cache.length, k=0; k < j; k++) {
+                        if (cache[k].incoming)
+                            dom.innerHTML += '<li class="incoming">' + cache[k].message + '</li>';
+                        else
+                            dom.innerHTML += '<li>' + cache[k].message + '</li>';
+                    }
+                    break;
+                }
+            }
+        },
+        getStudentBySN = function (sn) {
+            var cache = _this.class.students,
+                i = cache.length;
+            while (i--)
+                if (cache[i]._id === sn)
+                    return cache[i];
         };
 
     root.onresize = function () {
@@ -152,14 +179,14 @@ root = this;
         document.getElementById('header_title_div').style.width = root.innerWidth - 290 + 'px';
     };
     root.onresize();
-    
+
     document.getElementById('sign_in_button').addEventListener('click', function () {
         var self = this,
             username = document.getElementById('username_input'),
             password = document.getElementById('password_input');
 
         password.disabled = username.disabled = 'disabled';
-       
+
         xhr('POST', url + 'instructor/login', {
             username : username.value,
             password : password.value
@@ -179,7 +206,7 @@ root = this;
                 _this = response;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
 
-                
+
                 if (_this.class) {
                     socket = io.connect(url);
                     socket.emit('create_rooms', {
@@ -188,6 +215,22 @@ root = this;
                     });
                     socket.on('warning', function (data) {
                         alert(data);
+                    });
+                    socket.on('update_chat', function (message, student_number) {
+                        console.log('received chat update', message, student_number);
+                        var cache = _this.class.students,
+                            i = cache.length;
+                        while (i--) {
+                            if (cache[i]._id === student_number) {
+                                cache[i].messages || (cache[i].messages = [])
+                                cache[i].messages.push({
+                                    incoming : true,
+                                    message : message
+                                });
+                                document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
+                                break;
+                            }
+                        }
                     });
                     console.log('socket emit');
                 }
@@ -217,7 +260,7 @@ root = this;
             'Access-Control-Allow-Credentials' : 'true'
         });
     });
-    
+
     document.getElementById('feed_body_div').addEventListener('click', function (e) {
         var temp = e.target,
             window,
@@ -241,7 +284,12 @@ root = this;
                                     console.dir(data);
                                 });
                                 break;
-                case 'chat' :   
+                case 'chat_button' :
+                                    document.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
+                                    document.getElementById('chat_div').style.display = 'block';
+                                    temp.style.backgroundImage = 'url(../img/chat-icon.png)';
+                                    document.getElementById('chat_textarea').setAttribute('data-sn', temp.id.substr(0, 10));
+                                    buildChatHistory(temp.id.substr(0, 10));
                                 break;
             }
         }
@@ -265,10 +313,10 @@ root = this;
         }
         console.dir(temp);
     });
-    
+
     document.body.addEventListener('keyup', function (e) {
         var temp;
-        if (e.keyCode === 27) {            
+        if (e.keyCode === 27) {
             temp = document.getElementById('fs_shot');
             temp.setAttribute('src', '//:0');
             temp.style.height = temp.style.width = '0px';
@@ -278,6 +326,26 @@ root = this;
             temp.setAttribute('src', temp.getAttribute('src'));
         }
     });
+
+    document.getElementById('chat_name_div').addEventListener('click', function (e) {
+        e.target.parentNode.style.display = 'none';
+    });
+
+    document.getElementById('chat_textarea').onkeypress = function (e) {
+        var sn = e.target.getAttribute('data-sn'),
+            student = getStudentBySN(sn),
+            list = document.getElementById('chat_list');
+        if (e.ctrlKey && e.keyCode == 10) {
+            socket.emit('chat_update', {
+                student_number : sn,
+                message : e.target.value
+            });
+            student.messages.push({message : e.target.value});
+            list.innerHTML += '<li>' + e.target.value + '</li>';
+            list.scrollTop = list.scrollHeight;
+            e.target.value = '';
+        }
+    };
 
     page('feed', feed);
     page('records', records);

@@ -5,7 +5,7 @@ var express = require('express'),
     router = require(__dirname + '/config/router'),
     config = require(__dirname + '/config/config').config;
 
-app.use(express.logger());
+app.use(express.logger('dev'));
 app.use(express.compress());
 app.use(express.methodOverride());
 app.use(express.bodyParser());
@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
-    
+
 router.setup(app);
 router.handleSocket(io);
 

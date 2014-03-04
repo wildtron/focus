@@ -83,7 +83,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @keyframes leftToCurrent {
   0%   { transform: translateX(-100%); }
-  100% { transform: translateX(0); 
+  100% { transform: translateX(0);
     }
 }
 @keyframes currentToRight {
@@ -116,7 +116,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-webkit-keyframes leftToCurrent {
   0%   { -webkit-transform: translateX(-100%); }
-  100% { -webkit-transform: translateX(0); 
+  100% { -webkit-transform: translateX(0);
     }
 }
 @-webkit-keyframes currentToRight {
@@ -129,7 +129,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-webkit-keyframes topToCurrent {
   0%   { -webkit-transform: translateY(-100%); }
-  100% { -webkit-transform: translateY(0); 
+  100% { -webkit-transform: translateY(0);
     }
 }
 @-webkit-keyframes currentToTop {
@@ -138,7 +138,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-webkit-keyframes bottomToCurrent {
   0%   { -webkit-transform: translateY(100%); }
-  100% { -webkit-transform: translateY(0); 
+  100% { -webkit-transform: translateY(0);
     }
 }
 @-moz-keyframes currentToLeft {
@@ -147,12 +147,12 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-moz-keyframes rightToCurrent {
   0%   { -moz-transform: translateX(100%); }
-  100% { -moz-transform: translateX(0); 
+  100% { -moz-transform: translateX(0);
     }
 }
 @-moz-keyframes leftToCurrent {
   0%   { -moz-transform: translateX(-100%); }
-  100% { -moz-transform: translateX(0); 
+  100% { -moz-transform: translateX(0);
     }
 }
 @-moz-keyframes currentToRight {
@@ -174,7 +174,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-moz-keyframes bottomToCurrent {
   0%   { -moz-transform: translateY(100%); }
-  100% { -moz-transform: translateY(0); 
+  100% { -moz-transform: translateY(0);
     }
 }
 @-o-keyframes currentToLeft {
@@ -183,12 +183,12 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-o-keyframes rightToCurrent {
   0%   { -o-transform: translateX(100%); }
-  100% { -o-transform: translateX(0); 
+  100% { -o-transform: translateX(0);
     }
 }
 @-o-keyframes leftToCurrent {
   0%   { -o-transform: translateX(-100%); }
-  100% { -o-transform: translateX(0); 
+  100% { -o-transform: translateX(0);
     }
 }
 @-o-keyframes currentToRight {
@@ -201,7 +201,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-o-keyframes topToCurrent {
   0%   { -o-transform: translateY(-100%); }
-  100% { -o-transform: translateY(0); 
+  100% { -o-transform: translateY(0);
     }
 }
 @-o-keyframes currentToTop {
@@ -210,7 +210,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-o-keyframes bottomToCurrent {
   0%   { -o-transform: translateY(100%); }
-  100% { -o-transform: translateY(0); 
+  100% { -o-transform: translateY(0);
     }
 }
 
@@ -332,9 +332,9 @@ section{
     cursor: pointer;
 }
 .sign_in_error {
-    animation: redShake 1s forwards; 
-    -webkit-animation: redShake 1s forwards; 
-    -o-animation: redShake 1s forwards; 
+    animation: redShake 1s forwards;
+    -webkit-animation: redShake 1s forwards;
+    -o-animation: redShake 1s forwards;
     background: #e74c3c !important;
     box-shadow: -4px 4px #c0392b !important;
 }
@@ -357,7 +357,7 @@ section{
 	50% { transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        transform: translate(2px, 1px) rotate(-1deg);        
+        transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -384,7 +384,7 @@ section{
 	50% { -webkit-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -webkit-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -webkit-transform: translate(2px, 1px) rotate(-1deg);        
+        -webkit-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -411,7 +411,7 @@ section{
 	50% { -moz-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -moz-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -moz-transform: translate(2px, 1px) rotate(-1deg);        
+        -moz-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -438,7 +438,7 @@ section{
 	50% { -o-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -o-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -o-transform: translate(2px, 1px) rotate(-1deg);        
+        -o-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -719,26 +719,48 @@ section{
 .idle_span{color: #F39C12;}
 
 #chat_div{
-    width: 260px;
-    height: 285px;
-    border: 1px solid #CCC;
+    width: 206px;
+    height: 260px;
+    border: 1px solid #1D0F87;
     position: fixed;
-    right: 0;
+    right: 10px;
     bottom: 0;
+    display: none;
 }
 #chat_name_div{
+    cursor: pointer;
+    font-family: OpenSans;
     width: 100%;
-    height: 20px;
-    background: #CCC;
+    height: 25px;
+    text-align: center;
+    background: #1D0F87;
+    color: #FFF;
+    line-height: 25px;
+    font-size: 12px;
 }
 #chat_list{
     overflow: auto;
     background: #FFF;
     width: 100%;
-    height: 225px;
+    height: 165px;
+}
+#chat_list li{
+    padding: 3px 5px;
+    text-align: right;
+    color: #000;
+    background: #CCC;
+}
+#chat_list li.incoming{
+    background: #FFF;
+    text-align: left;
 }
 #chat_textarea{
-    width: 100%;
+    float: left;
+    width: 190px;
+    margin-left: 5px;
     resize: none;
-    height: 40px;
+    border-radius: 10px;
+    height: 60px;
+    color: #FFF;
+    background: #463D8A;
 }
