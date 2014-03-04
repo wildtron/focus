@@ -53,7 +53,7 @@ http.createServer(function (req, res) {
 
     // turn on the monitor and enable everything first or else screen shot crashes
     exec('./scripts/enable.sh', function(err, stdout, stderr) {
-        if(err) throw err;
+        if(err) console.log(err);
     });
 
 
@@ -66,7 +66,6 @@ http.createServer(function (req, res) {
         var dir = "/tmp/c9251dada3e9a6216026906764c37c16.png";
         var cmd = "./scripts/shot.py "+dir;
         var child = exec(cmd, function (err, stdout, stderr) {
-            if(err) throw err;
             res.writeHead(200,headers, {'Content-Type' : 'image/png'});
             fs.createReadStream(dir).pipe(res);
         });
@@ -151,4 +150,4 @@ http.createServer(function (req, res) {
 }).listen(port);
 
 
-console.log("listening on server:"+port);
+console.log("listening on "+addresses+":"+port);
