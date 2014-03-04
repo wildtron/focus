@@ -31,6 +31,31 @@
         </section>
         <script type="text/javascript" src="http://10.0.5.49:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/cookies.js"></script>
+        <script>
+            var gui = require('nw.gui'),
+                win = gui.Window.get(),
+                ctrl = gui.Window;
+            win.focus();
+            win.on('minimize', function(){
+                console.log("Window is minimized.");
+            });
+
+            win.on('close', function(){
+                console.log(this);
+                console.log(ctrl);
+                this.minimize();
+            });
+            win.on('closed', function(){
+                win = null;
+            });
+
+            // check session every 100ms, if not autofocus on window
+            var session_check = setInterval(function(){
+                if(!cookies.get('FOCUSSESSID')) win.focus();
+                else clearInterval(this);
+            },100);
+
+        </script>
         <script type="text/javascript">
             (function(root){
                 var url = document.body.attributes['data-url'].value,
