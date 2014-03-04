@@ -141,6 +141,7 @@ root = this;
             while (i--) {
                 if (cache[i]._id === student_number) {
                     dom.innerHTML = '';
+                    cache[i].messages || (cache[i].messages = []);
                     cache = cache[i].messages;
                     for (j = cache.length, k=0; k < j; k++) {
                         if (cache[k].incoming)
@@ -336,7 +337,7 @@ root = this;
             student = getStudentBySN(sn),
             list = document.getElementById('chat_list');
         if (e.ctrlKey && e.keyCode == 10) {
-            socket.emit('chat_update', {
+            socket.emit('update_chat', {
                 student_number : sn,
                 message : e.target.value
             });

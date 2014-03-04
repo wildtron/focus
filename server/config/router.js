@@ -50,7 +50,9 @@ exports.handleSocket = function (io) {
             }
         });
 
-        socket.on('chat', function (data) {
+        socket.on('update_chat', function (data) {
+            console.log('update_chat');
+            console.dir(data);
             if (data.student_number && data.message) {
                 socket.broadcast.to(data.student_number).emit('update_chat', data.message, data.student_number);
             }

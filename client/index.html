@@ -157,7 +157,10 @@
 
                 document.getElementById('chat_area').onkeypress = function (e) {
                     if (e.ctrlKey && e.keyCode == 10) {
-                        socket.emit('update_chat', e.target.value, _student_number);
+                        socket.emit('update_chat', {
+                            message : e.target.value,
+                            student_number : _student_number
+                        });
                         chat_content.innerHTML += '<li>' + e.target.value + '</li>';
                         e.target.value = '';
                         chat_content.scrollTop = chat_content.scrollHeight;
