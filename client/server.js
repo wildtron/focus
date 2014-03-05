@@ -42,6 +42,7 @@ var http = require('http'),
     port = 8286,
     addresses='\n',
     z,
+    config = require('./config'),
     SESSIONID,
     headers = {},
     motherServer;
@@ -82,15 +83,33 @@ http.createServer(function(req, res){
             console.log("JSON parse was successful.");
             if(decodedBody.session){
                 console.log("session was found from the payload");
-                SESSIONID=decodedBody.session;
                 /*
                  *  connect to motherServer and ensure the integrity of sent SESSIONID
                  * */
+                var integrityCheckResult;
+                postData = qs.stringify({
+                    'access_token' : decodedBody.session
+                });
+                var postRequest = http.request({
+                    host: config.motherServer.host,
+                    port: config.motherServer.port,
+                    path: '/student/findByAccessToken',
+                    method: 'POST',
+                }, function(res){
+                    res.on('data', function(chunk){
+                        console.log(chunk);
+                    });
+                });
 
+                postRequest.write(postData);
+                postRequest.end();
 
+                console.log(integrityCheckResult);
+
+                SESSIONID=decodedBody.session;
                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                 res.end('{"status":"Session set"}');
-            } if(decodedBody.destroy){
+            } else if(decodedBody.destroy){
                 console.log("destroy was found from the payload");
                 SESSIONID=undefined;
                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
@@ -102,7 +121,7 @@ http.createServer(function(req, res){
             }
         });
     }
-}).listen(port+2324,'localhost');
+}).listen(config.localServer.sessionPort,'localhost');
 
 http.createServer(function (req, res) {
     var checkSession=function(){
@@ -221,7 +240,7 @@ http.createServer(function (req, res) {
         res.end('{"status" : "task unavailable"}');
     }
 
-}).listen(port);
+}).listen(config.activityPort);
 
 
 console.log("listening on "+addresses+":"+port);
