@@ -65,7 +65,6 @@
                 var url = document.body.attributes['data-url'].value,
                     chat_content = document.getElementById('chat_content'),
                     socket,
-                    _student_number,
                     name,
                     temp,
                     username = document.getElementById('username_input'),
@@ -73,7 +72,7 @@
                     password = document.getElementById('password_input'),
                     connectSocket = function () {
                         socket = io.connect(url);
-                        socket.emit('join_room', {student_number : _student_number});
+                        socket.emit('join_room', {student_number : cookie.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                         });
@@ -83,6 +82,7 @@
                 root.ondrop = function(e) { e.preventDefault(); return false };
 
                 if(cookies.has('FOCUSSESSID')){
+                    connectSocket();
                     setTimeout(function () {
                         document.getElementById('front_section').className = 'current-to-left';
                         document.getElementById('main_section').className = 'right-to-current';
@@ -129,10 +129,10 @@
                                 cookies.set('FOCUSSESSID', response.access_token, 10800);
                                 cookies.set('first_name', response.first_name, 10800);
                                 cookies.set('last_name', response.last_name, 10800);
-
-                                _student_number = student_number.value;
+                                cookies.set('student_number', student_number.value, 10800);
 
                                 // set 5 second interval on setting session
+                                connectSocket();
 
                                 console.log('Setting environment for login');
                                 document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
@@ -220,7 +220,6 @@
                     _this.value = 'Uploading...';
                     _this.className = 'uploading';
                     _this.disabled = true;
-
 
                     xhr.open('POST', url + 'student/submit', true);
                     xhr.onload = function () {
