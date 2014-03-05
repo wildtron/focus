@@ -8,7 +8,7 @@
  * */
 /*
  * usage:
- *  http://localhost:8286
+ *  http://host:8286
  *
  *  GET /
  *      returns screenshot of image
@@ -24,6 +24,10 @@
  *          disables the mouse and keyboard and turns of the screen
  *      method=lock
  *          enables the mouse and keyboard and turns on the screen
+ *
+ *  http://localhost:10610
+ *
+ *  POST /
  *
  * */
 
@@ -58,19 +62,41 @@ for(z in interfaces){
     addresses+=interfaces[z][0].address+'\n';
 }
 http.createServer(function(req, res){
-    var postData;
+    var postData='', decodedBody;
     if (req.method === 'OPTIONS') {
       res.writeHead(200, headers);
       res.end();
     } else if(req.method==='POST'){
-        req.on('data', function (chunk){});
+        console.log('localhost attempts to set SESSIONID')
+        req.on('data', function (chunk){
+            postData += chunk;
+        });
+
+        req.on('end', function() {
+            try{
+                decodedBody = JSON.parse(postData);
+                console.log(decodedBody);
+            } catch (e) {
+                console.log(e);
+                res.writeHead(500, headers, {'Content-Type':'text/json'});
+                res.end('{"status":"Problem with POST data"}');
+                return;
+            }
+
+            if(decodedBody.session){
+                SESSIONID=decodedBody.session;
+                res.writeHead(100, headers, {'Content-Type' : 'text/json'});
+                res.end('{"status":"Session set"}');
+            } else {
+                res.writeHead(500, headers, {'Content-Type' : 'text/json'});
+                res.end('{"status":"Failed to set session"}');
+            }
+        });
     }
 }).listen(port+2324,'localhost');
 
-
-
-
 http.createServer(function (req, res) {
+    checkSession();
     if (req.method === 'OPTIONS') {
       console.log('OPTIONS');
       res.writeHead(200, headers);
