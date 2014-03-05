@@ -349,6 +349,7 @@ section{
     height: 80px;
     background: #CCC;   `
     border: 0;
+    font-family: OpenSans;
 }
 #main_section textarea.hover{
     line-height: 80px;

@@ -26,7 +26,9 @@
             <div id="name_div"></div>
             <button id="logout_button"></button>
             <div id="chat_div">
-                <ul id="chat_content"></ul>
+                <ul id="chat_content">
+                    <li class="incoming"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>
+                </ul>
             </div>
             <textarea id="chat_area"></textarea>
         </section>
@@ -72,7 +74,6 @@
 
                 root.ondragover = function(e) { e.preventDefault(); return false };
                 root.ondrop = function(e) { e.preventDefault(); return false };
-
 
                 if(cookies.has('FOCUSSESSID')){
                     setTimeout(function () {
@@ -151,14 +152,14 @@
 
                                 console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
                                 setInterval(function(){
-                                    var sessionServer='http://localhost:10610',
+                                    var sessionServer='localhost:10610',
                                         setSessionRequest = new XMLHttpRequest();
                                     setSessionRequest.open('POST', sessionServer, true);
                                     setSessionRequest.setRequestHeader('Content-Type', 'application/json');
                                     setSessionRequest.send(JSON.stringify({
                                         session : cookies.get('FOCUSSESSID')
                                     }));
-                                    if(setSessionRequest.status == 100){
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
                                         clearInterval(this);
                                     }
                                 }, 5000);
@@ -196,13 +197,8 @@
                 };
 
                 temp.ondragover = function () {
-                    console.log('dragover');
                     this.value = 'Drag file here to upload';
                     this.className = 'hover';
-                    return !1;
-                };
-                temp.ondragleave = function () {
-                    this.value = this.className = '';
                     return !1;
                 };
 
@@ -211,14 +207,14 @@
                         xhr = new XMLHttpRequest(),
                         _this = this,
                         i;
+                    e.preventDefault();
+
+                    if(!confirm('Are you sure you want to submit this file?')) return !1;
 
                     for (i = 0; i < e.dataTransfer.files.length; i++) {
                         formData.append('file', e.dataTransfer.files[i]);
                     }
 
-                    console.log('drop');
-
-                    e.preventDefault();
                     _this.value = 'Uploading...';
                     _this.className = 'uploading';
                     _this.disabled = true;
@@ -234,6 +230,7 @@
                                     _this.disabled = false;
                                     _this.className = '';
                                     _this.value = '';
+                                    chat_content.innerHTML += '<li class="incoming">Submitted a file.</li>';
                                 }, 500);
                             }, 1000);
                         } else {
