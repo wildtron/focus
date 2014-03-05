@@ -13,7 +13,7 @@ root = this;
         },
         getCookie = function (cookie) {
             return (document.cookie.split(';').filter(function (a) {
-                return a.split('=')[0] === cookie;
+                return a.split('=')[0].replace(/\s+/g, '') === cookie;
             })[0] || '=').split('=')[1];
         },
         login = function () {
@@ -32,9 +32,14 @@ root = this;
             document.getElementById('feed_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
-            setTimeout(function(){
-                setupScreenshots(_this.class.students);
-            }, 500);
+            if (_this.class.students) {
+                setTimeout(function(){
+                    setupScreenshots(_this.class.students);
+                }, 500);
+            }
+            else {
+                alert('You have no class as of this time...');
+            }
         },
         records = function (a) {
             var active = document.getElementsByClassName('active_section')[0],
@@ -133,25 +138,20 @@ root = this;
             }, (+interval) * 1000);
         },
         buildChatHistory = function (student_number) {
-            var cache = _this.class.students,
-                dom = document.getElementById('chat_list'),
-                i = cache.length,
+            var dom = document.getElementById('chat_list'),
+                student = getStudentBySN(student_number),
                 j,
                 k;
-            while (i--) {
-                if (cache[i]._id === student_number) {
-                    dom.innerHTML = '';
-                    cache[i].messages || (cache[i].messages = []);
-                    cache = cache[i].messages;
-                    for (j = cache.length, k=0; k < j; k++) {
-                        if (cache[k].incoming)
-                            dom.innerHTML += '<li class="incoming">' + cache[k].message + '</li>';
-                        else
-                            dom.innerHTML += '<li>' + cache[k].message + '</li>';
-                    }
-                    break;
-                }
+            dom.innerHTML = '';
+            student.messages || (student.messages = []);
+            cache = student.messages;
+            for (j = cache.length, k=0; k < j; k++) {
+                if (cache[k].incoming)
+                    dom.innerHTML += '<li class="incoming">' + cache[k].message + '</li>';
+                else
+                    dom.innerHTML += '<li>' + cache[k].message + '</li>';
             }
+            dom.scrollTop = dom.scrollHeight;
         },
         getStudentBySN = function (sn) {
             var cache = _this.class.students,
@@ -159,6 +159,21 @@ root = this;
             while (i--)
                 if (cache[i]._id === sn)
                     return cache[i];
+        },
+        blinkTitle = function () {
+            var timer = "",
+                isBlurred = false;
+            root.onblur =function() {
+                isBlurred = true;
+                timer = root.setInterval(function() {
+                    document.title = document.title == "Company" ? "Company - flash text" : "Company";
+                }, 1000);
+            }
+            root.onfocus = function() {
+                isBlurred = false;
+                document.title = "Company";
+                clearInterval(timer);
+            }
         };
 
     root.onresize = function () {
@@ -208,7 +223,7 @@ root = this;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
 
 
-                if (_this.class) {
+                if (_this.class.students) {
                     socket = io.connect(url);
                     socket.emit('create_rooms', {
                         'access_token' : getCookie('focus'),
@@ -219,19 +234,13 @@ root = this;
                     });
                     socket.on('update_chat', function (message, student_number) {
                         console.log('received chat update', message, student_number);
-                        var cache = _this.class.students,
-                            i = cache.length;
-                        while (i--) {
-                            if (cache[i]._id === student_number) {
-                                cache[i].messages || (cache[i].messages = [])
-                                cache[i].messages.push({
-                                    incoming : true,
-                                    message : message
-                                });
-                                document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
-                                break;
-                            }
-                        }
+                        var student = getStudentBySN(student_number);
+                        student.messages || (student.messages = []);
+                        student.messages.push({
+                            incoming : true,
+                            message : message
+                        });
+                        document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
                     });
                     console.log('socket emit');
                 }
@@ -290,6 +299,7 @@ root = this;
                                     document.getElementById('chat_div').style.display = 'block';
                                     temp.style.backgroundImage = 'url(../img/chat-icon.png)';
                                     document.getElementById('chat_textarea').setAttribute('data-sn', temp.id.substr(0, 10));
+                                    document.getElementById('chat_textarea').focus();
                                     buildChatHistory(temp.id.substr(0, 10));
                                 break;
             }
@@ -357,5 +367,7 @@ root = this;
 
     page.show('');
 
-    getCookie('focus') && document.getElementById('sign_in_button').click() && console.log('ra');
+    console.dir(getCookie('focus'));
+
+    getCookie('focus') && document.getElementById('sign_in_button').click();
 //}(this));

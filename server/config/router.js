@@ -1,24 +1,30 @@
-var db = require(__dirname + '/database');
+var db = require(__dirname + '/database'),
+    logger = require(__dirname + '/../lib/logger').logger,
     section = require(__dirname + '/../controllers/section'),
     student = require(__dirname + '/../controllers/student'),
     instructor = require(__dirname + '/../controllers/instructor');
 
 // imports
-// db.importData(section.collectionName);
+db.importData(section.collectionName);
 db.importData(instructor.collectionName);
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
     app.post('/student/logout', student.logout);
+    app.post('/student/submit', student.submit);
     app.get('/students', student.findAll);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
     app.get('/instructors', instructor.findAll);
 
+    app.get('/oauth2callback', instructor.nothing);
+
     app.get('*', function (req, res) {
         res.redirect('/index.html');
     });
+
+    logger.log('verbose', 'done setting up router');
 };
 
 exports.handleSocket = function (io) {
@@ -32,7 +38,6 @@ exports.handleSocket = function (io) {
                     socket.join(data.students[i]);
                 }
                 socket.emit('update_chat', 'hi po!', '2010-43168');
-                // socket.emit('warning', 'successfully joined in all rooms');
             }
             else {
                 socket.emit('warning', 'students missing');
@@ -42,7 +47,7 @@ exports.handleSocket = function (io) {
         socket.on('join_room', function (data) {
             if (data.student_number) {
                 socket.join(data.student_number);
-                io.sockets.in(data.student_number).emit('warning', data.student_number + ' is now online');
+                socket.broadcast.to(data.student_number).emit('online', data.student_number);
                 socket.emit('warning', 'attendance recorded');
             }
             else {
@@ -51,8 +56,6 @@ exports.handleSocket = function (io) {
         });
 
         socket.on('update_chat', function (data) {
-            console.log('update_chat');
-            console.dir(data);
             if (data.student_number && data.message) {
                 socket.broadcast.to(data.student_number).emit('update_chat', data.message, data.student_number);
             }
@@ -64,5 +67,7 @@ exports.handleSocket = function (io) {
             }
         });
     });
+
+    logger.log('verbose', 'done handling socket');
 };
 

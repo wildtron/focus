@@ -24,3 +24,7 @@ exports.toDay = function (str) {
 exports.hash = function (string) {
     return crypto.createHash('md5').update('' + string).digest('hex');
 };
+
+exports.pad = function (num, size) {
+    return ('000000000' + num).substr(-size);
+};

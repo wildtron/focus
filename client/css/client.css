@@ -53,7 +53,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @keyframes leftToCurrent {
   0%   { transform: translateX(-100%); }
-  100% { transform: translateX(0); 
+  100% { transform: translateX(0);
     }
 }
 @keyframes currentToRight {
@@ -70,7 +70,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-webkit-keyframes leftToCurrent {
   0%   { -webkit-transform: translateX(-100%); }
-  100% { -webkit-transform: translateX(0); 
+  100% { -webkit-transform: translateX(0);
     }
 }
 @-webkit-keyframes currentToRight {
@@ -83,12 +83,12 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-moz-keyframes rightToCurrent {
   0%   { -moz-transform: translateX(100%); }
-  100% { -moz-transform: translateX(0); 
+  100% { -moz-transform: translateX(0);
     }
 }
 @-moz-keyframes leftToCurrent {
   0%   { -moz-transform: translateX(-100%); }
-  100% { -moz-transform: translateX(0); 
+  100% { -moz-transform: translateX(0);
     }
 }
 @-moz-keyframes currentToRight {
@@ -101,12 +101,12 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 }
 @-o-keyframes rightToCurrent {
   0%   { -o-transform: translateX(100%); }
-  100% { -o-transform: translateX(0); 
+  100% { -o-transform: translateX(0);
     }
 }
 @-o-keyframes leftToCurrent {
   0%   { -o-transform: translateX(-100%); }
-  100% { -o-transform: translateX(0); 
+  100% { -o-transform: translateX(0);
     }
 }
 @-o-keyframes currentToRight {
@@ -169,9 +169,9 @@ section{
     cursor: pointer;
 }
 .sign_in_error {
-    animation: redShake 1s forwards; 
-    -webkit-animation: redShake 1s forwards; 
-    -o-animation: redShake 1s forwards; 
+    animation: redShake 1s forwards;
+    -webkit-animation: redShake 1s forwards;
+    -o-animation: redShake 1s forwards;
     background: #e74c3c !important;
     box-shadow: -4px 4px #c0392b !important;
 }
@@ -194,7 +194,7 @@ section{
 	50% { transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        transform: translate(2px, 1px) rotate(-1deg);        
+        transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -221,7 +221,7 @@ section{
 	50% { -webkit-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -webkit-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -webkit-transform: translate(2px, 1px) rotate(-1deg);        
+        -webkit-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -248,7 +248,7 @@ section{
 	50% { -moz-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -moz-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -moz-transform: translate(2px, 1px) rotate(-1deg);        
+        -moz-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -275,7 +275,7 @@ section{
 	50% { -o-transform: translate(-1px, 2px) rotate(-1deg); }
 	60% { -o-transform: translate(-3px, 1px) rotate(0deg); }
 	70% {
-        -o-transform: translate(2px, 1px) rotate(-1deg);        
+        -o-transform: translate(2px, 1px) rotate(-1deg);
         background: #e74c3c;
         box-shadow: -4px 4px #c0392b;
     }
@@ -347,6 +347,40 @@ section{
     resize: none;
     width: 275px;
     height: 80px;
-    background: #CCC;
+    background: #CCC;   `
     border: 0;
+}
+#main_section textarea.hover{
+    line-height: 80px;
+    text-align: center;
+    background: #FFF;
+    border: 1px dashed #CCC;
+    font-family: OpenSans;
+}
+
+#main_section textarea.uploading{
+    font-family: OpenSans;
+    text-align: center;
+    color: #FFF;
+    overflow: none;
+    animation: progressBar 1s forwards;
+    -webkit-animation: progressBar 1s forwards;
+}
+#main_section textarea .success{
+    background: #27AE60 !important;
+}
+
+@-webkit-keyframes progressBar {
+    from {
+        background: #CCC;   `
+        height: 80px;
+        line-height: 80px;
+        margin-top: 0px;
+    }
+    to {
+        margin-top: 27px;
+        background: #2C1DA1;
+        height: 25px;
+        line-height: 25px;
+    }
 }

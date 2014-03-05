@@ -22,6 +22,7 @@
         </section>
 
         <section id="main_section" data-position="right">
+            <div id="holder"></div>
             <div id="name_div"></div>
             <button id="logout_button"></button>
             <div id="chat_div">
@@ -32,29 +33,30 @@
         <script type="text/javascript" src="http://10.0.5.49:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
-            var gui = require('nw.gui'),
-                win = gui.Window.get(),
-                ctrl = gui.Window;
-            win.on('minimize', function(){
-                console.log("Window is minimized.");
-            });
+            if (typeof require !== '' + void 0) {
+                var gui = require('nw.gui'),
+                    win = gui.Window.get(),
+                    ctrl = gui.Window;
+                win.on('minimize', function(){
+                    console.log("Window is minimized.");
+                });
 
-            win.on('close', function(){
-                console.log(this);
-                console.log(ctrl);
-                this.minimize();
-            });
-            win.on('closed', function(){
-                win = null;
-            });
+                win.on('close', function(){
+                    console.log(this);
+                    console.log(ctrl);
+                    this.minimize();
+                });
+                win.on('closed', function(){
+                    win = null;
+                });
 
-            // check session every 500ms, if not autofocus on window
-            setInterval(function(){
-                if(!cookies.get('FOCUSSESSID')){
-                    win.focus();
-                } else clearInterval(this);
-            },500);
-
+                // check session every 500ms, if not autofocus on window
+                setInterval(function(){
+                    if(!cookies.get('FOCUSSESSID')){
+                        win.focus();
+                    } else clearInterval(this);
+                },500);
+            }
         </script>
         <script type="text/javascript">
             (function(root){
@@ -63,9 +65,14 @@
                     socket,
                     _student_number,
                     name,
+                    temp,
                     username = document.getElementById('username_input'),
                     student_number = document.getElementById('student_number_input'),
                     password = document.getElementById('password_input');
+
+                root.ondragover = function(e) { e.preventDefault(); return false };
+                root.ondrop = function(e) { e.preventDefault(); return false };
+
 
                 if(cookies.has('FOCUSSESSID')){
                     setTimeout(function () {
@@ -175,7 +182,8 @@
                     document.getElementById('username_input').focus();
                 };
 
-                document.getElementById('chat_area').onkeypress = function (e) {
+                temp = document.getElementById('chat_area');
+                temp.onkeypress = function (e) {
                     if (e.ctrlKey && e.keyCode == 10) {
                         socket.emit('update_chat', {
                             message : e.target.value,
@@ -185,6 +193,57 @@
                         e.target.value = '';
                         chat_content.scrollTop = chat_content.scrollHeight;
                     }
+                };
+
+                temp.ondragover = function () {
+                    console.log('dragover');
+                    this.value = 'Drag file here to upload';
+                    this.className = 'hover';
+                    return !1;
+                };
+                temp.ondragleave = function () {
+                    this.value = this.className = '';
+                    return !1;
+                };
+
+                temp.ondrop = function (e) {
+                    var formData = new FormData(),
+                        xhr = new XMLHttpRequest(),
+                        _this = this,
+                        i;
+
+                    for (i = 0; i < e.dataTransfer.files.length; i++) {
+                        formData.append('file', e.dataTransfer.files[i]);
+                    }
+
+                    console.log('drop');
+
+                    e.preventDefault();
+                    _this.value = 'Uploading...';
+                    _this.className = 'uploading';
+                    _this.disabled = true;
+
+
+                    xhr.open('POST', url + 'student/submit', true);
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            setTimeout(function () {
+                                _this.value = 'Success!';
+                                _this.className += ' success';
+                                setTimeout(function () {
+                                    _this.disabled = false;
+                                    _this.className = '';
+                                    _this.value = '';
+                                }, 500);
+                            }, 1000);
+                        } else {
+                            console.log('Something went terribly wrong...');
+                        }
+                    };
+
+                    xhr.send(formData);
+
+                    return false;
                 };
 
                 document.getElementById('username_input').focus();
