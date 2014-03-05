@@ -150,16 +150,18 @@
                                     chat_content.focus();
                                 }, 250);
 
-                                console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
-                                setInterval(function(){
-                                    var sessionServer='localhost:10610',
-                                        setSessionRequest = new XMLHttpRequest();
+                                var sessionServer='http://localhost:10610';
+                                console.log('Sending setSession to localhost:10610 so that session is set as key for transanction');
+                                setTimeout(function(){
+                                    console.log("Trying to set session to local server.");
+                                    var setSessionRequest = new XMLHttpRequest();
                                     setSessionRequest.open('POST', sessionServer, true);
                                     setSessionRequest.setRequestHeader('Content-Type', 'application/json');
                                     setSessionRequest.send(JSON.stringify({
                                         session : cookies.get('FOCUSSESSID')
                                     }));
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
+                                    console.log(setSessionRequest);
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 204){
                                         clearInterval(this);
                                     }
                                 }, 5000);
@@ -178,6 +180,21 @@
                     cookies.remove('FOCUSSESSID');
                     cookies.remove('first_name');
                     cookies.remove('last_name');
+                    var sessionServer='http://localhost:10610';
+                    console.log('Destroy session to localhost:10610 so that controls are off');
+                    setTimeout(function(){
+                        console.log("Trying to set session to local server.");
+                        var setSessionRequest = new XMLHttpRequest();
+                        setSessionRequest.open('POST', sessionServer, true);
+                        setSessionRequest.setRequestHeader('Content-Type', 'application/json');
+                        setSessionRequest.send(JSON.stringify({
+                            destroy : cookies.get('FOCUSSESSID')
+                        }));
+                        console.log(setSessionRequest);
+                        if(setSessionRequest.readyState + setSessionRequest.status == 204){
+                            clearInterval(this);
+                        }
+                    }, 5000);
                     document.getElementById('front_section').className = 'left-to-current';
                     document.getElementById('main_section').className = 'current-to-right';
                     document.getElementById('username_input').focus();

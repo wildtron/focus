@@ -36,19 +36,15 @@ var http = require('http'),
     qs = require('querystring'),
     exec = require('child_process').exec,
     fs = require('fs'),
-    port = 8286,
     os = require('os'),
+    net = require('net'),
     interfaces = os.networkInterfaces(),
+    port = 8286,
     addresses='\n',
     z,
-    SESSIONID=undefined,
+    SESSIONID,
     headers = {},
-    checkSession=function(){
-        if(!SESSIONID){
-            res.writeHead(401, headers,{'Content-Type':'text/json'});
-            res.end('{"status":"Token doesn\'t match."}');
-        }
-    };
+    motherServer;
 
     // IE8 does not allow domains to be specified, just the *
     // headers["Access-Control-Allow-Origin"] = req.headers.origin;
@@ -73,6 +69,7 @@ http.createServer(function(req, res){
         });
 
         req.on('end', function() {
+            console.log("Trying to set session to server");
             try{
                 decodedBody = JSON.parse(postData);
                 console.log(decodedBody);
@@ -82,12 +79,24 @@ http.createServer(function(req, res){
                 res.end('{"status":"Problem with POST data"}');
                 return;
             }
-
+            console.log("JSON parse was successful.");
             if(decodedBody.session){
+                console.log("session was found from the payload");
                 SESSIONID=decodedBody.session;
-                res.writeHead(100, headers, {'Content-Type' : 'text/json'});
+                /*
+                 *  connect to motherServer and ensure the integrity of sent SESSIONID
+                 * */
+
+
+                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                 res.end('{"status":"Session set"}');
+            } if(decodedBody.destroy){
+                console.log("destroy was found from the payload");
+                SESSIONID=undefined;
+                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                res.end('{"status":"Session destroyed"}');
             } else {
+                console.log("session was not found from the payload");
                 res.writeHead(500, headers, {'Content-Type' : 'text/json'});
                 res.end('{"status":"Failed to set session"}');
             }
@@ -96,12 +105,20 @@ http.createServer(function(req, res){
 }).listen(port+2324,'localhost');
 
 http.createServer(function (req, res) {
-    checkSession();
+    var checkSession=function(){
+        if(!SESSIONID){
+            res.writeHead(401, headers,{'Content-Type':'text/json'});
+            res.end('{"status":"Token doesn\'t match."}');
+        }
+        console.log(SESSIONID);
+    };
     if (req.method === 'OPTIONS') {
+      checkSession();
       console.log('OPTIONS');
       res.writeHead(200, headers);
       res.end();
     } else if(req.method === 'GET') {
+        checkSession();
         console.log('Received GET Request.');
         var dir = "/tmp/c9251dada3e9a6216026906764c37c16.png";
         var cmd = "./scripts/shot.py "+dir;
@@ -110,6 +127,7 @@ http.createServer(function (req, res) {
             fs.createReadStream(dir).pipe(res);
         });
     } else if(req.method === 'POST'){
+        checkSession();
         console.log('Received POST Request.');
         var postData = '';
 
