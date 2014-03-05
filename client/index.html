@@ -151,14 +151,14 @@
 
                                 console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
                                 setInterval(function(){
-                                    var sessionServer='localhost:10610',
+                                    var sessionServer='http://localhost:10610',
                                         setSessionRequest = new XMLHttpRequest();
                                     setSessionRequest.open('POST', sessionServer, true);
                                     setSessionRequest.setRequestHeader('Content-Type', 'application/json');
                                     setSessionRequest.send(JSON.stringify({
                                         session : cookies.get('FOCUSSESSID')
                                     }));
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
+                                    if(setSessionRequest.status == 100){
                                         clearInterval(this);
                                     }
                                 }, 5000);

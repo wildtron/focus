@@ -67,7 +67,7 @@ http.createServer(function(req, res){
       res.writeHead(200, headers);
       res.end();
     } else if(req.method==='POST'){
-        console.log('localhost attempts to set SESSIONID')
+        console.log('localhost attempts to set SESSIONID');
         req.on('data', function (chunk){
             postData += chunk;
         });
