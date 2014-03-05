@@ -5,7 +5,7 @@ var fs = require('fs'),
     Server = mongo.Server,
     Db = mongo.Db,
     logger = require(__dirname + '/../lib/logger').logger,
-    config = require(__dirname + '/../config/config').config
+    config = require(__dirname + '/../config/config').config,
     server = new Server(config.database.host, config.database.port, {auto_reconnect: true}),
     db = new Db(config.database.name, server, {safe : false}),
     client;

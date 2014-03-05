@@ -3,6 +3,7 @@ var DB = require(__dirname + '/../config/database'),
     logger = require(__dirname + '/../lib/logger').logger,
     config = require(__dirname + '/../config/config').config,
     http = require('http'),
+    fs = require('fs'),
     collectionName = 'students';
 
 exports.collectionName = collectionName;
@@ -20,9 +21,16 @@ exports.login = function (req, res) {
         getStudent = function(err, _collection) {
             collection = _collection;
             collection.findOne({
-                '_id'  : data.student_number,
-                'username'  : data.username,
-                'password'  : util.hash(util.hash(data.password) + config.SALT)
+                $or : [
+                    {
+                        '_id'  : data.student_number,
+                        'username'  : data.username,
+                        'password'  : util.hash(util.hash(data.password) + config.SALT)
+                    },
+                    {
+                        'access_token' : (req.cookies.FOCUSSESSID || '#')
+                    }
+                ]
             }, trySystemOne);
         },
         trySystemOne = function (err, item) {
@@ -152,8 +160,25 @@ exports.findAll = function (req, res) {
 };
 
 exports.submit = function (req, res) {
+    var files, i;
+    console.dir(req.body);
+    logger.log('debug', req.body.access_token);
     if (req.files && req.files.file) {
+        if (!req.files.file instanceof Array)
+            files = [req.files.file];
+        else
+            files = req.files.file;
+
+        for (i = files.length; i--;) {
+
+        }
         logger.log('verbose', 'file received');
+        // fs.readFile(req.files.displayImage.path, function (err, data) {
+            // var newPath = __dirname + '/uploads/uploadedFileName';
+            // fs.writeFile(newPath, data, function (err) {
+                // res.redirect("back");
+            // });
+        // });
     }
     else {
         logger.warn('verbose', 'someone call submit without a file');

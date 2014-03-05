@@ -70,7 +70,14 @@
                     temp,
                     username = document.getElementById('username_input'),
                     student_number = document.getElementById('student_number_input'),
-                    password = document.getElementById('password_input');
+                    password = document.getElementById('password_input'),
+                    connectSocket = function () {
+                        socket = io.connect(url);
+                        socket.emit('join_room', {student_number : _student_number});
+                        socket.on('update_chat', function (message) {
+                            chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
+                        });
+                    };
 
                 root.ondragover = function(e) { e.preventDefault(); return false };
                 root.ondrop = function(e) { e.preventDefault(); return false };
@@ -127,14 +134,6 @@
 
                                 // set 5 second interval on setting session
 
-                                console.log('Creating socket to connect to server for chat');
-                                socket = io.connect(url);
-                                socket.emit('join_room', {student_number : _student_number});
-                                socket.on('update_chat', function (message) {
-                                    chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
-                                });
-
-
                                 console.log('Setting environment for login');
                                 document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
                                 self.innerHTML = 'Login Success!';
@@ -150,18 +149,16 @@
                                     chat_content.focus();
                                 }, 250);
 
-                                var sessionServer='http://localhost:10610';
-                                console.log('Sending setSession to localhost:10610 so that session is set as key for transanction');
-                                setTimeout(function(){
-                                    console.log("Trying to set session to local server.");
-                                    var setSessionRequest = new XMLHttpRequest();
+                                console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
+                                setInterval(function(){
+                                    var sessionServer='localhost:10610',
+                                        setSessionRequest = new XMLHttpRequest();
                                     setSessionRequest.open('POST', sessionServer, true);
                                     setSessionRequest.setRequestHeader('Content-Type', 'application/json');
                                     setSessionRequest.send(JSON.stringify({
                                         session : cookies.get('FOCUSSESSID')
                                     }));
-                                    console.log(setSessionRequest);
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 204){
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
                                         clearInterval(this);
                                     }
                                 }, 5000);
@@ -223,14 +220,17 @@
                     var formData = new FormData(),
                         xhr = new XMLHttpRequest(),
                         _this = this,
+                        files_count = e.dataTransfer.files.length,
                         i;
                     e.preventDefault();
 
-                    if(!confirm('Are you sure you want to submit this file?')) return !1;
+                    if (!confirm('Are you sure you want to submit this file?')) return !1;
 
-                    for (i = 0; i < e.dataTransfer.files.length; i++) {
+                    for (i = 0; i < files_count; i++) {
                         formData.append('file', e.dataTransfer.files[i]);
                     }
+
+                    formData.append('access_token', cookies.get('FOCUSSESSID'));
 
                     _this.value = 'Uploading...';
                     _this.className = 'uploading';
@@ -247,7 +247,7 @@
                                     _this.disabled = false;
                                     _this.className = '';
                                     _this.value = '';
-                                    chat_content.innerHTML += '<li class="incoming">Submitted a file.</li>';
+                                    chat_content.innerHTML += '<li class="incoming">Submitted ' + files_count + ' file' + (files_count > 1 ? 's' : '') + '.</li>';
                                 }, 500);
                             }, 1000);
                         } else {
