@@ -109,28 +109,17 @@
                                 }, 1000);
                             }
                             else {
+                                console.log('Authentication from server was success.');
                                 // set cookie, expire in 3 hours
                                 cookies.set('FOCUSSESSID', response.access_token, 10800);
                                 cookies.set('first_name', response.first_name, 10800);
                                 cookies.set('last_name', response.last_name, 10800);
 
                                 _student_number = student_number.value;
-                                var sessionServer='localhost:10610',
-                                    setSessionRequest new XMLHttpRequest();
-                                setSessionRequest.open('POST', sessionServer, true);
-                                setSessionRequest.setRequestHeader('Content-Type,', 'application/json');
 
                                 // set 5 second interval on setting session
-                                setInterval(function(){
-                                    setSessionRequest.send(JSON.stringify({
-                                        session : cookies.get('FOCUSSESSID');
-                                    }));
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
-                                        clearInterval(this);
-                                    }
-                                }, 5000);
 
-
+                                console.log('Creating socket to connect to server for chat');
                                 socket = io.connect(url);
                                 socket.emit('join_room', {student_number : _student_number});
                                 socket.on('update_chat', function (message) {
@@ -138,10 +127,12 @@
                                 });
 
 
-
+                                console.log('Setting environment for login');
                                 document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
                                 self.innerHTML = 'Login Success!';
                                 self.className = 'sign_in_success';
+
+                                console.log('Moving sections');
                                 setTimeout(function () {
                                     document.getElementById('front_section').className = 'current-to-left';
                                     document.getElementById('main_section').className = 'right-to-current';
@@ -150,6 +141,20 @@
                                     student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
                                     chat_content.focus();
                                 }, 250);
+
+                                console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
+                                setInterval(function(){
+                                    var sessionServer='localhost:10610',
+                                        setSessionRequest = new XMLHttpRequest();
+                                    setSessionRequest.open('POST', sessionServer, true);
+                                    setSessionRequest.setRequestHeader('Content-Type', 'application/json');
+                                    setSessionRequest.send(JSON.stringify({
+                                        session : cookies.get('FOCUSSESSID')
+                                    }));
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
+                                        clearInterval(this);
+                                    }
+                                }, 5000);
                             }
                         }
                     }
