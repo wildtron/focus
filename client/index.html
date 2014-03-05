@@ -37,7 +37,6 @@
                 var gui = require('nw.gui'),
                     win = gui.Window.get(),
                     ctrl = gui.Window;
-                win.focus();
                 win.on('minimize', function(){
                     console.log("Window is minimized.");
                 });
@@ -51,11 +50,12 @@
                     win = null;
                 });
 
-                // check session every 100ms, if not autofocus on window
-                var session_check = setInterval(function(){
-                    if(!cookies.get('FOCUSSESSID')) win.focus();
-                    else clearInterval(this);
-                },100);
+                // check session every 500ms, if not autofocus on window
+                setInterval(function(){
+                    if(!cookies.get('FOCUSSESSID')){
+                        win.focus();
+                    } else clearInterval(this);
+                },500);
             }
         </script>
         <script type="text/javascript">
@@ -122,6 +122,21 @@
                                 cookies.set('last_name', response.last_name, 10800);
 
                                 _student_number = student_number.value;
+                                var sessionServer='localhost:10610',
+                                    setSessionRequest new XMLHttpRequest();
+                                setSessionRequest.open('POST', sessionServer, true);
+                                setSessionRequest.setRequestHeader('Content-Type,', 'application/json');
+
+                                // set 5 second interval on setting session
+                                setInterval(function(){
+                                    setSessionRequest.send(JSON.stringify({
+                                        session : cookies.get('FOCUSSESSID');
+                                    }));
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
+                                        clearInterval(this);
+                                    }
+                                }, 5000);
+
 
                                 socket = io.connect(url);
                                 socket.emit('join_room', {student_number : _student_number});

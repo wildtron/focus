@@ -7,11 +7,12 @@
         "min_width" : 300,
         "max_height" : 400,
         "max_width" : 300,
-        "resizable" : true,
+        "resizable" : false,
         "always-on-top" : false,
         "show_in_taskbar" : true,
         "position" : "center",
-        "icon" : "img/logo-full.png"
+        "icon" : "img/logo-full.png",
+        "single-instance" : "true"
     },
     "webkit" : {
         "plugin" : true

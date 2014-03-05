@@ -5,8 +5,9 @@ var fs = require('fs'),
     Server = mongo.Server,
     Db = mongo.Db,
     logger = require(__dirname + '/../lib/logger').logger,
-    server = new Server('localhost', 27017, {auto_reconnect: true}),
-    db = new Db('focusdb', server, {safe : false}),
+    config = require(__dirname + '/../config/config').config
+    server = new Server(config.database.host, config.database.port, {auto_reconnect: true}),
+    db = new Db(config.database.name, server, {safe : false}),
     client;
 
 db.open(function(err, c) {

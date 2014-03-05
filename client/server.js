@@ -35,14 +35,17 @@ var http = require('http'),
     port = 8286,
     os = require('os'),
     interfaces = os.networkInterfaces(),
-    addresses='\n';
+    addresses='\n',
+    z,
+    SESSIONID=undefined,
+    headers = {},
+    checkSession=function(){
+        if(!SESSIONID){
+            res.writeHead(401, headers,{'Content-Type':'text/json'});
+            res.end('{"status":"Token doesn\'t match."}');
+        }
+    };
 
-for(var z in interfaces){
-    addresses+=interfaces[z][0].address+'\n';
-}
-
-http.createServer(function (req, res) {
-    var headers = {};
     // IE8 does not allow domains to be specified, just the *
     // headers["Access-Control-Allow-Origin"] = req.headers.origin;
     headers["Access-Control-Allow-Origin"] = "*";
@@ -51,12 +54,23 @@ http.createServer(function (req, res) {
     headers["Access-Control-Max-Age"] = '86400'; // 24 hours
     headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept";
 
-    // turn on the monitor and enable everything first or else screen shot crashes
-    exec('./scripts/enable.sh', function(err, stdout, stderr) {
-        if(err) console.log(err);
-    });
+for(z in interfaces){
+    addresses+=interfaces[z][0].address+'\n';
+}
+http.createServer(function(req, res){
+    var postData;
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200, headers);
+      res.end();
+    } else if(req.method==='POST'){
+        req.on('data', function (chunk){});
+    }
+}).listen(port+2324,'localhost');
 
 
+
+
+http.createServer(function (req, res) {
     if (req.method === 'OPTIONS') {
       console.log('OPTIONS');
       res.writeHead(200, headers);
@@ -74,13 +88,22 @@ http.createServer(function (req, res) {
         var postData = '';
 
         req.on('data', function (chunk) {
+            console.log('Receiving POST data.');
             postData += chunk;
         });
 
         req.on('end', function () {
-            var decodedBody = JSON.parse(postData),
+            var decodedBody,
                 action = '',
                 msg = '';
+            console.log('end-part response.');
+            try{
+                decodedBody = JSON.parse(postData);
+            } catch(e){
+                res.writeHead(500, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Problem with POST data\"}');
+                return;
+            }
             console.log(decodedBody);
             switch(decodedBody.method){
                 // shutdown
@@ -118,9 +141,16 @@ http.createServer(function (req, res) {
                     action = './scripts/enable.sh';
                     msg = 'Unlocking';
                     break;
-                default:
+                    // opening client doesn't work yet
+                // summon client in case that client window is not present
+/*                case 'client':
+                    action = 'nohup ./run-client&';
+                    msg = 'Spawning client';
+                    break;
+  */              default:
                     action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
                     method='';
+                    msg='ActiveWindow';
                     break;
             }
             console.log(decodedBody.method, action);

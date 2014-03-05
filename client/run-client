@@ -3,3 +3,4 @@ CURRENT_DIR=`readlink -f .`
 export LD_LIBRARY_PATH=$CURRENT_DIR/node_modules/nodewebkit/nodewebkit/:$LD_LIBRARY_PATH
 ./repack
 ./node_modules/nodewebkit/nodewebkit/nw focus.nw
+exit 0
