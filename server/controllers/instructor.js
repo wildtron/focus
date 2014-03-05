@@ -1,7 +1,8 @@
-var DB = require(__dirname + '/../config/database'),
-    config = require(__dirname + '/../config/config').config,
+var collectionName = 'instructors',
     util = require(__dirname + '/../helpers/util'),
-    collectionName = 'instructors';
+    DB = require(__dirname + '/../config/database'),
+    logger = require(__dirname + '/../lib/logger').logger,
+    config = require(__dirname + '/../config/config').config;
 
 exports.collectionName = collectionName;
 
@@ -33,48 +34,52 @@ exports.login = function (req, res) {
         getSectionCollection = function (err, _item) {
             item = _item;
             if (item == null) {
-                console.log("Login failed ", data.username);
+                logger.log('info', data.username, 'failed to login. Wrong username or password');
                 res.send({message : 'Wrong username or password'});
             }
             else {
+                logger.log('verbose', data.username, 'is found on the local database');
                 item.access_token = util.hash(+new Date + config.SALT);
                 item.class = { message : "You have no class at this time"};
+                logger.log('verbose', data.username, ': updating properties');
                 last_collection.update({'_id' : item._id}, {$set : {
                     access_token : item.access_token,
                     last_login : +new Date,
                     ip_address : req.connection.remoteAddress
-                }}, {safe : true}, function (err, result) {
-                    err && console.log(err);
-                });
+                }});
                 db.collection('sections', getClass);
             }
         },
         getClass = function(err, collection) {
-            // using server date, get the class happening right now
             var date = new Date(),
                 day = "UMTWHFS"[date.getDay()];
 
-            date = [date.getHours(), date.getMinutes(), date.getSeconds()].join(':');
+            date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
+
+            logger.log('verbose', data.username, ': getting current class');
+            logger.log('verbose', 'server time :', day, date);
 
             collection.findOne({
                     _id : { $in : item.classes },
-                    $where : function () {
-                        return (~this.days.split.indexOf(day) &&
-                            (this.from + ':00') >= date &&
-                            date < (this.to + ':00'));
-                    }
+                    days : new RegExp(day),
+                    from : { $lt : date},
+                    to : { $gte : date}
                 },
                 getStudentCollection
             );
         },
         getStudentCollection = function (err, _class) {
+            logger.log('verbose', 'setting access token on cookie');
             res.cookie('focus', item.access_token, {signed : true});
             delete item.access_token;
             if (_class) {
                 item.class = _class;
+                logger.log('verbose', data.username, ': current class found', _class);
+                logger.log('verbose', data.username, ': getting students');
                 db.collection('students', getStudents);
             }
             else {
+                logger.log('info', data.username, ': no current class', item.classes.join(', '));
                 res.send(item);
             }
         },
@@ -87,13 +92,12 @@ exports.login = function (req, res) {
                     access_token : 0
                 }
             ).toArray(function (err, docs) {
-                if (docs) {
-                    item.class.students = docs;
-                }
+                logger.log('verbose', data.username, ': login successful with current class and students');
+                item.class.students = docs;
                 res.send(item);
             });
         };
-
+    logger.log('info', data.username, 'is trying to login');
     DB.get(getInstructorCollection);
 };
 
@@ -112,30 +116,29 @@ exports.logout = function (req, res) {
         },
         updateInstructor = function (err, item) {
             if (item) {
-                last_collection.update({'_id' : item._id}, {$set : {access_token: null}}, {safe: true}, function (err, result) {
-                    err && console.log(err);
-                });
+                logger.log('verbose', item.username, 'clearing access_token');
+                last_collection.update({'_id' : item._id}, {$set : {access_token: null}});
                 res.clearCookie('focus');
                 res.send({message : "Logout successful"});
-                console.log("Logout successful");
+                logger.log('info', item.username, 'logged out successful');
             }
             else {
+                logger.log('warn', 'someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
                 res.send({message : "Invalid access_token"});
             }
-        }
+        };
     DB.get(getInstructorCollection);
 };
 
 exports.findbyId = function(req, res) {
     var id = req.params.id;
-    console.log('Retrieving instructor: ' + id);
     db.collection(collectionName, function(err, collection) {
         collection.findOne({'_id': new BSON.ObjectID(id)}, function (err, item) {
             res.send(item);
         });
     });
 };
- 
+
 exports.findAll = function(req, res) {
     db.get(function(db){
         db.collection(collectionName, function(err, collection) {
@@ -145,3 +148,7 @@ exports.findAll = function(req, res) {
         });
     });
 };
+
+exports.nothing = function (req, res) {
+    res.end('nothing');
+}
