@@ -66,6 +66,18 @@ exports.handleSocket = function (io) {
                 socket.emit('warning', 'student_number missing');
             }
         });
+
+        socket.on('disconnect', function () {
+            var rooms = io.sockets.manager.roomClients[socket.id],
+                room;
+
+            for (room in rooms) {
+                if (room && rooms[room]) {
+                    room = room.replace('/','');
+                    socket.leave(room);
+                }
+            }
+        });
     });
 
     logger.log('verbose', 'done handling socket');
