@@ -72,7 +72,7 @@
                     password = document.getElementById('password_input'),
                     connectSocket = function () {
                         socket = io.connect(url);
-                        socket.emit('join_room', {student_number : cookies.get('student_number')});
+                        socket.emit('join_room', {student_number : cookie.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                         });
@@ -177,6 +177,23 @@
                     cookies.remove('FOCUSSESSID');
                     cookies.remove('first_name');
                     cookies.remove('last_name');
+
+                    var sessionServer='http://localhost:10610';
+                    console.log('Destroy session to localhost:10610 so that controls are off');
+                    setTimeout(function(){
+                        console.log("Trying to set session to local server.");
+                        var setSessionRequest = new XMLHttpRequest();
+                        setSessionRequest.open('POST', sessionServer, true);
+                        setSessionRequest.setRequestHeader('Content-Type', 'application/json');
+                        setSessionRequest.send(JSON.stringify({
+                            destroy : cookies.get('FOCUSSESSID')
+                        }));
+                        console.log(setSessionRequest);
+                        if(setSessionRequest.readyState + setSessionRequest.status == 204){
+                            clearInterval(this);
+                        }
+                    }, 5000);
+
                     document.getElementById('front_section').className = 'left-to-current';
                     document.getElementById('main_section').className = 'current-to-right';
                     document.getElementById('username_input').focus();
@@ -231,9 +248,9 @@
                                     _this.disabled = false;
                                     _this.className = '';
                                     _this.value = '';
-                                    chat_content.innerHTML += '<li class="incoming">Submitted ' + files_count + ' file' + (files_count > 1 ? 's' : '') + '.</li>';
+                                    chat_content.innerHTML += '<li class="incoming">' + xhr.responseText '</li>';
                                 }, 500);
-                            }, 500);
+                            }, 1000);
                         } else {
                             setTimeout(function () {
                                 _this.value = 'Failed!';
@@ -256,7 +273,5 @@
                 document.getElementById('username_input').focus();
             }(this));
         </script>
-
     </body>
-
 </html>
