@@ -1,4 +1,4 @@
-var DB = require(__dirname + '/../config/database'),
+var db = require(__dirname + '/../config/database'),
     util = require(__dirname + '/../helpers/util'),
     logger = require(__dirname + '/../lib/logger').logger,
     config = require(__dirname + '/../config/config').config,
@@ -6,20 +6,14 @@ var DB = require(__dirname + '/../config/database'),
     fs = require('fs'),
     collectionName = 'students',
     _findByAcessToken = function (access_token, cb) {
-        var getStudentCollection = function (db) {
-                db.collection(collectionName, getStudent);
-            },
-            getStudent = function(err, collection) {
+        var getStudent = function(err, collection) {
                 if (err) next(err);
                 collection.findOne({access_token : access_token}, {password : 0}, cb);
             };
-        DB.get(getStudentCollection);
+        db.get().collection(collectionName, getStudent);
     },
     _getCurrentSubject = function (student_number, cb) {
-        var getSectionCollection = function (db) {
-                db.collection('sections', getSection);
-            },
-            getSection = function (err, collection) {
+        var getSection = function (err, collection) {
                 var date = new Date(),
                     day = "UMTWHFS"[date.getDay()];
                 if (err) next(err);
@@ -33,22 +27,15 @@ var DB = require(__dirname + '/../config/database'),
                     }
                 }, cb);
             };
-
-        DB.get(getSectionCollection);
+        db.get().collection('sections', getSection);
     };
 
 exports.collectionName = collectionName;
 
-// logins a student
 exports.login = function (req, res, next) {
-    var db,
-        data,
-        collection,
+    var data,
         item,
-        getStudentCollection = function (_db) {
-            db = _db;
-            db.collection(collectionName, getStudent);
-        },
+        collection,
         getStudent = function(err, _collection) {
             if (err) next(err);
             collection = _collection;
@@ -109,7 +96,7 @@ exports.login = function (req, res, next) {
                 }, function(response) {
                     response.setEncoding('utf8');
                     response.on('data', function (chunk) {
-                        saveInDB(JSON.parse(chunk));
+                        saveInDb(JSON.parse(chunk));
                     });
                 });
             req.on('error', function(err) {
@@ -118,11 +105,11 @@ exports.login = function (req, res, next) {
             req.write(payload);
             req.end();
         },
-        saveInDB = function (temp) {
+        saveInDb = function (temp) {
             var i, temp2;
             if (temp.message) {
                 logger.log('info', 'login failed', data.username, data.student_number);
-                res.send(temp);
+                res.send(401, temp);
             }
             else {
                 temp.username = data.username;
@@ -156,21 +143,14 @@ exports.login = function (req, res, next) {
                 logger.log('info', 'logged in via systemone', data.username, data.student_number);
             }
         };
-    try {
-        data = util.chk_rqd(['username', 'password', 'student_number'], req.body);
-        data.ip_address = req.connection.remoteAddress;
-        DB.get(getStudentCollection);
-    } catch (err) {
-        next(err);
-    }
+    data = util.chk_rqd(['username', 'password', 'student_number'], req.body, next);
+    data.ip_address = req.connection.remoteAddress;
+    db.get().collection(collectionName, getStudent);
 };
 
 exports.logout = function (req, res, next) {
-    var data,
-        collection,
-        getStudentCollection = function (db) {
-            db.collection(collectionName, getStudent);
-        },
+    var collection,
+        data = util.chk_rqd(['access_token'], req.body, next),
         getStudent = function (err, _collection) {
             if (err) next(err);
             collection = _collection;
@@ -188,20 +168,11 @@ exports.logout = function (req, res, next) {
             else
                 res.send({message : "Invalid access_token"});
         };
-    try {
-        data = util.chk_rqd(['access_token'], req.body);
-        DB.get(getStudentCollection);
-    } catch (err) {
-        next(err);
-    }
+    db.get().collection(collectionName, getStudent);
 };
 
-
 exports.findAll = function (req, res, next) {
-    var getStudentCollection = function (db) {
-            db.collection(collectionName, getAllStudents);
-        },
-        getAllStudents = function (err, collection) {
+    var getAllStudents = function (err, collection) {
             if (err) next(err);
             collection.find().toArray(send);
         },
@@ -209,20 +180,15 @@ exports.findAll = function (req, res, next) {
             if (err) next(err);
             res.send(items);
         };
-    try {
-        DB.get(getStudentCollection);
-    } catch (err) {
-        next(err);
-    }
+    db.get().collection(collectionName, getAllStudents);
 };
 
 exports.submit = function (req, res, next) {
-    var data,
-        files,
-        student,
+    var student,
         counter = 0,
         section_dir,
         student_dir,
+        files = util.extractFiles(req.files, 'file', next),
         getCurrentSubject = function (err, item) {
             if (err) next(err);
             student = item;
@@ -266,19 +232,12 @@ exports.submit = function (req, res, next) {
                 res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
             }
         };
-    try {
-        logger.log('info', 'someone submitted file/s');
-        data = util.chk_rqd(['access_token'], req.body);
-        files = util.extractFiles(req.files, 'file', true);
-        _findByAcessToken(data.access_token, getCurrentSubject);
-    } catch (err) {
-        next(err);
-    }
+    logger.log('info', 'someone submitted file/s');
+    _findByAcessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject);
 };
 
 exports.findByAcessToken = function (req, res, next) {
-    var data,
-        sendStudent = function (err, item) {
+    var sendStudent = function (err, item) {
             if (err) next(err);
             if (item) {
                 logger.log('info', 'findByAcessToken : student found');
@@ -291,10 +250,5 @@ exports.findByAcessToken = function (req, res, next) {
             }
         };
 
-    try {
-        data = util.chk_rqd(['access_token'], req.body);
-        _findByAcessToken(data.access_token, sendStudent);
-    } catch (err) {
-        next(err);
-    }
+    _findByAcessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent);
 };

@@ -13,7 +13,8 @@
     "nodemon": "~1.0.15"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test" : "make test"
   },
   "repository": {
     "type": "git",
@@ -32,5 +33,9 @@
   "bugs": {
     "url": "https://github.com/wildtron/focus/issues"
   },
-  "homepage": "https://github.com/wildtron/focus"
+  "homepage": "https://github.com/wildtron/focus",
+  "devDependencies": {
+    "supertest": "~0.9.0",
+    "chai": "~1.9.0"
+  }
 }

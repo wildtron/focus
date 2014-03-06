@@ -1,3 +1,6 @@
+[![Build Status](https://secure.travis-ci.org/wildtron/focus.png)](http://travis-ci.org/wildtron/focus)
+
+
 This is an SP of
 
 Ferrer, Sherwin Jet

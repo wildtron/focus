@@ -5,8 +5,8 @@ var db = require(__dirname + '/database'),
     instructor = require(__dirname + '/../controllers/instructor');
 
 // imports
-db.importData(section.collectionName);
-db.importData(instructor.collectionName);
+db.addImport(section.collectionName);
+db.addImport(instructor.collectionName);
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
@@ -18,8 +18,6 @@ exports.setup = function (app) {
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
     app.get('/instructors', instructor.findAll);
-
-    app.get('/oauth2callback', instructor.nothing);
 
     app.get('*', function (req, res) {
         res.redirect('/index.html');

@@ -2,13 +2,13 @@ var crypto = require('crypto'),
     fs = require('fs'),
     logger = require(__dirname + '/../lib/logger').logger;
 
-exports.chk_rqd = function (reqd, body) {
+exports.chk_rqd = function (reqd, body, next) {
     var i = reqd.length,
         ret = {},
         temp;
     while (i--) {
         if (!body[temp = reqd[i]]) {
-            throw new Error(temp + ' is missing');
+            next(new Error(temp + ' is missing'));
         }
         ret[temp] = body[temp];
     }
@@ -32,11 +32,11 @@ exports.pad = function (num, size) {
     return ('000000000' + num).substr(-size);
 };
 
-exports.extractFiles = function (files, name, required) {
+exports.extractFiles = function (files, name, next) {
     if (files[name])
         return (files[name] instanceof Array) ? files[name] : [files[name]];
-    if (required)
-        throw new Error(name + ' file is missing');
+    if (next)
+        next(new Error(name + ' file is missing'));
     return [];
 }
 

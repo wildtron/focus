@@ -6,6 +6,7 @@ var express = require('express'),
     io = require('socket.io').listen(server),
     router = require(__dirname + '/config/router'),
     config = require(__dirname + '/config/config').config,
+    db = require(__dirname + '/config/database'),
     logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
 
 logger.log('info', 'initializing FOCUS...');
@@ -30,6 +31,4 @@ router.setup(app);
 logger.log('verbose', 'handling sockets');
 router.handleSocket(io);
 
-server.listen(config.port);
-logger.log('info', 'Server listening on port : ', config.port);
-
+db.listenOnConnect(server);
