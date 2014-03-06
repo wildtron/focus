@@ -4,7 +4,7 @@ var db,
     event = new events.EventEmitter(),
     MongoClient = require('mongodb').MongoClient,
     util = require(__dirname + '/../helpers/util'),
-    logger = require(__dirname + '/../lib/logger').logger,
+    logger = require(__dirname + '/../lib/logger'),
     config = require(__dirname + '/../config/config').config,
     imports = [],
     importData = function () {

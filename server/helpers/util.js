@@ -1,6 +1,9 @@
 var crypto = require('crypto'),
     fs = require('fs'),
-    logger = require(__dirname + '/../lib/logger').logger;
+    logger = require(__dirname + '/../lib/logger'),
+    TolerableError = require(__dirname + '/../lib/tolerable_error');
+
+console.dir(TolerableError);
 
 exports.chk_rqd = function (reqd, body, next) {
     var i = reqd.length,
@@ -8,7 +11,7 @@ exports.chk_rqd = function (reqd, body, next) {
         temp;
     while (i--) {
         if (!body[temp = reqd[i]]) {
-            next(new Error(temp + ' is missing'));
+            next(new TolerableError(temp + ' is missing'));
         }
         ret[temp] = body[temp];
     }

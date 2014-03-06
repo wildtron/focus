@@ -1,6 +1,7 @@
 var db = require(__dirname + '/../config/database'),
     util = require(__dirname + '/../helpers/util'),
-    logger = require(__dirname + '/../lib/logger').logger,
+    logger = require(__dirname + '/../lib/logger'),
+    TolerableError = require(__dirname + '/../lib/tolerable_error'),
     config = require(__dirname + '/../config/config').config,
     http = require('http'),
     fs = require('fs'),
@@ -33,9 +34,9 @@ var db = require(__dirname + '/../config/database'),
 exports.collectionName = collectionName;
 
 exports.login = function (req, res, next) {
-    var data,
-        item,
+    var item,
         collection,
+        data = util.chk_rqd(['username', 'password', 'student_number'], req.body, next),
         getStudent = function(err, _collection) {
             if (err) next(err);
             collection = _collection;
@@ -129,7 +130,7 @@ exports.login = function (req, res, next) {
                     }
                 }
 
-                collection.remove({'_id': student_number}, function (err) {
+                collection.remove({'_id': data.student_number}, function (err) {
                     if (err) next(err);
                 });
                 collection.insert(temp, function (err) {
@@ -143,7 +144,6 @@ exports.login = function (req, res, next) {
                 logger.log('info', 'logged in via systemone', data.username, data.student_number);
             }
         };
-    data = util.chk_rqd(['username', 'password', 'student_number'], req.body, next);
     data.ip_address = req.connection.remoteAddress;
     db.get().collection(collectionName, getStudent);
 };
@@ -163,7 +163,7 @@ exports.logout = function (req, res, next) {
                     if (err) next(err);
                 });
                 res.send({message : "Logout successful"});
-                console.log("Logout successful");
+                logger.log('info', 'Logout successful');
             }
             else
                 res.send({message : "Invalid access_token"});
@@ -204,7 +204,7 @@ exports.submit = function (req, res, next) {
                 util.mkdir(section_dir, createStudentDir);
             }
             else {
-                next(new Error('no current subject'));
+                next(new TolerableError('no current subject'));
             }
         },
         createStudentDir = function () {

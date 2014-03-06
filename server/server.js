@@ -1,7 +1,7 @@
 var express = require('express'),
     app = express(),
     fs = require('fs'),
-    logger = require(__dirname + '/lib/logger').logger,
+    logger = require(__dirname + '/lib/logger'),
     server = require('http').createServer(app),
     io = require('socket.io').listen(server),
     router = require(__dirname + '/config/router'),

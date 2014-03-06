@@ -13,7 +13,7 @@
     "nodemon": "~1.0.15"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon server.js --ignore test/",
     "test" : "make test"
   },
   "repository": {

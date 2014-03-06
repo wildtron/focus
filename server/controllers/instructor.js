@@ -1,7 +1,7 @@
 var collectionName = 'instructors',
     util = require(__dirname + '/../helpers/util'),
     db = require(__dirname + '/../config/database'),
-    logger = require(__dirname + '/../lib/logger').logger,
+    logger = require(__dirname + '/../lib/logger'),
     config = require(__dirname + '/../config/config').config;
 
 exports.collectionName = collectionName;

@@ -8,4 +8,4 @@ var winston = require('winston'),
         ]
     });
 
-exports.logger = logger;
+module.exports = logger;

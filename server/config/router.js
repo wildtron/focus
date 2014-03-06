@@ -1,5 +1,6 @@
 var db = require(__dirname + '/database'),
-    logger = require(__dirname + '/../lib/logger').logger,
+    logger = require(__dirname + '/../lib/logger'),
+    TolerableError = require(__dirname + '/../lib/tolerable_error'),
     section = require(__dirname + '/../controllers/section'),
     student = require(__dirname + '/../controllers/student'),
     instructor = require(__dirname + '/../controllers/instructor');
@@ -25,8 +26,10 @@ exports.setup = function (app) {
 
     // error handling
     app.use(function (err, req, res, next) {
-        logger.log('warn', err.message);
-        console.dir(err);
+        // logger.log('warn', err.message);
+        if (!err instanceof TolerableError) {
+            // console.dir(err);
+        }
         res.send(400, {message : err.message});
     });
 
