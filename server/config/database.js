@@ -1,22 +1,30 @@
 var fs = require('fs'),
     events = require('events'),
     event = new events.EventEmitter(),
-    mongo = require('mongodb'),
-    Server = mongo.Server,
-    Db = mongo.Db,
+    MongoClient = require('mongodb').MongoClient,
     util = require(__dirname + '/../helpers/util'),
     logger = require(__dirname + '/../lib/logger').logger,
     config = require(__dirname + '/../config/config').config,
-    server = new Server(config.database.host, config.database.port, {auto_reconnect: true}),
-    db = new Db(config.database.name, server, {safe : true}),
     client;
 
-db.open(function (err, c) {
-    if (err) throw err;
-    client = c;
-    event.emit('connect');
-    logger.log('info', "Connected to 'focusdb' database");
-});
+MongoClient.connect([
+        'mongodb://',
+        config.database.host,
+        ':',
+        config.database.port,
+        '/',
+        config.database.name
+    ].join(''), {
+        server : {
+            auto_reconnect: true
+        }
+    }, function (err, c) {
+        if (err) throw err;
+        client = c;
+        event.emit('connect');
+        logger.log('info', "Connected to 'focusdb' database");
+    }
+);
 
 exports.get = function (cb) {
     if (client) cb(client);
@@ -36,7 +44,12 @@ exports.importData = function (collectionName) {
         truncateCollection = function(err, _collection){
             if (err) throw err;
             collection = _collection;
-            collection.remove(readFile);
+            collection.remove(readFile, function (err) {
+                if (err) {
+                    logger.log('warn', err.message);
+                    console.dir(err);
+                }
+            });
         },
         readFile = function (err, data) {
             if (err) throw err;
@@ -45,7 +58,12 @@ exports.importData = function (collectionName) {
         insertData = function (err, data) {
             if (err) throw err;
             data = JSON.parse(data);
-            collection.insert(data, util.throw_err);
+            collection.insert(data, function (err) {
+                if (err) {
+                    logger.log('warn', err.message);
+                    console.dir(err);
+                }
+            });
             logger.log('info', file + ' import success');
         };
 

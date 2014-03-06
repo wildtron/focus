@@ -72,7 +72,7 @@
                     password = document.getElementById('password_input'),
                     connectSocket = function () {
                         socket = io.connect(url);
-                        socket.emit('join_room', {student_number : cookie.get('student_number')});
+                        socket.emit('join_room', {student_number : cookies.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                         });
@@ -248,7 +248,7 @@
                                     _this.disabled = false;
                                     _this.className = '';
                                     _this.value = '';
-                                    chat_content.innerHTML += '<li class="incoming">' + xhr.responseText '</li>';
+                                    chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
                                 }, 500);
                             }, 1000);
                         } else {

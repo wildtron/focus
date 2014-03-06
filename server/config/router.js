@@ -45,7 +45,6 @@ exports.handleSocket = function (io) {
                 while (i--) {
                     socket.join(data.students[i]);
                 }
-                socket.emit('update_chat', 'hi po!', '2010-43168');
             }
             else {
                 socket.emit('warning', 'students missing');

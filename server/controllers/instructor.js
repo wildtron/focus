@@ -18,6 +18,7 @@ exports.login = function (req, res, next) {
         getInstructor = function (err, collection) {
             if (err) throw err;
             last_collection = collection;
+            logger.log('verbose', 'access_token : ', (req.signedCookies['focus'] || '#'));
             collection.findOne({
                 $or : [
                     {
@@ -48,7 +49,9 @@ exports.login = function (req, res, next) {
                     access_token : item.access_token,
                     last_login : +new Date,
                     ip_address : req.connection.remoteAddress
-                }}, util.throw_err);
+                }}, function (err) {
+                    if (err) next(err);
+                });
                 db.collection('sections', getClass);
             }
         },
@@ -128,11 +131,17 @@ exports.logout = function (req, res, next) {
         updateInstructor = function (err, item) {
             if (err) throw err;
             if (item) {
-                logger.log('verbose', item.username, 'clearing access_token');
-                last_collection.update({'_id' : item._id}, {$set : {access_token: null}}, util.throw_err);
+                logger.log('verbose', item._id, 'clearing access_token');
+                last_collection.update(
+                    {'_id' : item._id},
+                    {$set : {access_token: null}},
+                    function (err) {
+                        if (err) next(err);
+                    }
+                );
                 res.clearCookie('focus');
                 res.send({message : "Logout successful"});
-                logger.log('info', item.username, 'logged out successful');
+                logger.log('info', item._id, 'logged out successful');
             }
             else {
                 logger.log('warn', 'someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
@@ -158,7 +167,7 @@ exports.findbyId = function(req, res) {
 exports.findAll = function(req, res) {
     db.get(function(db){
         db.collection(collectionName, function(err, collection) {
-            collection.find().toArray(function(err, items) {
+            collection.find().toArray( function(err, items) {
                 res.send(items);
             });
         });

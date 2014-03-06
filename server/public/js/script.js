@@ -32,16 +32,11 @@ root = this;
             document.getElementById('feed_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
-            if (_this.class.students) {
-                setTimeout(function(){
-                    setupScreenshots(_this.class.students);
-                }, 500);
-            }
-            else {
-                alert('You have no class as of this time...');
-            }
+            setTimeout(function(){
+                setupScreenshots(_this.class.students);
+            }, 500);
         },
-        records = function (a) {
+        records = function () {
             var active = document.getElementsByClassName('active_section')[0],
                 temp = document.getElementById('records_section_select');
             temp.innerHTML = '';
@@ -254,13 +249,20 @@ root = this;
                     self.className = '';
                     self.innerHTML = 'SIGN IN!';
                     password.value = username.value = password.disabled = username.disabled = '';
-                    page.show('feed');
 
-                    temp = document.getElementById('scrnsht_interval_input');
+                    if (_this.class.students) {
+                        page.show('feed');
+                        temp = document.getElementById('scrnsht_interval_input');
 
-                    ["keyup", "mouseup", "keypress"].map(function (ev) {
-                        temp.addEventListener(ev, startAutoRefresh, false);
-                    });
+                        ["keyup", "mouseup", "keypress"].map(function (ev) {
+                            temp.addEventListener(ev, startAutoRefresh, false);
+                        });
+                    }
+                    else {
+                        document.getElementById('feed_a').remove();
+                        page.show('records');
+                        alert('You have no class as of this time...');
+                    }
                 }, 250);
             }
         }, function (e) {

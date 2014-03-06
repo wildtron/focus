@@ -32,10 +32,6 @@ exports.pad = function (num, size) {
     return ('000000000' + num).substr(-size);
 };
 
-exports.throw_err = function (err) {
-    if (err) throw err;
-};
-
 exports.extractFiles = function (files, name, required) {
     if (files[name])
         return (files[name] instanceof Array) ? files[name] : [files[name]];
@@ -70,4 +66,12 @@ exports.getSafeFileName = function (path, cb) {
             });
         };
     check(original_path);
+};
+
+exports.cleanFileName = function (file_name) {
+    return  file_name
+            .replace(/\.\./gi, '')              // remove consecutive 2 dots
+            .replace(/^\./i, '')                // remove dot on if first character
+            .replace(/\s+/gi, '-')              // replace space/s with dash
+            .replace(/[^a-zA-Z0-9\.-]/gi, '');  // strip any special characters
 };
