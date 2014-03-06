@@ -6,16 +6,17 @@ var collectionName = 'instructors',
 
 exports.collectionName = collectionName;
 
-exports.login = function (req, res) {
+exports.login = function (req, res, next) {
     var db,
+        data,
         item,
         last_collection,
-        data = util.chk_rqd(['username', 'password'], req.body),
         getInstructorCollection = function (_db) {
             db = _db;
             db.collection(collectionName, getInstructor);
         },
-        getInstructor = function(err, collection) {
+        getInstructor = function (err, collection) {
+            if (err) throw err;
             last_collection = collection;
             collection.findOne({
                 $or : [
@@ -32,6 +33,7 @@ exports.login = function (req, res) {
             }, getSectionCollection);
         },
         getSectionCollection = function (err, _item) {
+            if (err) throw err;
             item = _item;
             if (item == null) {
                 logger.log('info', data.username, 'failed to login. Wrong username or password');
@@ -46,14 +48,14 @@ exports.login = function (req, res) {
                     access_token : item.access_token,
                     last_login : +new Date,
                     ip_address : req.connection.remoteAddress
-                }});
+                }}, util.throw_err);
                 db.collection('sections', getClass);
             }
         },
-        getClass = function(err, collection) {
+        getClass = function (err, collection) {
             var date = new Date(),
                 day = "UMTWHFS"[date.getDay()];
-
+            if (err) throw err;
             date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
 
             logger.log('verbose', data.username, ': getting current class');
@@ -69,6 +71,7 @@ exports.login = function (req, res) {
             );
         },
         getStudentCollection = function (err, _class) {
+            if (err) throw err;
             logger.log('verbose', 'setting access token on cookie');
             res.cookie('focus', item.access_token, {signed : true});
             delete item.access_token;
@@ -84,6 +87,7 @@ exports.login = function (req, res) {
             }
         },
         getStudents = function (err, collection) {
+            if (err) throw err;
             collection.find(
                 {_id : {$in : item.class.students}},
                 {
@@ -92,18 +96,24 @@ exports.login = function (req, res) {
                     access_token : 0
                 }
             ).toArray(function (err, docs) {
+                if (err) throw err;
                 logger.log('verbose', data.username, ': login successful with current class and students');
                 item.class.students = docs;
                 res.send(item);
             });
         };
-    logger.log('info', data.username, 'is trying to login');
-    DB.get(getInstructorCollection);
+    try {
+        data = util.chk_rqd(['username', 'password'], req.body)
+        logger.log('info', data.username, 'is trying to login');
+        DB.get(getInstructorCollection);
+    } catch (err) {
+        next(err);
+    }
 };
 
 
 
-exports.logout = function (req, res) {
+exports.logout = function (req, res, next) {
     var db,
         last_collection,
         getInstructorCollection = function (_db) {
@@ -111,13 +121,15 @@ exports.logout = function (req, res) {
             db.collection(collectionName, getInstructor);
         },
         getInstructor = function(err, collection) {
+            if (err) throw err;
             last_collection = collection;
             collection.findOne({'access_token' : (req.signedCookies['focus'] || '#')}, updateInstructor);
         },
         updateInstructor = function (err, item) {
+            if (err) throw err;
             if (item) {
                 logger.log('verbose', item.username, 'clearing access_token');
-                last_collection.update({'_id' : item._id}, {$set : {access_token: null}});
+                last_collection.update({'_id' : item._id}, {$set : {access_token: null}}, util.throw_err);
                 res.clearCookie('focus');
                 res.send({message : "Logout successful"});
                 logger.log('info', item.username, 'logged out successful');
@@ -127,7 +139,11 @@ exports.logout = function (req, res) {
                 res.send({message : "Invalid access_token"});
             }
         };
-    DB.get(getInstructorCollection);
+    try {
+        DB.get(getInstructorCollection);
+    } catch (err) {
+        next(err);
+    }
 };
 
 exports.findbyId = function(req, res) {

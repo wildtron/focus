@@ -9,10 +9,11 @@
     "socket.io": "~0.9.16",
     "google-spreadsheets": "~0.3.0",
     "googleapis": "~0.6.1",
-    "winston": "~0.7.2"
+    "winston": "~0.7.2",
+    "nodemon": "~1.0.15"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",

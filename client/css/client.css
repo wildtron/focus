@@ -370,6 +370,9 @@ section{
 #main_section textarea .success{
     background: #27AE60 !important;
 }
+#main_section textarea .failed{
+    background: #E74C3C !important;
+}
 
 @-webkit-keyframes progressBar {
     from {

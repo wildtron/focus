@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/client.css" />
     </head>
 
-    <body data-url="http://10.0.5.49:3000/">
+    <body data-url="http://localhost:3000/">
 
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
@@ -32,7 +32,7 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-        <script type="text/javascript" src="http://10.0.5.49:3000/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
             if (typeof require !== '' + void 0) {
@@ -72,7 +72,7 @@
                     password = document.getElementById('password_input'),
                     connectSocket = function () {
                         socket = io.connect(url);
-                        socket.emit('join_room', {student_number : cookie.get('student_number')});
+                        socket.emit('join_room', {student_number : cookies.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                         });
@@ -233,9 +233,18 @@
                                     _this.value = '';
                                     chat_content.innerHTML += '<li class="incoming">Submitted ' + files_count + ' file' + (files_count > 1 ? 's' : '') + '.</li>';
                                 }, 500);
-                            }, 1000);
+                            }, 500);
                         } else {
-                            console.log('Something went terribly wrong...');
+                            setTimeout(function () {
+                                _this.value = 'Failed!';
+                                _this.className += ' failed';
+                                setTimeout(function () {
+                                    _this.disabled = false;
+                                    _this.className = '';
+                                    _this.value = '';
+                                    chat_content.innerHTML += '<li class="incoming">Failed to submit ' + files_count + ' file' + (files_count > 1 ? 's' : '') + '. Please try again.</li>';
+                                }, 500);
+                            }, 500);
                         }
                     };
 

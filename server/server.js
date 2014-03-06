@@ -11,10 +11,9 @@ var express = require('express'),
 logger.log('info', 'initializing FOCUS...');
 app.use(express.logger({stream : logFile}));
 app.use(express.compress());
+app.use(express.limit('25mb'));
+app.use(express.bodyParser({uploadDir : __dirname + '/temp'}));
 app.use(express.methodOverride());
-app.use(express.limit('25M'));
-app.use(express.bodyParser({uploadDir: __dirname + '/temp'}));
-app.use(express.errorHandler());
 app.use(express.cookieParser(config.COOKIE_SECRET));
 app.use(express.static(__dirname + '/public'));
 app.use(function (req, res, next) {
@@ -24,6 +23,7 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
+app.use(app.router);
 
 logger.log('verbose', 'setting up router');
 router.setup(app);

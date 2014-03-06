@@ -13,6 +13,7 @@ exports.setup = function (app) {
     app.post('/student/logout', student.logout);
     app.post('/student/submit', student.submit);
     app.get('/students', student.findAll);
+    app.post('/student/findByAcessToken', student.findByAcessToken);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
@@ -22,6 +23,13 @@ exports.setup = function (app) {
 
     app.get('*', function (req, res) {
         res.redirect('/index.html');
+    });
+
+    // error handling
+    app.use(function (err, req, res, next) {
+        logger.log('warn', err.message);
+        console.dir(err);
+        res.send(400, {message : err.message});
     });
 
     logger.log('verbose', 'done setting up router');

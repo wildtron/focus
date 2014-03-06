@@ -8,7 +8,4 @@ var winston = require('winston'),
         ]
     });
 
-// winston.addColors({
-    // verbose: 'grey',
-// });
 exports.logger = logger;
