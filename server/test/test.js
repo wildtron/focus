@@ -1,6 +1,11 @@
 var should = require('chai').should(),
     request = require('supertest'),
-    api = request('http://localhost:3000');
+	server,
+	api;
+
+process.env['NODE_ENV'] = 'testing';
+server = require(__dirname + '/../server');
+api = request(server);
 
 describe('Instructor Authentication', function() {
     it('should look for missing password', function (done) {

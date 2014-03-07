@@ -1,7 +1,7 @@
-TESTS = test/*.js
 test:
+	cd server
 	npm install
-	npm start
-	mocha --timeout 5000 --reporter spec $(TESTS)
+	NODE_ENV=testing
+	npm test
 
 .PHONY: test
