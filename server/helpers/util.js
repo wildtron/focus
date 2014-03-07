@@ -12,7 +12,6 @@ exports.chk_rqd = function (reqd, body, next) {
     while (i--) {
         if (!body[temp = reqd[i]]) {
             next(new TolerableError(temp + ' is missing'));
-            throw {};
         }
         ret[temp] = body[temp];
     }
@@ -79,29 +78,3 @@ exports.cleanFileName = function (file_name) {
             .replace(/\s+/gi, '-')              // replace space/s with dash
             .replace(/[^a-zA-Z0-9\.-]/gi, '');  // strip any special characters
 };
-
-
-exports.runTest = function () {
-    var mocha = new Mocha({reporter : 'spec'});
-
-    // Then, you need to use the method "addFile" on the mocha
-    // object for each file.
-
-    // Here is an example:
-    fs.readdirSync(__dirname + '/../test/').filter(function(file){
-        // Only keep the .js files
-        return file.substr(-3) === '.js';
-    }).forEach(function(file){
-        // Use the method "addFile" to add the file to mocha
-        mocha.addFile(
-            path.join(__dirname + '/../test/', file)
-        );
-    });
-
-    // Now, you can run the tests.
-    mocha.run(function(failures){
-        process.on('exit', function () {
-            process.exit(failures);
-        });
-    });
-}
