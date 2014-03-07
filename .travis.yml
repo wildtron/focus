@@ -1,3 +1,4 @@
+before_script: cd server
 services: mongodb
 language: node_js
 node_js:
