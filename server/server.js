@@ -10,10 +10,11 @@ var express = require('express'),
     config = require(__dirname + '/config/config').config,
     logFile;
 
-util.mkdir(__dirname + '/logs', function () {
-	logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
+// util.mkdir(__dirname + '/logs', function () {
+	// logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
 	logger.log('info', 'initializing FOCUS...');
-	app.use(express.logger({stream : logFile}));
+	// app.use(express.logger({stream : logFile}));
+	app.use(express.logger());
 	app.use(express.compress());
 	app.use(express.limit('25mb'));
 	app.use(express.bodyParser({uploadDir : __dirname + '/temp'}));
@@ -35,5 +36,5 @@ util.mkdir(__dirname + '/logs', function () {
 	router.handleSocket(io);
 
 	db.listenOnConnect(server);
-});
+// });
 
