@@ -1,6 +1,6 @@
 test:
 	npm install
 	NODE_ENV=testing
-	npm test
+	mocha --reporter spec
 
 .PHONY: test
