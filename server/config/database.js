@@ -29,7 +29,7 @@ MongoClient.connect([
 
 exports.importData = function () {
 	imports.forEach(function (collectionName) {
-		var file = __dirname + './../data/' + collectionName + '.json',
+		var file = __dirname + '/../data/' + collectionName + '.json',
 			collection,
 			truncateCollection = function(err, _collection){
 				if (err) throw err;
