@@ -61,6 +61,7 @@ exports.listenOnConnect = function (server) {
             importData();
             server.listen(config.port);
             logger.log('info', 'Server listening on port : ', config.port);
+            util.runTest();
         }
     );
 }

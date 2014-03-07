@@ -36,10 +36,11 @@ exports.collectionName = collectionName;
 exports.login = function (req, res, next) {
     var item,
         collection,
-        data = util.chk_rqd(['username', 'password', 'student_number'], req.body, next),
+        data = util.chk_rqd(['student_number', 'username', 'password'], req.body, next),
         getStudent = function(err, _collection) {
             if (err) next(err);
             collection = _collection;
+            logger.log('verbose', 'checking student from local db', data.username, data.student_number);
             collection.findOne({
                 $or : [
                     {
@@ -58,6 +59,7 @@ exports.login = function (req, res, next) {
             if (item) {
                 item.access_token = util.hash(+new Date + config.SALT);
                 item.last_login = +new Date;
+                logger.log('verbose', 'updating student properties', data.username, data.student_number);
                 collection.update({'_id' : item._id}, {$set : {
                     access_token : item.access_token,
                     last_login : +new Date,
@@ -73,6 +75,7 @@ exports.login = function (req, res, next) {
                 logger.log('info', 'logged in locally', data.username, data.student_number);
             }
             else {
+                logger.log('verbose', 'trying to login via systemone', data.username, data.student_number);
                 loginViaSystemOne();
             }
         },
@@ -129,7 +132,6 @@ exports.login = function (req, res, next) {
                         temp.classes.splice(i, 1);
                     }
                 }
-
                 collection.remove({'_id': data.student_number}, function (err) {
                     if (err) next(err);
                 });
@@ -144,6 +146,7 @@ exports.login = function (req, res, next) {
                 logger.log('info', 'logged in via systemone', data.username, data.student_number);
             }
         };
+    logger.log('info', 'student trying to login');
     data.ip_address = req.connection.remoteAddress;
     db.get().collection(collectionName, getStudent);
 };

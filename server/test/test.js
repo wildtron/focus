@@ -3,7 +3,7 @@ var should = require('chai').should(),
     api = request('http://localhost:3000');
 
 describe('Instructor Authentication', function() {
-    it('should look for missing password', function(done) {
+    it('should look for missing password', function (done) {
         api.post('/instructor/login')
         .send({username : 'mamkat'})
         .expect(400)
@@ -17,7 +17,7 @@ describe('Instructor Authentication', function() {
         });
     });
 
-    it('should look for missing username', function(done) {
+    it('should look for missing username', function (done) {
         api.post('/instructor/login')
         .send({password : '12345'})
         .expect(400)
@@ -31,7 +31,7 @@ describe('Instructor Authentication', function() {
         });
     });
 
-    it('should not login mam kat', function(done) {
+    it('should not login mam kat', function (done) {
         api.post('/instructor/login')
         .send({username : 'mamka', password : '12345'})
         .expect(401)
@@ -41,7 +41,7 @@ describe('Instructor Authentication', function() {
         });
     });
 
-    it('should login mam kat', function(done) {
+    it('should login mam kat', function (done) {
         api.post('/instructor/login')
         .send({username : 'mamkat', password : '12345'})
         .expect(200)
@@ -64,9 +64,9 @@ describe('Instructor Authentication', function() {
 });
 
 describe('Student Authentication', function () {
-    it('should look for missing student_number', function(done) {
+    it('should look for missing student_number', function (done) {
         api.post('/student/login')
-        .send({username : 'mamkat'})
+        .send({username : 'mamkat', password : '12345'})
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
@@ -78,9 +78,9 @@ describe('Student Authentication', function () {
         });
     });
 
-    it('should look for missing password', function(done) {
+    it('should look for missing password', function (done) {
         api.post('/student/login')
-        .send({student_number : '2010-43168'})
+        .send({student_number : '2010-43168', username : 'tester'})
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
@@ -91,7 +91,7 @@ describe('Student Authentication', function () {
         });
     });
 
-    it('should look for missing username', function(done) {
+    it('should look for missing username', function (done) {
         api.post('/student/login')
         .send({student_number : '2010-43168', password : 'asdfasdf'})
         .expect(400)
@@ -104,7 +104,7 @@ describe('Student Authentication', function () {
         });
     });
 
-    it('should not login tester', function(done) {
+    it('should not login tester', function (done) {
         api.post('/student/login')
         .send({student_number : '2010-43168', username : 'tester', password : '12345'})
         .expect(401)
@@ -113,7 +113,7 @@ describe('Student Authentication', function () {
             done();
         });
     });
-    it('should login in ravenjohn', function(done) {
+    it('should login in ravenjohn', function (done) {
         api.post('/student/login')
         .send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
         .expect(200)
@@ -125,3 +125,5 @@ describe('Student Authentication', function () {
         });
     });
 });
+
+

@@ -9,12 +9,11 @@
     "socket.io": "~0.9.16",
     "google-spreadsheets": "~0.3.0",
     "googleapis": "~0.6.1",
-    "winston": "~0.7.2",
-    "nodemon": "~1.0.15"
+    "winston": "~0.7.2"
   },
   "scripts": {
     "start": "nodemon server.js --ignore test/",
-    "test" : "make test"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
@@ -36,6 +35,11 @@
   "homepage": "https://github.com/wildtron/focus",
   "devDependencies": {
     "supertest": "~0.9.0",
-    "chai": "~1.9.0"
+    "chai": "~1.9.0",
+    "grunt-simple-mocha": "~0.4.0",
+    "grunt": "~0.4.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-express-server": "~0.4.13",
+    "mocha": "~1.17.1"
   }
 }
