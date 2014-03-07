@@ -28,7 +28,7 @@ exports.setup = function (app) {
     app.use(function (err, req, res, next) {
         logger.log('warn', err.message);
         if (!err instanceof TolerableError) {
-            // console.dir(err);
+            console.dir(err);
         }
         res.send(400, {message : err.message});
         return ;

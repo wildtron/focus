@@ -6,6 +6,7 @@ var db,
     util = require(__dirname + '/../helpers/util'),
     logger = require(__dirname + '/../lib/logger'),
     config = require(__dirname + '/../config/config').config,
+	queue = [],
     imports = [],
 	importData = function () {
 		imports.forEach(function (collectionName) {
@@ -58,8 +59,16 @@ MongoClient.connect([
 		db = c;
 		logger.log('info', "Connected to 'focusdb' database");
 		importData();
+		console.dir(queue);
+		queue.forEach(function (next) {
+			next();
+		});
 	}
 );
+
+exports.setOnConnect = function (cb) {
+	(db && cb()) || queue.push(cb);
+};
 
 exports.get = function () {
     return db;

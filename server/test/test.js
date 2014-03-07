@@ -3,11 +3,10 @@ var should = require('chai').should(),
 	server,
 	api;
 
-process.env['NODE_ENV'] = 'testing';
 server = require(__dirname + '/../server');
 api = request(server);
 
-describe('Instructor Authentication', function() {
+describe('Fail Authentications', function() {
     it('should look for missing password', function (done) {
         api.post('/instructor/login')
         .send({username : 'mamkat'})
@@ -36,39 +35,6 @@ describe('Instructor Authentication', function() {
         });
     });
 
-    it('should not login mam kat', function (done) {
-        api.post('/instructor/login')
-        .send({username : 'mamka', password : '12345'})
-        .expect(401)
-        .end(function (err, res) {
-            should.not.exist(err);
-            done();
-        });
-    });
-
-    it('should login mam kat', function (done) {
-        api.post('/instructor/login')
-        .send({username : 'mamkat', password : '12345'})
-        .expect(200)
-        .end(function (err, res) {
-            should.not.exist(err);
-            res.headers.should.have.ownProperty('set-cookie');
-            res.headers['set-cookie'].should.be.an('array');
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('classes');
-            res.body.should.have.ownProperty('_id');
-            res.body.should.have.ownProperty('first_name');
-            res.body.should.have.ownProperty('middle_name');
-            res.body.should.have.ownProperty('last_name');
-            res.body.should.have.ownProperty('sex');
-            res.body.should.not.have.ownProperty('password');
-            res.body.should.not.have.ownProperty('access_token');
-            done();
-        });
-    });
-});
-
-describe('Student Authentication', function () {
     it('should look for missing student_number', function (done) {
         api.post('/student/login')
         .send({username : 'mamkat', password : '12345'})
@@ -108,8 +74,43 @@ describe('Student Authentication', function () {
             done();
         });
     });
+});
 
-    it('should not login tester', function (done) {
+describe('Success Authentication', function () {
+
+
+    it('should not login mam kat', function (done) {
+        api.post('/instructor/login')
+        .send({username : 'mamka', password : '12345'})
+        .expect(401)
+        .end(function (err, res) {
+            should.not.exist(err);
+            done();
+        });
+    });
+
+    it('should login mam kat', function (done) {
+        api.post('/instructor/login')
+        .send({username : 'mamkat', password : '12345'})
+        .expect(200)
+        .end(function (err, res) {
+            should.not.exist(err);
+            res.headers.should.have.ownProperty('set-cookie');
+            res.headers['set-cookie'].should.be.an('array');
+            res.body.should.be.an('object');
+            res.body.should.have.ownProperty('classes');
+            res.body.should.have.ownProperty('_id');
+            res.body.should.have.ownProperty('first_name');
+            res.body.should.have.ownProperty('middle_name');
+            res.body.should.have.ownProperty('last_name');
+            res.body.should.have.ownProperty('sex');
+            res.body.should.not.have.ownProperty('password');
+            res.body.should.not.have.ownProperty('access_token');
+            done();
+        });
+    });
+
+    it('should not login student tester', function (done) {
         api.post('/student/login')
         .send({student_number : '2010-43168', username : 'tester', password : '12345'})
         .expect(401)
@@ -125,8 +126,9 @@ describe('Student Authentication', function () {
         .expect(200)
         .end(function (err, res) {
             should.not.exist(err);
-            res.should.have.classes;
-            res.should.have.access_token;
+            res.body.should.have.ownProperty('first_name');
+            res.body.should.have.ownProperty('last_name');
+            res.body.should.have.ownProperty('access_token');
             done();
         });
     });
