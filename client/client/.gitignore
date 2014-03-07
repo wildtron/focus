@@ -1,0 +1,4 @@
+*.nw
+*.sw*
+
+node_modules/
