@@ -12,7 +12,7 @@
     "winston": "~0.7.2"
   },
   "scripts": {
-    "start": "nodemon server.js --ignore test/",
+    "start": "node server.js",
     "test": "make test"
   },
   "repository": {
