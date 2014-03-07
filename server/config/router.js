@@ -8,6 +8,9 @@ var db = require(__dirname + '/database'),
 // imports
 db.addImport(section.collectionName);
 db.addImport(instructor.collectionName);
+if (process.env['NODE_ENV'] === 'testing') {
+	db.addImport(student.collectionName);
+}
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);

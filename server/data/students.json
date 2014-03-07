@@ -1,0 +1,28 @@
+[
+	{
+		"classes" : [ ],
+		"first_name" : "RAVEN JOHN",
+		"middle_name" : "M",
+		"last_name" : "LAGRIMAS",
+		"username" : "ravenjohn",
+		"_id" : "2010-43168",
+		"password" : "02d6e390eac180a82eebb3eac30c6928",
+		"access_token" : "33f3d5dc5beab3d87c7cecd6e0118b2c",
+		"last_login" : 1394204100762,
+		"ip_address" : "127.0.0.1"
+	},
+	{
+		"classes" : [
+			"CMSC 161 UV-2L"
+		],
+		"first_name" : "SHERWIN JET",
+		"middle_name" : "B",
+		"last_name" : "FERRER",
+		"username" : "wildtron",
+		"_id" : "2010-41794",
+		"password" : "02d6e390eac180a82eebb3eac30c6928",
+		"access_token" : "bbba965bf9f5a7bf03713c330fb3cba3",
+		"last_login" : 1394204173096,
+		"ip_address" : "127.0.0.1"
+	}
+]

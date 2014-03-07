@@ -59,7 +59,6 @@ MongoClient.connect([
 		db = c;
 		logger.log('info', "Connected to 'focusdb' database");
 		importData();
-		console.dir(queue);
 		queue.forEach(function (next) {
 			next();
 		});

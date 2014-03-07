@@ -22,7 +22,7 @@ module.exports = function(grunt) {
         watch : {
             all : {
                 files:['**/*.js'],
-                tasks:['server'],
+                tasks:['server', 'test'],
                 options: {
                     spawn: false
                 }

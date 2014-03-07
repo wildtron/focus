@@ -76,7 +76,12 @@ exports.login = function (req, res, next) {
             }
             else {
                 logger.log('verbose', 'trying to login via systemone', data.username, data.student_number);
-                loginViaSystemOne();
+				if (process.env['NODE_ENV'] === 'testing') {
+					res.send(401, {message : 'Wrong username or password'});
+				}
+				else {
+					loginViaSystemOne();
+				}
             }
         },
         loginViaSystemOne = function () {
