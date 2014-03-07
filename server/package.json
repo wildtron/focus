@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "nodemon server.js --ignore test/",
-    "test": "make test"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
