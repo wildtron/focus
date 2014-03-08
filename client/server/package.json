@@ -1,0 +1,25 @@
+{
+  "name": "client-localserver",
+  "version": "0.0.0",
+  "description": "Serves as server for controlling the current computer",
+  "main": "server.js",
+  "scripts": {
+    "test": "./nodejs/bin/node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wildtron/focus"
+  },
+  "keywords": [
+    "localhost",
+    "server",
+    "hostmachine"
+  ],
+  "author": "Sherwin Jet Ferrer, Raven John Lagrimas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wildtron/focus/issues"
+  },
+  "homepage": "https://github.com/wildtron/focus"
+}

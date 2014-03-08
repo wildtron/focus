@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-./nodejs/bin/node server.js

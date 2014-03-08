@@ -1,5 +1,5 @@
 exports.motherServer={
-    host:'http://10.0.5.49',
+    host:'http://192.168.1.50',
     port: 3000
 };
 

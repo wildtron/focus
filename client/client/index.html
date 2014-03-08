@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/client.css" />
     </head>
 
-    <body data-url="http://localhost:3000/">
+    <body data-url="http://192.168.1.50:3000/">
 
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
@@ -32,7 +32,7 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-        <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="http://192.168.1.50:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
             if (typeof require !== '' + void 0) {
@@ -70,6 +70,7 @@
                     username = document.getElementById('username_input'),
                     student_number = document.getElementById('student_number_input'),
                     password = document.getElementById('password_input'),
+                    setSessionTimer, destroySessionTimer,
                     connectSocket = function () {
                         socket = io.connect(url);
                         socket.emit('join_room', {student_number : cookies.get('student_number')});
@@ -82,6 +83,11 @@
                 root.ondrop = function(e) { e.preventDefault(); return false };
 
                 if(cookies.has('FOCUSSESSID')){
+                /*
+                 * This is not yet complete. When FOCUSSESSID exists, the client should check from the motherServer
+                 * if it is a valid session. If it is not, the session is destroyed and the client is logged out
+                 * But if it exists, the server renews the session so that it is updated
+                 */
                     connectSocket();
                     setTimeout(function () {
                         document.getElementById('front_section').className = 'current-to-left';
@@ -92,6 +98,7 @@
                         chat_content.focus();
                     }, 250);
                 }
+
                 document.getElementById('sign_in_button').onclick = function () {
                     var self = this,
                     request = new XMLHttpRequest();
@@ -122,8 +129,11 @@
                                     student_number.disabled = password.disabled = username.disabled = '';
                                     username.focus();
                                 }, 1000);
-                            }
-                            else {
+                            } else {
+                                /*
+                                 * When the server authenticates the payload and it was successful,
+                                 * set cookies to the client
+                                 */
                                 console.log('Authentication from server was success.');
                                 // set cookie, expire in 3 hours
                                 cookies.set('FOCUSSESSID', response.access_token, 10800);
@@ -149,16 +159,19 @@
                                     chat_content.focus();
                                 }, 250);
 
-                                console.log('Sending setSession to localhost:8286 so that session is set as key for transanction');
-                                setInterval(function(){
-                                    var sessionServer='localhost:10610',
+                                /*
+                                 * Send the FOCUSSESSID to local server. Do this until local server sets the session
+                                 */
+                                setSessionTimer = setInterval(function(){
+                                console.log('Sending setSession.');
+                                    var sessionServer='http://localhost:10610',
                                         setSessionRequest = new XMLHttpRequest();
                                     setSessionRequest.open('POST', sessionServer, true);
                                     setSessionRequest.setRequestHeader('Content-Type', 'application/json');
                                     setSessionRequest.send(JSON.stringify({
                                         session : cookies.get('FOCUSSESSID')
                                     }));
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 100){
+                                    if(setSessionRequest.readyState + setSessionRequest.status == 204){
                                         clearInterval(this);
                                     }
                                 }, 5000);
@@ -180,7 +193,7 @@
 
                     var sessionServer='http://localhost:10610';
                     console.log('Destroy session to localhost:10610 so that controls are off');
-                    setTimeout(function(){
+                    setsetTimeout(function(){
                         console.log("Trying to set session to local server.");
                         var setSessionRequest = new XMLHttpRequest();
                         setSessionRequest.open('POST', sessionServer, true);
@@ -190,7 +203,8 @@
                         }));
                         console.log(setSessionRequest);
                         if(setSessionRequest.readyState + setSessionRequest.status == 204){
-                            clearInterval(this);
+                            clearTimeout(this);
+                            clearInterval(setSessionTimer);
                         }
                     }, 5000);
 
