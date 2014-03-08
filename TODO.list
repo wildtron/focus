@@ -3,6 +3,10 @@ Client
     Keystrokes measurement for boredom, confusion and other
     VNC client/server is yet to be implemeneted
     Better session handling
+    Startup script that runs the localserver and the client simultaneously
+    Startup script that prevents the user from closing or shutting down
+        the client and localserver
+    Script to protect the localserver and the client
 
 Server
     Needs security
