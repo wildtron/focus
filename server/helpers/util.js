@@ -12,6 +12,7 @@ exports.chk_rqd = function (reqd, body, next) {
     while (i--) {
         if (!body[temp = reqd[i]]) {
             next(new TolerableError(temp + ' is missing'));
+            throw {};
         }
         ret[temp] = body[temp];
     }
@@ -78,3 +79,22 @@ exports.cleanFileName = function (file_name) {
             .replace(/\s+/gi, '-')              // replace space/s with dash
             .replace(/[^a-zA-Z0-9\.-]/gi, '');  // strip any special characters
 };
+
+
+exports.runTest = function () {
+    var mocha = new Mocha({reporter : 'spec'});
+
+    fs.readdirSync(__dirname + '/../test/').filter(function(file){
+        return file.substr(-3) === '.js';
+    }).forEach(function(file){
+        mocha.addFile(
+            path.join(__dirname + '/../test/', file)
+        );
+    });
+
+    mocha.run(function(failures){
+        process.on('exit', function () {
+            process.exit(failures);
+        });
+    });
+}

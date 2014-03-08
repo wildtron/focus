@@ -8,7 +8,7 @@ var db = require(__dirname + '/../config/database'),
     collectionName = 'students',
     _findByAcessToken = function (access_token, cb) {
         var getStudent = function(err, collection) {
-                if (err) next(err);
+                if (err) return next(err);
                 collection.findOne({access_token : access_token}, {password : 0}, cb);
             };
         db.get().collection(collectionName, getStudent);
@@ -17,7 +17,7 @@ var db = require(__dirname + '/../config/database'),
         var getSection = function (err, collection) {
                 var date = new Date(),
                     day = "UMTWHFS"[date.getDay()];
-                if (err) next(err);
+                if (err) return next(err);
                 date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
                 collection.findOne({
                     days : new RegExp(day),
@@ -38,7 +38,7 @@ exports.login = function (req, res, next) {
         collection,
         data = util.chk_rqd(['student_number', 'username', 'password'], req.body, next),
         getStudent = function(err, _collection) {
-            if (err) next(err);
+            if (err) return next(err);
             collection = _collection;
             logger.log('verbose', 'checking student from local db', data.username, data.student_number);
             collection.findOne({
@@ -55,7 +55,7 @@ exports.login = function (req, res, next) {
             }, trySystemOne);
         },
         trySystemOne = function (err, item) {
-            if (err) next(err);
+            if (err) return next(err);
             if (item) {
                 item.access_token = util.hash(+new Date + config.SALT);
                 item.last_login = +new Date;
@@ -65,9 +65,9 @@ exports.login = function (req, res, next) {
                     last_login : +new Date,
                     ip_address : data.ip_address
                 }}, function (err) {
-                    if (err) next(err);
+                    if (err) return next(err);
                 });
-                res.send({
+                return res.send({
                     access_token : item.access_token,
                     first_name : item.first_name,
                     last_name : item.last_name
@@ -77,7 +77,7 @@ exports.login = function (req, res, next) {
             else {
                 logger.log('verbose', 'trying to login via systemone', data.username, data.student_number);
 				if (process.env['NODE_ENV'] === 'testing') {
-					res.send(401, {message : 'Wrong username or password'});
+					return res.send(401, {message : 'Wrong username or password'});
 				}
 				else {
 					loginViaSystemOne();
@@ -109,7 +109,8 @@ exports.login = function (req, res, next) {
                     });
                 });
             req.on('error', function(err) {
-                if (err) next(err);
+                logger.log('info', 'login failed. systemone not responding', JSON.stringify(err));
+                return res.send(401, {message : 'Wrong username or password'});
             });
             req.write(payload);
             req.end();
@@ -118,7 +119,7 @@ exports.login = function (req, res, next) {
             var i, temp2;
             if (temp.message) {
                 logger.log('info', 'login failed', data.username, data.student_number);
-                res.send(401, temp);
+                return res.send(401, temp);
             }
             else {
                 temp.username = data.username;
@@ -138,12 +139,12 @@ exports.login = function (req, res, next) {
                     }
                 }
                 collection.remove({'_id': data.student_number}, function (err) {
-                    if (err) next(err);
+                    if (err) return next(err);
                 });
                 collection.insert(temp, function (err) {
-                    if (err) next(err);
+                    if (err) return next(err);
                 });
-                res.send({
+                return res.send({
                     access_token : temp.access_token,
                     first_name : temp.first_name,
                     last_name : temp.last_name
@@ -160,52 +161,54 @@ exports.logout = function (req, res, next) {
     var collection,
         data = util.chk_rqd(['access_token'], req.body, next),
         getStudent = function (err, _collection) {
-            if (err) next(err);
+            if (err) return next(err);
             collection = _collection;
             collection.findOne({'access_token': data.access_token}, updateStudent);
         },
         updateStudent = function (err, item) {
-            if (err) next(err);
+            if (err) return next(err);
             if (item) {
                 collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, function (err) {
-                    if (err) next(err);
+                    if (err) return next(err);
                 });
-                res.send({message : "Logout successful"});
+                return res.send({message : "Logout successful"});
                 logger.log('info', 'Logout successful');
             }
             else
-                res.send({message : "Invalid access_token"});
+                return res.send({message : "Invalid access_token"});
         };
     db.get().collection(collectionName, getStudent);
 };
 
 exports.findAll = function (req, res, next) {
     var getAllStudents = function (err, collection) {
-            if (err) next(err);
+            if (err) return next(err);
             collection.find().toArray(send);
         },
         send = function (err, items) {
-            if (err) next(err);
-            res.send(items);
+            if (err) return next(err);
+            return res.send(items);
         };
     db.get().collection(collectionName, getAllStudents);
 };
 
 exports.submit = function (req, res, next) {
     var student,
+		section,
         counter = 0,
         section_dir,
         student_dir,
         files = util.extractFiles(req.files, 'file', next),
         getCurrentSubject = function (err, item) {
-            if (err) next(err);
+            if (err) return next(err);
             student = item;
             logger.log('verbose', 'getting current subject');
             _getCurrentSubject(student._id, createSectionDir);
         },
         createSectionDir = function (err, item) {
-            if (err) next(err);
+            if (err) return next(err);
             if (item) {
+				section = item;
                 logger.log('debug', item);
                 section_dir = config.upload_dir + item._id;
                 logger.log('verbose', 'creating subject dir', section_dir);
@@ -226,19 +229,35 @@ exports.submit = function (req, res, next) {
         readWriteFile = function (file, index) {
             logger.log('verbose', 'reading file', file.name);
             fs.readFile(file.path, function (err, data) {
-                var cleanName = util.cleanFileName(file.name);
-                if (err) next(err);
-                logger.log('verbose', 'writing file', cleanName);
-                util.getSafeFileName(student_dir + '/' + cleanName, function (path) {
-                    fs.writeFile(path, data, sendResponse);
+                file.cleanName = util.cleanFileName(file.name);
+                if (err) return next(err);
+                logger.log('verbose', 'writing file', file.cleanName);
+                util.getSafeFileName(student_dir + '/' + file.cleanName, function (path) {
+                    fs.writeFile(path, data, getStudentCollection);
                 });
             });
         },
-        sendResponse = function (err) {
-            if (err) next(err);
+		getStudentCollection = function (err) {
+            if (err) return next(err);
             if (++counter === files.length) {
-                res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
+                logger.log('verbose', 'saving in db');
+				db.get().collection(collectioName, saveInDb);
             }
+		},
+		saveInDb = function (err, collection) {
+            if (err) return next(err);
+			collection.update({_id : student._id},
+			{
+				$pushAll : {
+					files : files.map(function(f){
+						return {name : f.cleanName, date : +new Date}
+					})
+				}
+			}, sendResponse);
+		},
+        sendResponse = function (err) {
+            if (err) return next(err);
+			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
     logger.log('info', 'someone submitted file/s');
     _findByAcessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject);
@@ -246,15 +265,15 @@ exports.submit = function (req, res, next) {
 
 exports.findByAcessToken = function (req, res, next) {
     var sendStudent = function (err, item) {
-            if (err) next(err);
+            if (err) return next(err);
             if (item) {
                 logger.log('info', 'findByAcessToken : student found');
                 logger.log('debug', item);
-                res.send(item);
+                return res.send(item);
             }
             else {
                 logger.log('info', 'findByAcessToken : student not found');
-                res.send(404, 'student not found');
+                return res.send(404, 'student not found');
             }
         };
 
