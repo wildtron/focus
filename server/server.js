@@ -12,10 +12,7 @@ var express = require('express'),
 		var logFile;
 		if(err) throw err;
 		logger.log('info', 'initializing FOCUS...');
-		if (process.env['NODE_ENV'] === 'testing') {
-			// app.use(express.logger());
-		}
-		else {
+		if (process.env['NODE_ENV'] !== 'testing') {
 			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
 			app.use(express.logger({stream : logFile}));
 		}
@@ -47,10 +44,12 @@ if (!process.env['NODE_ENV']) {
 console.log('NODE_ENV', process.env['NODE_ENV']);
 
 if (process.env['NODE_ENV'] === 'testing') {
-	bootstrap();
+	util.mkdir(__dirname + '/temp', bootstrap);
 }
 else {
-	util.mkdir(__dirname + '/logs', bootstrap);
+	util.mkdir(__dirname + '/temp', function () {
+		util.mkdir(__dirname + '/logs', bootstrap);
+	});
 }
 
 server.listen(config.port);
