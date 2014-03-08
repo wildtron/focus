@@ -37,7 +37,7 @@ exports.login = function (req, res, next) {
             }
             else {
                 logger.log('verbose', data.username, 'is found on the local database');
-				if (process.env['NODE_ENV'] !== 'testing') {
+				if (process.env['NODE_ENV'] !== 'testing') {	// avoid test fails because of race condition
 					item.access_token = util.hash(+new Date + config.SALT);
 				}
                 item.class = { message : "You have no class at this time"};
@@ -104,6 +104,7 @@ exports.login = function (req, res, next) {
             return res.send(item);
         };
     logger.log('info', data.username, 'is trying to login');
+	if (!data) return;
     db.get().collection(collectionName, getInstructor);
 };
 
@@ -126,8 +127,8 @@ exports.logout = function (req, res, next) {
                     }
                 );
                 res.clearCookie('focus');
-                return res.send({message : "Logout successful"});
                 logger.log('info', item._id, 'logged out successful');
+                return res.send({message : "Logout successful"});
             }
             else {
                 logger.log('warn', 'someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
@@ -135,12 +136,4 @@ exports.logout = function (req, res, next) {
             }
         };
     db.get().collection(collectionName, getInstructor);
-};
-
-exports.findAll = function(req, res) {
-    db.get().collection(collectionName, function(err, collection) {
-        collection.find().toArray( function(err, items) {
-            return res.send(items);
-        });
-    });
 };

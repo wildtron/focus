@@ -37,7 +37,7 @@ describe('Student File Submit', function() {
         });
     });
 
-	it('should send a file successfully', function (done) {
+	it('should send 1 file successfully', function (done) {
 		api.post('/student/login')
 		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
 		.expect(200)
@@ -50,6 +50,25 @@ describe('Student File Submit', function() {
 				should.not.exist(err);
 				res.body.should.have.keys('message');
 				res.body.message.should.be.equal('Successfully submitted 1 file');
+				done();
+			});
+        });
+    });
+
+	it('should send 2 files successfully', function (done) {
+		api.post('/student/login')
+		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+		.expect(200)
+		.end(function (err, res) {
+			api.post('/student/submit')
+			.field('access_token', res.body.access_token)
+			.attach('file', __dirname + '/fixtures/input.txt')
+			.attach('file', __dirname + '/fixtures/Moon.java')
+			.expect(200)
+			.end(function (err, res) {
+				should.not.exist(err);
+				res.body.should.have.keys('message');
+				res.body.message.should.be.equal('Successfully submitted 2 files');
 				done();
 			});
         });

@@ -39,8 +39,10 @@ exports.pad = function (num, size) {
 exports.extractFiles = function (files, name, next) {
     if (files[name])
         return (files[name] instanceof Array) ? files[name] : [files[name]];
-    if (next)
+    if (next) {
         next(new TolerableError(name + ' is missing'));
+		return false;
+	}
     return [];
 }
 
@@ -91,9 +93,11 @@ exports.runTest = function () {
         );
     });
 
-    mocha.run(function(failures){
-        process.on('exit', function () {
-            process.exit(failures);
-        });
-    });
+	setTimeout(function () {
+		mocha.run(function (failures) {
+			process.on('exit', function () {
+				process.exit(failures);
+			});
+		});
+    }, 2000);
 }

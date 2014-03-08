@@ -67,5 +67,3 @@ describe('Instructor Authentication', function () {
         });
     });
 });
-
-

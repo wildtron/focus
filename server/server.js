@@ -43,14 +43,7 @@ if (!process.env['NODE_ENV']) {
 
 console.log('NODE_ENV', process.env['NODE_ENV']);
 
-if (process.env['NODE_ENV'] === 'testing') {
-	util.mkdir(__dirname + '/temp', bootstrap);
-}
-else {
-	util.mkdir(__dirname + '/temp', function () {
-		util.mkdir(__dirname + '/logs', bootstrap);
-	});
-}
+bootstrap();
 
 server.listen(config.port);
 logger.log('info', 'Server listening on port : ', config.port);

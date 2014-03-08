@@ -17,11 +17,9 @@ exports.setup = function (app) {
     app.post('/student/logout', student.logout);
     app.post('/student/submit', student.submit);
     app.post('/student/findByAccessToken', student.findByAccessToken);
-    app.get('/students', student.findAll);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
-    app.get('/instructors', instructor.findAll);
 
     app.get('/section/getStudents', section.getStudents);
 
