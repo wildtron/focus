@@ -218,7 +218,9 @@ exports.submit = function (req, res, next) {
                 logger.log('debug', item);
                 section_dir = config.upload_dir + item._id;
                 logger.log('verbose', 'creating subject dir', section_dir);
-                util.mkdir(section_dir, createStudentDir);
+				util.mkdir(config.upload_dir, function () {
+					util.mkdir(section_dir, createStudentDir);
+				});
             }
             else {
                 next(new TolerableError('no current subject'));
