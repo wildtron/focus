@@ -8,15 +8,16 @@ var express = require('express'),
     db = require(__dirname + '/config/database'),
     router = require(__dirname + '/config/router'),
     config = require(__dirname + '/config/config').config,
-	bootstrap = function () {
+	bootstrap = function (err) {
 		var logFile;
+		if(err) throw err;
 		logger.log('info', 'initializing FOCUS...');
 		if (process.env['NODE_ENV'] === 'testing') {
-			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
-			app.use(express.logger({stream : logFile}));
+			app.use(express.logger());
 		}
 		else {
-			app.use(express.logger());
+			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
+			app.use(express.logger({stream : logFile}));
 		}
 		app.use(express.compress());
 		app.use(express.limit('25mb'));
@@ -38,6 +39,10 @@ var express = require('express'),
 		logger.log('verbose', 'handling sockets');
 		router.handleSocket(io);
 	};
+
+if (!process.env['NODE_ENV']) {
+	process.env['NODE_ENV'] = 'development';
+}
 
 console.log('NODE_ENV', process.env['NODE_ENV']);
 

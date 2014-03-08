@@ -48,8 +48,7 @@ exports.mkdir = function (dir, cb) {
         if (exists) cb();
         else {
             fs.mkdir(dir, 600, function (err) {
-                if (err) throw err;
-                cb();
+                cb(err);
             });
         }
     });
@@ -78,3 +77,22 @@ exports.cleanFileName = function (file_name) {
             .replace(/\s+/gi, '-')              // replace space/s with dash
             .replace(/[^a-zA-Z0-9\.-]/gi, '');  // strip any special characters
 };
+
+
+exports.runTest = function () {
+    var mocha = new Mocha();
+
+    fs.readdirSync(__dirname + '/../test/').filter(function(file){
+        return file.substr(-3) === '.js';
+    }).forEach(function(file){
+        mocha.addFile(
+            path.join(__dirname + '/../test/', file)
+        );
+    });
+
+    mocha.run(function(failures){
+        process.on('exit', function () {
+            process.exit(failures);
+        });
+    });
+}

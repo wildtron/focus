@@ -6,34 +6,7 @@ var should = require('chai').should(),
 server = require(__dirname + '/../server');
 api = request(server);
 
-describe('Fail Authentications', function() {
-    it('should look for missing password', function (done) {
-        api.post('/instructor/login')
-        .send({username : 'mamkat'})
-        .expect(400)
-        .end(function (err, res) {
-            should.not.exist(err);
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('message');
-            res.body.message.should.be.string;
-            res.body.message.should.be.equal('password is missing');
-            done();
-        });
-    });
-
-    it('should look for missing username', function (done) {
-        api.post('/instructor/login')
-        .send({password : '12345'})
-        .expect(400)
-        .end(function (err, res) {
-            should.not.exist(err);
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('message');
-            res.body.message.should.be.string;
-            res.body.message.should.be.equal('username is missing');
-            done();
-        });
-    });
+describe('Student Authentications', function() {
 
     it('should look for missing student_number', function (done) {
         api.post('/student/login')
@@ -74,10 +47,80 @@ describe('Fail Authentications', function() {
             done();
         });
     });
+
+    it('should not login student tester', function (done) {
+        api.post('/student/login')
+        .send({student_number : '2010-43168', username : 'tester', password : '12345'})
+        .expect(401)
+        .end(function (err, res) {
+            should.not.exist(err);
+            done();
+        });
+    });
+
+    it('should login in ravenjohn', function (done) {
+        api.post('/student/login')
+        .send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+        .expect(200)
+        .end(function (err, res) {
+            should.not.exist(err);
+            res.body.should.have.ownProperty('first_name');
+            res.body.should.have.ownProperty('last_name');
+            res.body.should.have.ownProperty('access_token');
+            done();
+        });
+    });
+
+    it('should login in ravenjohn and send a file', function (done) {
+        api.post('/student/login')
+        .send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+        .expect(200)
+        .end(function (err, res) {
+            should.not.exist(err);
+            res.body.should.have.ownProperty('first_name');
+            res.body.should.have.ownProperty('last_name');
+            res.body.should.have.ownProperty('access_token');
+			api.post('/student/submit')
+			.field('access_token', res.body.access_token)
+			.attach('file', __dirname + '/fixtures/input.txt')
+			.expect(200)
+			.end(function (err, res) {
+				should.not.exist(err);
+				done();
+			});
+        });
+    });
 });
 
-describe('Success Authentication', function () {
+describe('Instructor Authentication', function () {
 
+    it('should look for missing password', function (done) {
+        api.post('/instructor/login')
+        .send({username : 'mamkat'})
+        .expect(400)
+        .end(function (err, res) {
+            should.not.exist(err);
+            res.body.should.be.an('object');
+            res.body.should.have.ownProperty('message');
+            res.body.message.should.be.string;
+            res.body.message.should.be.equal('password is missing');
+            done();
+        });
+    });
+
+    it('should look for missing username', function (done) {
+        api.post('/instructor/login')
+        .send({password : '12345'})
+        .expect(400)
+        .end(function (err, res) {
+            should.not.exist(err);
+            res.body.should.be.an('object');
+            res.body.should.have.ownProperty('message');
+            res.body.message.should.be.string;
+            res.body.message.should.be.equal('username is missing');
+            done();
+        });
+    });
 
     it('should not login mam kat', function (done) {
         api.post('/instructor/login')
@@ -110,28 +153,6 @@ describe('Success Authentication', function () {
         });
     });
 
-    it('should not login student tester', function (done) {
-        api.post('/student/login')
-        .send({student_number : '2010-43168', username : 'tester', password : '12345'})
-        .expect(401)
-        .end(function (err, res) {
-            should.not.exist(err);
-            done();
-        });
-    });
-
-    it('should login in ravenjohn', function (done) {
-        api.post('/student/login')
-        .send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
-        .expect(200)
-        .end(function (err, res) {
-            should.not.exist(err);
-            res.body.should.have.ownProperty('first_name');
-            res.body.should.have.ownProperty('last_name');
-            res.body.should.have.ownProperty('access_token');
-            done();
-        });
-    });
 });
 
 

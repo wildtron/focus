@@ -30,14 +30,11 @@ exports.setup = function (app) {
     // error handling
     app.use(function (err, req, res, next) {
         logger.log('warn', err.message);
-        if (!err instanceof TolerableError) {
-            console.dir(err);
-        }
         res.send(400, {message : err.message});
         return ;
     });
 
-    logger.log('verbose', 'done setting up router');
+	logger.log('verbose', 'done setting up router');
 };
 
 exports.handleSocket = function (io) {

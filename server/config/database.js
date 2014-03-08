@@ -62,6 +62,9 @@ MongoClient.connect([
 		queue.forEach(function (next) {
 			next();
 		});
+		if (process.env['NODE_ENV'] === 'development') {
+			util.runTest();
+		}
 	}
 );
 
