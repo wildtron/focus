@@ -8,6 +8,15 @@ server = require(__dirname + '/../server');
 api = request(server);
 
 describe('Student File Submit', function() {
+	it('should ask for missing access_token', function (done) {
+		api.post('/student/submit')
+		.attach('file', __dirname + '/fixtures/input.txt')
+		.expect(400)
+		.end(function (err, res) {
+			should.not.exist(err);
+			done();
+		});
+	});
 	it('should send a file successfully', function (done) {
 		api.post('/student/login')
 		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
@@ -24,13 +33,4 @@ describe('Student File Submit', function() {
         });
 
     });
-	it('should ask for missing access_token', function (done) {
-		api.post('/student/submit')
-		.attach('file', __dirname + '/fixtures/input.txt')
-		.expect(400)
-		.end(function (err, res) {
-			should.not.exist(err);
-			done();
-		});
-	});
 });

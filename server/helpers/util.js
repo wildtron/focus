@@ -47,7 +47,7 @@ exports.mkdir = function (dir, cb) {
     fs.exists(dir, function (exists) {
         if (exists) cb();
         else {
-            fs.mkdir(dir, 600, function (err) {
+            fs.mkdir(dir, 666, function (err) {
                 cb(err);
             });
         }

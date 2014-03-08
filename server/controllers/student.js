@@ -223,7 +223,7 @@ exports.submit = function (req, res, next) {
 				});
             }
             else {
-                next(new TolerableError('no current subject'));
+                return res.send(400, {message : 'no current subject'});
             }
         },
         createStudentDir = function (err) {
@@ -238,7 +238,9 @@ exports.submit = function (req, res, next) {
         readWriteFile = function (file, index) {
             logger.log('verbose', 'reading file', file.name);
             fs.readFile(file.path, function (err, data) {
-				fs.unlink(file.path);
+				fs.unlink(file.path, function (err) {
+					if(err) return next(err);
+				});
                 file.cleanName = util.cleanFileName(file.name);
                 if (err) return next(err);
                 logger.log('verbose', 'writing file', file.cleanName);
@@ -270,9 +272,6 @@ exports.submit = function (req, res, next) {
 		},
         sendResponse = function (err) {
             if (err) return next(err);
-			if (process.env['NODE_ENV'] === 'testing') {
-				files.forEach(function (f){ fs.unlink(student_dir + '/' + f.cleanName, function(){})});
-			}
 			logger.log('info', student._id, ' successfully submitted file/s');
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
