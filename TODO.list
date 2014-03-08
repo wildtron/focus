@@ -1,0 +1,18 @@
+Client
+    Needs security
+    Keystrokes measurement for boredom, confusion and other
+    VNC client/server is yet to be implemeneted
+    Better session handling
+
+Server
+    Needs security
+
+Mobile
+    Haven't started yet.
+    Needed functionalities:
+        Lock/Unlock
+        Shutdown
+        Logoff
+        View Process List
+        View Online Students
+
