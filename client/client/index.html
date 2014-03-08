@@ -7,10 +7,11 @@
         <title>:FOCUS</title>
         <link rel="shortcut icon" href="favicon.png" />
         <link rel="stylesheet" href="css/client.css" />
+        <script src="js/config.js"></script>
     </head>
-
-    <body data-url="http://192.168.1.50:3000/">
-
+    <script type='text/javascript'>
+        document.write('<body data-url="http://'+motherServer+':'+port+'/">');
+    </script>
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
@@ -32,7 +33,9 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-        <script type="text/javascript" src="http://192.168.1.50:3000/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            document.write('<script type="text/javascript" src="http://'+motherServer+':'+port+'/socket.io/socket.io.js"/><\/script>');
+        </script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
             if (typeof require !== '' + void 0) {
@@ -193,7 +196,7 @@
 
                     var sessionServer='http://localhost:10610';
                     console.log('Destroy session to localhost:10610 so that controls are off');
-                    setsetTimeout(function(){
+                    setTimeoutTimer = setTimeout(function(){
                         console.log("Trying to set session to local server.");
                         var setSessionRequest = new XMLHttpRequest();
                         setSessionRequest.open('POST', sessionServer, true);
