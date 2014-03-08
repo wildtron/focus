@@ -3,8 +3,7 @@ var should = require('chai').should(),
 	server,
 	api;
 
-process.env['NODE_ENV'] = 'testing';
-server = require(__dirname + '/../server');
+server = (process.env['NODE_ENV'] !== 'testing') ? 'http://localhost:3000' : require(__dirname + '/../server');
 api = request(server);
 
 describe('Instructor get students', function() {
@@ -20,11 +19,11 @@ describe('Instructor get students', function() {
 		})
     });
 
-    it('should ask for missing section_id', function (done) {
-        api.post('/instructor/login')
-        .send({username : 'mamkat', password : '12345'})
-        .expect(200)
-        .end(function (err, res) {
+	it('should ask for missing section_id', function (done) {
+		api.post('/instructor/login')
+		.send({username : 'mamkat', password : '12345'})
+		.expect(200)
+		.end(function (err, res) {
 			api.get('/section/getStudents')
 			.set('cookie', res.headers['set-cookie'])
 			.expect(400)
@@ -38,11 +37,11 @@ describe('Instructor get students', function() {
         });
     });
 
-    it('should get students', function (done) {
-        api.post('/instructor/login')
-        .send({username : 'mamkat', password : '12345'})
-        .expect(200)
-        .end(function (err, res) {
+	it('should get students', function (done) {
+		api.post('/instructor/login')
+		.send({username : 'mamkat', password : '12345'})
+		.expect(200)
+		.end(function (err, res) {
 			api.get('/section/getStudents?section_id=CMSC 161 UV-2L')
 			.set('cookie', res.headers['set-cookie'])
 			.expect(200)

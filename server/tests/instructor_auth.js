@@ -3,8 +3,7 @@ var should = require('chai').should(),
 	server,
 	api;
 
-process.env['NODE_ENV'] = 'testing';
-server = require(__dirname + '/../server');
+server = (process.env['NODE_ENV'] !== 'testing') ? 'http://localhost:3000' : require(__dirname + '/../server');
 api = request(server);
 
 describe('Instructor Authentication', function () {

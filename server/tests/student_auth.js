@@ -3,8 +3,7 @@ var should = require('chai').should(),
 	server,
 	api;
 
-process.env['NODE_ENV'] = 'testing';
-server = require(__dirname + '/../server');
+server = (process.env['NODE_ENV'] !== 'testing') ? 'http://localhost:3000' : require(__dirname + '/../server');
 api = request(server);
 
 describe('Student Authentication', function() {
@@ -15,8 +14,7 @@ describe('Student Authentication', function() {
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
             res.body.message.should.be.string;
             res.body.message.should.be.equal('student_number is missing');
             done();
@@ -29,7 +27,7 @@ describe('Student Authentication', function() {
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
             res.body.message.should.be.string;
             res.body.message.should.be.equal('password is missing');
             done();
@@ -42,7 +40,7 @@ describe('Student Authentication', function() {
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
             res.body.message.should.be.string;
             res.body.message.should.be.equal('username is missing');
             done();
@@ -55,6 +53,8 @@ describe('Student Authentication', function() {
         .expect(401)
         .end(function (err, res) {
             should.not.exist(err);
+			res.body.should.have.keys('message');
+            res.body.message.should.be.equal('Wrong username or password');
             done();
         });
     });
@@ -65,9 +65,13 @@ describe('Student Authentication', function() {
         .expect(200)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.have.ownProperty('first_name');
-            res.body.should.have.ownProperty('last_name');
-            res.body.should.have.ownProperty('access_token');
+			res.body.should.have.keys('access_token', 'first_name', 'last_name');
+			res.body.first_name.should.be.string;
+			res.body.last_name.should.be.string;
+			res.body.access_token.should.be.string;
+			res.body.first_name.should.be.equal('RAVEN JOHN');
+			res.body.last_name.should.be.equal('LAGRIMAS');
+			res.body.access_token.should.have.length(32);
             done();
         });
     });

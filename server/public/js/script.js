@@ -70,22 +70,7 @@ root = this;
 			_this.classes.forEach(function (a) {
 				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
 			});
-			xhr('GET', url + 'section/getStudents?section_id=' + _this.classes[0], {}, function (res) {
-				var temp1 = document.getElementById('students_submissions_select'),
-					temp2 = document.getElementById('files_div');
-				res.forEach(function (s) {
-					temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
-					s.files&&s.files.forEach(function (f) {
-						temp2.innerHTML += '	\
-                    <div class="file_div">	\
-                        <img class="c" src="img/file-icon.png"	 alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download	\
-Size: 438 bytes	\
-Date: 12/25/2013 1:48:31 PM"/>	\
-                        <div class="file_name_div">'+f.name+'</div>	\
-                    </div>';
-					});
-				});
-			});
+			getFiles();
         },
         logs = function () {
             var active = document.getElementsByClassName('active_section')[0];
@@ -189,7 +174,32 @@ Date: 12/25/2013 1:48:31 PM"/>	\
                 document.title = "Company";
                 clearInterval(timer);
             }
-        };
+        },
+		getFiles = function () {
+			xhr('GET', url + 'section/getStudents?'
+				+ 'section_id=' + document.getElementById('section_submissions_select').value
+				+ '&exer_number=' + document.getElementById('exer_number_submissions_select').value
+				+ '&student_number=' + document.getElementById('students_submissions_select').value
+				+ '&order=' + document.getElementById('order_submissions_select').value
+				, {}, function (res) {
+				var temp1 = document.getElementById('students_submissions_select'),
+					temp2 = document.getElementById('files_div');
+				temp1.innerHTML = '<option value="all">Everyone</option>';
+				temp2.innerHTML = '';
+				res.forEach(function (s) {
+					temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+					s.files&&s.files.forEach(function (f) {
+						temp2.innerHTML += '	\
+					<div class="file_div">	\
+						<img class="c" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+Size: '+f.size+' bytes\r\n\
+Date: '+new Date(f.date)+'"/>	\
+						<div class="file_name_div">'+f.name+'</div>	\
+					</div>';
+					});
+				});
+			});
+		};
 
     root.onresize = function () {
         var temp1 = document.getElementsByClassName('section_div'),
@@ -257,7 +267,6 @@ Date: 12/25/2013 1:48:31 PM"/>	\
                         });
                         document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
                     });
-                    console.log('socket emit');
                 }
 
                 self.innerHTML = 'SUCCESS!';
@@ -379,6 +388,11 @@ Date: 12/25/2013 1:48:31 PM"/>	\
             e.target.value = '';
         }
     };
+
+	document.getElementById('section_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('exer_number_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('students_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('order_submissions_select').addEventListener('change', getFiles);
 
     page('feed', feed);
     page('records', records);

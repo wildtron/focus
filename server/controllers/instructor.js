@@ -37,7 +37,9 @@ exports.login = function (req, res, next) {
             }
             else {
                 logger.log('verbose', data.username, 'is found on the local database');
-                item.access_token = util.hash(+new Date + config.SALT);
+				if (process.env['NODE_ENV'] !== 'testing') {
+					item.access_token = util.hash(+new Date + config.SALT);
+				}
                 item.class = { message : "You have no class at this time"};
                 logger.log('verbose', data.username, ': updating properties');
                 collection.update({'_id' : item._id}, {$set : {

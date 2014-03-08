@@ -40,7 +40,7 @@ exports.extractFiles = function (files, name, next) {
     if (files[name])
         return (files[name] instanceof Array) ? files[name] : [files[name]];
     if (next)
-        next(new Error(name + ' file is missing'));
+        next(new TolerableError(name + ' is missing'));
     return [];
 }
 
@@ -81,13 +81,13 @@ exports.cleanFileName = function (file_name) {
 
 
 exports.runTest = function () {
-    var mocha = new Mocha();
+    var mocha = new Mocha({reporter : 'spec'});
 
-    fs.readdirSync(__dirname + '/../test/').filter(function(file){
+    fs.readdirSync(__dirname + '/../tests/').filter(function(file){
         return file.substr(-3) === '.js';
     }).forEach(function(file){
         mocha.addFile(
-            path.join(__dirname + '/../test/', file)
+            path.join(__dirname + '/../tests/', file)
         );
     });
 

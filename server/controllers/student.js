@@ -58,7 +58,9 @@ exports.login = function (req, res, next) {
         trySystemOne = function (err, item) {
             if (err) return next(err);
             if (item) {
-                item.access_token = util.hash(+new Date + config.SALT);
+				if (process.env['NODE_ENV'] !== 'testing') {
+					item.access_token = util.hash(+new Date + config.SALT);
+				}
                 item.last_login = +new Date;
                 logger.log('verbose', 'updating student properties', data.username, data.student_number);
                 collection.update({'_id' : item._id}, {$set : {
@@ -120,7 +122,7 @@ exports.login = function (req, res, next) {
             var i, temp2;
             if (temp.message) {
                 logger.log('info', 'login failed', data.username, data.student_number);
-                return res.send(401, temp);
+                return res.send(401, {message : 'Wrong username or password'});
             }
             else {
                 temp.username = data.username;
@@ -240,18 +242,18 @@ exports.submit = function (req, res, next) {
         readWriteFile = function (file, index) {
             logger.log('verbose', 'reading file', file.name);
             fs.readFile(file.path, function (err, data) {
+				if(err) return next(err);
 				fs.unlink(file.path, function (err) {
-					if(err) return next(err);
+					if (err) return next(err);
+					file.cleanName = util.cleanFileName(file.name);
+					logger.log('verbose', 'writing file', file.cleanName);
+					util.getSafeFileName(student_dir + '/' + file.cleanName, function (path) {
+						if (process.env['NODE_ENV'] === 'testing')
+							getStudentCollection();
+						else
+							fs.writeFile(path, data, getStudentCollection);
+					});
 				});
-                file.cleanName = util.cleanFileName(file.name);
-                if (err) return next(err);
-                logger.log('verbose', 'writing file', file.cleanName);
-                util.getSafeFileName(student_dir + '/' + file.cleanName, function (path) {
-					if (process.env['NODE_ENV'] === 'testing')
-						getStudentCollection();
-					else
-						fs.writeFile(path, data, getStudentCollection);
-                });
             });
         },
 		getStudentCollection = function (err) {

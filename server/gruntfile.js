@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         },
         simplemocha : {
             dev : {
-                src : "test/*.js",
+                src : "tests/*.js",
                 options : {
                     reporter : 'spec'
                 }
