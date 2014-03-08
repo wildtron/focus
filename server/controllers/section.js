@@ -9,13 +9,13 @@ exports.collectionName = collectionName;
 exports.getStudents = function (req, res, next) {
     var item,
         collection,
-        data = util.chk_rqd(['section_id'], req.body, next),
+        data = util.chk_rqd(['section_id'], req.query, next),
         getInstructor = function (err, _collection) {
             if (err) return next(err);
             collection = _collection;
             logger.log('verbose', 'section:getStudent access_token : ', (req.signedCookies['focus'] || '#'));
             collection.count({
-				'access_token' : (req.signedCookies['focus'] || '#'),
+				access_token : (req.signedCookies['focus'] || '#'),
 				classes : {$in : [data.section_id]}
 			}, {limit : 1}, getStudentCollection);
         },
@@ -46,6 +46,7 @@ exports.getStudents = function (req, res, next) {
             logger.log('verbose', 'section:getStudent successful');
             return res.send(docs);
         };
-    logger.log('info', 'section:getStudent someone is trying to get the students');
+	if (!data) return;
+    logger.log('info', 'section:getStudent someone is trying to get the students of', data.section_id);
     db.get().collection('instructors', getInstructor);
 };

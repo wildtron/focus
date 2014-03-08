@@ -15,11 +15,8 @@ var express = require('express'),
 		if (process.env['NODE_ENV'] !== 'testing') {
 			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
 			app.use(express.logger({stream : logFile}));
-			app.use(express.bodyParser({uploadDir : __dirname + '/temp'}));
 		}
-		else {
-			app.use(express.bodyParser());
-		}
+		app.use(express.bodyParser({uploadDir : __dirname + '/temp'}));
 		app.use(express.compress());
 		app.use(express.limit('25mb'));
 		app.use(express.methodOverride());

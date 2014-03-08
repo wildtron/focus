@@ -66,6 +66,26 @@ root = this;
             document.getElementsByClassName('active_nav')[0].className = '';
             document.getElementById('submissions_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = 'SUBMISSIONS';
+			temp = document.getElementById('section_submissions_select');
+			_this.classes.forEach(function (a) {
+				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
+			});
+			xhr('GET', url + 'section/getStudents?section_id=' + _this.classes[0], {}, function (res) {
+				var temp1 = document.getElementById('students_submissions_select'),
+					temp2 = document.getElementById('files_div');
+				res.forEach(function (s) {
+					temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+					s.files&&s.files.forEach(function (f) {
+						temp2.innerHTML += '	\
+                    <div class="file_div">	\
+                        <img class="c" src="img/file-icon.png"	 alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download	\
+Size: 438 bytes	\
+Date: 12/25/2013 1:48:31 PM"/>	\
+                        <div class="file_name_div">'+f.name+'</div>	\
+                    </div>';
+					});
+				});
+			});
         },
         logs = function () {
             var active = document.getElementsByClassName('active_section')[0];
@@ -98,7 +118,7 @@ root = this;
             while (i--) {
                 dom.innerHTML += '  \
                     <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
-                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" />    \
+                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div locked\')&&(this.src=\'/img/click-to-unlock.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
@@ -368,8 +388,6 @@ root = this;
     page('*', login);
 
     page.show('');
-
-    console.dir(getCookie('focus'));
 
     getCookie('focus') && document.getElementById('sign_in_button').click();
 //}(this));

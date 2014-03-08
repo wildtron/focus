@@ -12,6 +12,7 @@ exports.chk_rqd = function (reqd, body, next) {
     while (i--) {
         if (!body[temp = reqd[i]]) {
             next(new TolerableError(temp + ' is missing'));
+			return false;
         }
         ret[temp] = body[temp];
     }

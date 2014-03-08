@@ -9,7 +9,7 @@
             for (i in headers)
                 request.setRequestHeader(i, headers[i]);
 
-        request.onload = function() {
+        request.onload = function () {
             if (request.readyState === 4) {
                 success_cb && success_cb(JSON.parse(request.responseText), request);
             }

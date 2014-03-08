@@ -267,7 +267,11 @@ exports.submit = function (req, res, next) {
 			{
 				$pushAll : {
 					files : files.map(function(f){
-						return {name : f.cleanName, date : +new Date}
+						return {
+							name : f.cleanName,
+							size : f.size,
+							date : +new Date
+						}
 					})
 				}
 			}, sendResponse);

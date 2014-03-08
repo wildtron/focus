@@ -74,108 +74,33 @@
             <div class="section_div">
                 <div class="section_header_div">
                     Show files submitted in
-                    <select>
-                        <option value="">CMSC 100 S-1L</option>
-                        <option value="">CMSC 100 S-2L</option>
-                        <option value="">CMSC 100 S-3L</option>
-                        <option value="">CMSC 22 U-5L</option>
-                    </select>
+                    <select id='section_submissions_select'></select>
                     exercise number
                     <select>
-                        <option value="">1-10</option>
-                        <option value="">1</option>
-                        <option value="">2</option>
-                        <option value="">3</option>
-                        <option value="">4</option>
-                        <option value="">5</option>
-                        <option value="">6</option>
-                        <option value="">7</option>
-                        <option value="">8</option>
-                        <option value="">9</option>
-                        <option value="">10</option>
+                        <option value="all">1-10</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
                     </select>
                     by
-                    <select>
-                        <option value="">Everyone</option>
-                        <option value="">Raven Lagrimas</option>
-                        <option value="">Sherwin Ferrer</option>
-                        <option value="">Cedric Abuso</option>
+                    <select id='students_submissions_select'>
+                        <option value="all">Everyone</option>
                     </select>
                     ordered by
                     <select>
-                        <option value="">date</option>
-                        <option value="">size</option>
-                        <option value="">file name</option>
+                        <option value="data">date</option>
+                        <option value="size">size</option>
+                        <option value="file name">file name</option>
                     </select>
                 </div>
-                <div id="files_div">
-                    <div class="file_div">
-                        <img class="c" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer1.c</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="c" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer2.c</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="c" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer3.c</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="c" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer4.c</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="java" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer5.java</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="java" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer6.java</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="zip" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer7.zip</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="zip" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer7.zip</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="zip" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer8.zip</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="asm" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer9.asm</div>
-                    </div>
-                    <div class="file_div">
-                        <img class="txt" src="img/file-icon.png" alt="lagrimas_exer1.c" width="128" height="128" title="Click to Download
-Size: 438 bytes
-Date: 12/25/2013 1:48:31 PM"/>
-                        <div class="file_name_div">lagrimas_exer10.txt</div>
-                    </div>
-                </div>
+                <div id="files_div"></div>
             </div>
         </section>
 
