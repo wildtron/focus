@@ -3,7 +3,7 @@
         "_id": "CMSC 161 UV-2L",
         "published_doc" : "https://docs.google.com/spreadsheet/pub?key=0Aisebd1iw5MOdDFBQ1lpX25GZE0zMGpwUmlLOHZyclE&single=true&gid=0&output=html",
         "days": "MTWHFS",
-        "from": "13:00:00",
+        "from": "00:00:00",
         "to" : "24:00:00",
         "room": "C-100",
         "students" : [

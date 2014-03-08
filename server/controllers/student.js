@@ -223,7 +223,7 @@ exports.submit = function (req, res, next) {
 				});
             }
             else {
-                logger.log('verbose', 'student:submit no current subject');
+                logger.log('warn', 'student:submit no current subject');
                 return res.send(400, {message : 'no current subject'});
             }
         },
