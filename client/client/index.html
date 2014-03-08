@@ -74,6 +74,9 @@
                     student_number = document.getElementById('student_number_input'),
                     password = document.getElementById('password_input'),
                     setSessionTimer, destroySessionTimer,
+                    toTitleCase = function (str) {
+                        return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+                    },
                     connectSocket = function () {
                         socket = io.connect(url);
                         socket.emit('join_room', {student_number : cookies.get('student_number')});
@@ -95,6 +98,7 @@
                     setTimeout(function () {
                         document.getElementById('front_section').className = 'current-to-left';
                         document.getElementById('main_section').className = 'right-to-current';
+                        document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
                         self.className = '';
                         self.innerHTML = 'Login via SystemOne';
                         student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
@@ -116,69 +120,66 @@
                     }));
 
                     request.onreadystatechange = function() {
-                        var toTitleCase = function (str) {
-                                return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-                            },
-                            response;
+                        var response = JSON.parse(request.responseText);
 
-                        if (request.readyState + request.status == 204) {
-                            response = JSON.parse(request.responseText);
-                            if (response.message) {
-                                self.innerHTML = 'Error!';
-                                self.className = 'sign_in_error';
-                                setTimeout(function () {
-                                    self.className = '';
-                                    self.innerHTML = 'Login via SystemOne';
-                                    student_number.disabled = password.disabled = username.disabled = '';
-                                    username.focus();
-                                }, 1000);
-                            } else {
-                                /*
-                                 * When the server authenticates the payload and it was successful,
-                                 * set cookies to the client
-                                 */
-                                console.log('Authentication from server was success.');
-                                // set cookie, expire in 3 hours
-                                cookies.set('FOCUSSESSID', response.access_token, 10800);
-                                cookies.set('first_name', response.first_name, 10800);
-                                cookies.set('last_name', response.last_name, 10800);
-                                cookies.set('student_number', student_number.value, 10800);
+                        if (request.status == 401) {
+                            self.innerHTML = 'Error!';
+                            self.className = 'sign_in_error';
+                            setTimeout(function () {
+                                self.className = '';
+                                self.innerHTML = 'Login via SystemOne';
+                                student_number.disabled = password.disabled = username.disabled = '';
+                                username.focus();
+                            }, 2000);
 
-                                // set 5 second interval on setting session
-                                connectSocket();
 
-                                console.log('Setting environment for login');
-                                document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
-                                self.innerHTML = 'Login Success!';
-                                self.className = 'sign_in_success';
+                        } else if(request.status == 200) {
+                            /*
+                                * When the server authenticates the payload and it was successful,
+                                * set cookies to the client
+                                */
+                            console.log('Authentication from server was success.');
+                            // set cookie, expire in 3 hours
+                            cookies.set('FOCUSSESSID', response.access_token, 10800);
+                            cookies.set('first_name', response.first_name, 10800);
+                            cookies.set('last_name', response.last_name, 10800);
+                            cookies.set('student_number', student_number.value, 10800);
 
-                                console.log('Moving sections');
-                                setTimeout(function () {
-                                    document.getElementById('front_section').className = 'current-to-left';
-                                    document.getElementById('main_section').className = 'right-to-current';
-                                    self.className = '';
-                                    self.innerHTML = 'Login via SystemOne';
-                                    student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
-                                    chat_content.focus();
-                                }, 250);
+                            // set 5 second interval on setting session
+                            connectSocket();
 
-                                /*
-                                 * Send the FOCUSSESSID to local server. Do this until local server sets the session
-                                 */
-                                setSessionTimer = setInterval(function(){
-                                console.log('Sending setSession.');
-                                    var sessionServer='http://localhost:10610',
-                                        setSessionRequest = new XMLHttpRequest();
-                                    setSessionRequest.open('POST', sessionServer, true);
-                                    setSessionRequest.setRequestHeader('Content-Type', 'application/json');
-                                    setSessionRequest.send(JSON.stringify({
-                                        session : cookies.get('FOCUSSESSID')
-                                    }));
-                                    if(setSessionRequest.readyState + setSessionRequest.status == 204){
-                                        clearInterval(this);
-                                    }
-                                }, 5000);
+                            console.log('Setting environment for login');
+                            document.getElementById('name_div').innerHTML = name = toTitleCase(cookies.get('first_name').split(" ")[0]) + " " + toTitleCase(cookies.get("last_name"));
+                            self.innerHTML = 'Login Success!';
+                            self.className = 'sign_in_success';
+
+                            console.log('Moving sections');
+                            setTimeout(function () {
+                                document.getElementById('front_section').className = 'current-to-left';
+                                document.getElementById('main_section').className = 'right-to-current';
+                                self.className = '';
+                                self.innerHTML = 'Login via SystemOne';
+                                student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
+                                chat_content.focus();
+                            }, 250);
+
+                            /*
+                                * Send the FOCUSSESSID to local server. Do this until local server sets the session
+                                */
+                            //setSessionTimer = setInterval(function(){
+                            console.log('Sending setSession.');
+                            var sessionServer='http://localhost:10610',
+                                setSessionRequest = new XMLHttpRequest();
+                            setSessionRequest.open('POST', sessionServer, true);
+                            setSessionRequest.setRequestHeader('Content-Type', 'application/json');
+                            setSessionRequest.send(JSON.stringify({
+                                session : cookies.get('FOCUSSESSID')
+                            }));
+                            if(setSessionRequest.readyState + setSessionRequest.status == 204){
+                                console.log('Session synchronized with local server.');
+                                clearInterval(this);
                             }
+                            //}, 5000);
                         }
                     }
                 };
@@ -193,11 +194,11 @@
                     cookies.remove('FOCUSSESSID');
                     cookies.remove('first_name');
                     cookies.remove('last_name');
-
+                    cookies.remove('student_number')
                     var sessionServer='http://localhost:10610';
                     console.log('Destroy session to localhost:10610 so that controls are off');
                     setTimeoutTimer = setTimeout(function(){
-                        console.log("Trying to set session to local server.");
+                        console.log("Trying to destroy session to local server.");
                         var setSessionRequest = new XMLHttpRequest();
                         setSessionRequest.open('POST', sessionServer, true);
                         setSessionRequest.setRequestHeader('Content-Type', 'application/json');
@@ -206,6 +207,7 @@
                         }));
                         console.log(setSessionRequest);
                         if(setSessionRequest.readyState + setSessionRequest.status == 204){
+                            console.log('Session destroyed from local server');
                             clearTimeout(this);
                             clearInterval(setSessionTimer);
                         }

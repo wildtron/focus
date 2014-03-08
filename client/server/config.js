@@ -1,9 +1,6 @@
-exports.motherServer={
-    host:'http://192.168.1.50',
-    port: 3000
-};
+exports.motherHost = '10.0.5.49';
+exports.motherPort = 3000;
 
-exports.localServer={
-    activitiyPort: 8286,
-    sessionPort: 10610
-};
+exports.activityPort = 8286;
+exports.sessionPort = 10610;
+

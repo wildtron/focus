@@ -46,7 +46,7 @@ var http = require('http'),
     config = require('./config'),
     SESSIONID,
     headers = {},
-    motherServer;
+    url = require('url');
 
 // IE8 does not allow domains to be specified, just the *
 // headers["Access-Control-Allow-Origin"] = req.headers.origin;
@@ -91,32 +91,46 @@ http.createServer(function(req, res){
                 postData = qs.stringify({
                     'access_token' : decodedBody.session
                 });
+
                 var postRequest = http.request({
-                    host: config.motherServer.host,
-                    port: config.motherServer.port,
+                    host: config.motherHost,
+                    port: config.motherPort,
                     path: '/student/findByAccessToken',
                     method: 'POST',
+                    headers : {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
                 }, function(response){
                     response.setEncoding('utf8');
                     response.on('data', function(chunk){
                         integrityCheckResult = chunk;
-                        console.log(chunk);
+                        SESSIONID=decodedBody.session;
+                        var json;
+                        try{
+                            json = JSON.parse(integrityCheckResult);
+                        } catch (e){
+                            res.writeHead(500, headers, {'Content-Type' : 'text/json'});
+                            res.end('{"status":"Failed to set session"}');
+                        }
+
+                        if(json.access_token === SESSIONID){
+                            res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                            res.end('{"status":"Session set"}');
+                        } else {
+                            res.writeHead(500, headers, {'Content-Type' : 'text/json'});
+                            res.end('{"status":"Failed to set session"}');
+                        }
                     });
                 });
 
                 postRequest.write(postData);
-                postRequest.end();
                 postRequest.on('error', function(e){
+                    console.log(e);
                     res.writeHead(500, headers, {'Content-Type': 'text/json'});
                     res.end('{"status":"Failed to set session"}');
                 });
-                postRequest.on('end', function(){
-                    console.log(integrityCheckResult);
-                    SESSIONID=decodedBody.session;
-                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                    res.end('{"status":"Session set"}');
-                });
-            } else if(decodedBody.destroy){
+                postRequest.end();
+            } else if(decodedBody.hasOwnProperty('destroy')){
                 console.log("destroy was found from the payload");
                 SESSIONID=undefined;
                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
@@ -128,122 +142,138 @@ http.createServer(function(req, res){
             }
         });
     }
-}).listen(config.localServer.sessionPort,'localhost');
+}).listen(config.sessionPort,'localhost');
+
+
+/*
+ * The server below controls the funtionalities of the following:
+ *      Lock/Unlock
+ *      Shutdown
+ *      Logoff
+ *
+ * */
 
 http.createServer(function (req, res) {
-    var checkSession=function(){
+    var data = '',
+    getData='',
+    checkSession=function(callback){
+        console.log(SESSIONID === getData.access_token && config.motherServer === req.connection);
         if(!SESSIONID){
+            console.log("!sync:"+SESSIONID);
+            res.writeHead(401, headers,{'Content-Type':'text/json'});
+            res.end('{"status":"Token is not synchronized to localhost"}');
+        } else if(SESSIONID !== getData.access_token){
             res.writeHead(401, headers,{'Content-Type':'text/json'});
             res.end('{"status":"Token doesn\'t match."}');
+        } else if(SESSIONID === getData.access_token && config.motherServer === req.connection) {
+            console.log(SESSIONID);
+            callback();
+        } else {
+            res.writeHead(401, headers,{'Content-Type':'text/json'});
+            res.end('{"status":"Server requesting is unidentified."}');
         }
-        console.log(SESSIONID);
     };
+
     if (req.method === 'OPTIONS') {
-      checkSession();
-      console.log('OPTIONS');
-      res.writeHead(200, headers);
-      res.end();
+        console.log('OPTIONS');
+        res.writeHead(200, headers);
+        res.end();
     } else if(req.method === 'GET') {
-        checkSession();
-        console.log('Received GET Request.');
-        var dir = "/tmp/c9251dada3e9a6216026906764c37c16.png";
-        var cmd = "./scripts/shot.py "+dir;
-        exec(cmd, function (err, stdout, stderr) {
-            console.log(err, stdout, stderr);
-            res.writeHead(200,headers, {'Content-Type' : 'image/png'});
-            fs.createReadStream(dir).pipe(res);
+        getData = url.parse(req.url,true).query;
+        checkSession(function(){
+            console.log('Received GET Request.');
+            var dir = "/tmp/"+SESSIONID+".png";
+            var cmd = "./scripts/shot.py "+dir;
+            exec(cmd, function (err, stdout, stderr) {
+                console.log(err, stdout, stderr);
+                res.writeHead(200,headers, {'Content-Type' : 'image/png'});
+                fs.createReadStream(dir).pipe(res);
+            });
         });
     } else if(req.method === 'POST'){
-        checkSession();
-        console.log('Received POST Request.');
-        var postData = '';
-
-        req.on('data', function (chunk) {
-            console.log('Receiving POST data.');
-            postData += chunk;
-        });
-
-        req.on('end', function () {
-            var decodedBody,
-                action = '',
-                msg = '';
-            console.log('end-part response.');
-            try{
-                decodedBody = JSON.parse(postData);
-            } catch(e){
-                res.writeHead(500, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Problem with POST data\"}');
-                return;
-            }
-            console.log(decodedBody);
-            switch(decodedBody.method){
-                // shutdown
-                case 'shutdown':
-                    console.log('Shutdown command initiated.');
-                    action = 'shutdown -h now';
-                    msg = 'Shutting down';
-                    break;
-                // logoff
-                case 'logoff':
-                    console.log('Logoff command initiated.');
-                    action = '';
-                    msg = 'Logging off';
-                    break;
-                // lock
-                case 'lock':
-                    console.log('System Lock On');
-                    /*
-                     *  turn off screen and enable screensaver
-                     *  xset dpms force off
-                     * */
-                    action = './scripts/disable.sh';
-                    msg ='Locking';
-                    break;
-                // unlock
-                case 'unlock':
-                    console.log('System Lock Off');
-                    /*
-                     * turn on screen and disable screensaver
-                     * xset dpms force on
-                     * xset s reset
-                     * killall gnome-screensaver
-                     *
-                     * */
-                    action = './scripts/enable.sh';
-                    msg = 'Unlocking';
-                    break;
-                // send the active window
-                default:
-                    action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                    method='';
-                    msg='ActiveWindow';
-                    break;
-            }
-            console.log(decodedBody.method, action);
-            if(action !== ''){
-                try {
-                        exec(action, function (err, stdout, stderr) {
-                        console.log(err, stdout, stderr);
-                        if(decodedBody.method === ''){
-                            msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                            var t = msg.split("WM_CLASS(STRING) = ");
-                            msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                            console.log(msg);
-                        }
-                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                        res.end('{"status" : "'+msg+'"}');
-                    });
-                } catch (e){
-                    console.log(e);
+        checkSession(function(){
+            console.log('Received POST Request.');
+            req.on('end', function () {
+                var decodedBody,
+                    action = '',
+                    msg = '';
+                console.log('end-part response.');
+                try{
+                    decodedBody = JSON.parse(data);
+                } catch(e){
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
+                    res.end('{\"Status\":\"Problem with POST data\"}');
+                    return;
                 }
-            }
+                switch(decodedBody.method){
+                    // shutdown
+                    case 'shutdown':
+                        console.log('Shutdown command initiated.');
+                        action = 'shutdown -h now';
+                        msg = 'Shutting down';
+                        break;
+                    // logoff
+                    case 'logoff':
+                        console.log('Logoff command initiated.');
+                        action = '';
+                        msg = 'Logging off';
+                        break;
+                    // lock
+                    case 'lock':
+                        console.log('System Lock On');
+                        /*
+                        *  turn off screen and enable screensaver
+                        *  xset dpms force off
+                        * */
+                        action = './scripts/disable.sh';
+                        msg ='Locking';
+                        break;
+                    // unlock
+                    case 'unlock':
+                        console.log('System Lock Off');
+                        /*
+                        * turn on screen and disable screensaver
+                        * xset dpms force on
+                        * xset s reset
+                        * killall gnome-screensaver
+                        *
+                        * */
+                        action = './scripts/enable.sh';
+                        msg = 'Unlocking';
+                        break;
+                    // send the active window
+                    default:
+                        action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
+                        method='';
+                        msg='ActiveWindow';
+                        break;
+                }
+                if(action !== ''){
+                    try {
+                            exec(action, function (err, stdout, stderr) {
+                            console.log(err, stdout, stderr);
+                            if(decodedBody.method === ''){
+                                msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                                var t = msg.split("WM_CLASS(STRING) = ");
+                                msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                                console.log(msg);
+                            }
+                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                            res.end('{"status" : "'+msg+'"}');
+                        });
+                    } catch (e){
+                        console.log(e);
+                    }
+                }
+            });
         });
     } else {
-        res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
-        res.end('{"status" : "task unavailable"}');
+        checkSession(function(){
+            res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
+            res.end('{"status" : "task unavailable"}');
+        });
     }
-
 }).listen(config.activityPort);
 
 
-console.log("listening on port "+port);
+console.log("listening on port "+config.activityPort);
