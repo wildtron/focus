@@ -6,14 +6,14 @@ var db = require(__dirname + '/../config/database'),
     http = require('http'),
     fs = require('fs'),
     collectionName = 'students',
-    _findByAccessToken = function (access_token, cb) {
+    _findByAccessToken = function (access_token, cb, next) {
         var getStudent = function(err, collection) {
                 if (err) return next(err);
                 collection.findOne({access_token : access_token}, {password : 0}, cb);
             };
         db.get().collection(collectionName, getStudent);
     },
-    _getCurrentSubject = function (student_number, cb) {
+    _getCurrentSubject = function (student_number, cb, next) {
         var getSection = function (err, collection) {
                 var date = new Date(),
                     day = "UMTWHFS"[date.getDay()];
@@ -204,7 +204,7 @@ exports.submit = function (req, res, next) {
 			if (item) {
 				student = item;
 				logger.log('verbose', 'getting current subject');
-				_getCurrentSubject(student._id, createSectionDir);
+				_getCurrentSubject(student._id, createSectionDir, next);
 			}
 			else {
                 logger.log('info', 'student:submit student not found');
@@ -223,6 +223,7 @@ exports.submit = function (req, res, next) {
 				});
             }
             else {
+                logger.log('verbose', 'student:submit no current subject');
                 return res.send(400, {message : 'no current subject'});
             }
         },
@@ -276,7 +277,7 @@ exports.submit = function (req, res, next) {
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
     logger.log('verbose', 'someone submitted file/s');
-    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject);
+    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject, next);
 };
 
 exports.findByAccessToken = function (req, res, next) {
@@ -294,5 +295,5 @@ exports.findByAccessToken = function (req, res, next) {
         };
 
 	logger.log('info', 'findByAccessToken');
-    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent);
+    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent, next);
 };

@@ -32,8 +32,9 @@ exports.setup = function (app) {
     // error handling
     app.use(function (err, req, res, next) {
         logger.log('warn', err.message);
+		console.dir(err);
         res.send(400, {message : err.message});
-        return ;
+        return;
     });
 
 	logger.log('verbose', 'done setting up router');
