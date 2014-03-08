@@ -201,9 +201,9 @@ root = this;
         xhr('POST', url + 'instructor/login', {
             username : username.value,
             password : password.value
-        }, function (response) {
+        }, function (response, req) {
             var temp, i;
-            if (response.message) {
+            if (req.status === 401) {
                 self.innerHTML = 'ERROR!';
                 self.className = 'sign_in_error';
                 setTimeout(function () {
@@ -213,7 +213,7 @@ root = this;
                     username.focus();
                 }, 1000);
             }
-            else {
+            else if (req.status === 200){
                 _this = response;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
 

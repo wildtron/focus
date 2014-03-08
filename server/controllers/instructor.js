@@ -90,8 +90,8 @@ exports.login = function (req, res, next) {
                 {_id : {$in : item.class.students}},
                 {
                     classes : 0,
-                    password : 0,
-                    access_token : 0
+					files : 0,
+                    password : 0
                 }
             ).toArray(sendResponse);
         },

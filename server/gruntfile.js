@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         },
         simplemocha : {
             dev : {
-                src : "test/test.js",
+                src : "test/*.js",
                 options : {
                     reporter : 'spec'
                 }
@@ -26,11 +26,19 @@ module.exports = function(grunt) {
                 options: {
                     spawn: false
                 }
-            }
+            },
+			tests : {
+                files:['test/*.js'],
+                tasks:['test'],
+                options: {
+                    spawn: false
+                }
+			}
         }
     });
 
     grunt.registerTask('test', 'simplemocha:dev');
     grunt.registerTask('server', 'express:dev');
+    grunt.registerTask('watch-server', 'watch:tests');
 
 };

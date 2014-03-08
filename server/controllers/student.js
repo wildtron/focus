@@ -6,7 +6,7 @@ var db = require(__dirname + '/../config/database'),
     http = require('http'),
     fs = require('fs'),
     collectionName = 'students',
-    _findByAcessToken = function (access_token, cb) {
+    _findByAccessToken = function (access_token, cb) {
         var getStudent = function(err, collection) {
                 if (err) return next(err);
                 collection.findOne({access_token : access_token}, {password : 0}, cb);
@@ -109,7 +109,7 @@ exports.login = function (req, res, next) {
                     });
                 });
             req.on('error', function(err) {
-                logger.log('info', 'login failed. systemone not responding', JSON.stringify(err));
+                logger.log('info', 'systemone not responding', JSON.stringify(err));
                 return res.send(401, {message : 'Wrong username or password'});
             });
             req.write(payload);
@@ -175,7 +175,7 @@ exports.logout = function (req, res, next) {
                 logger.log('info', 'Logout successful');
             }
             else
-                return res.send({message : "Invalid access_token"});
+                return res.send(401, {message : "Invalid access_token"});
         };
     db.get().collection(collectionName, getStudent);
 };
@@ -201,9 +201,15 @@ exports.submit = function (req, res, next) {
         files = util.extractFiles(req.files, 'file', next),
         getCurrentSubject = function (err, item) {
             if (err) return next(err);
-            student = item;
-            logger.log('verbose', 'getting current subject');
-            _getCurrentSubject(student._id, createSectionDir);
+			if (item) {
+				student = item;
+				logger.log('verbose', 'getting current subject');
+				_getCurrentSubject(student._id, createSectionDir);
+			}
+			else {
+                logger.log('info', 'student:submit student not found');
+                return res.send(404, 'student not found');
+			}
         },
         createSectionDir = function (err, item) {
             if (err) return next(err);
@@ -235,7 +241,10 @@ exports.submit = function (req, res, next) {
                 if (err) return next(err);
                 logger.log('verbose', 'writing file', file.cleanName);
                 util.getSafeFileName(student_dir + '/' + file.cleanName, function (path) {
-                    fs.writeFile(path, data, getStudentCollection);
+					if (process.env['NODE_ENV'] === 'testing')
+						getStudentCollection();
+					else
+						fs.writeFile(path, data, getStudentCollection);
                 });
             });
         },
@@ -260,27 +269,29 @@ exports.submit = function (req, res, next) {
         sendResponse = function (err) {
             if (err) return next(err);
 			if (process.env['NODE_ENV'] === 'testing') {
-				fs.unlink();
+				files.forEach(function (f){ fs.unlink(student_dir + '/' + f.cleanName, function(){})});
 			}
+			logger.log('info', student._id, ' successfully submitted file/s');
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
-    logger.log('info', 'someone submitted file/s');
-    _findByAcessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject);
+    logger.log('verbose', 'someone submitted file/s');
+    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject);
 };
 
-exports.findByAcessToken = function (req, res, next) {
+exports.findByAccessToken = function (req, res, next) {
     var sendStudent = function (err, item) {
             if (err) return next(err);
             if (item) {
-                logger.log('info', 'findByAcessToken : student found');
+                logger.log('info', 'findByAccessToken : student found');
                 logger.log('debug', item);
                 return res.send(item);
             }
             else {
-                logger.log('info', 'findByAcessToken : student not found');
+                logger.log('info', 'findByAccessToken : student not found');
                 return res.send(404, 'student not found');
             }
         };
 
-    _findByAcessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent);
+	logger.log('info', 'findByAccessToken');
+    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent);
 };

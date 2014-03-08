@@ -13,7 +13,7 @@ var express = require('express'),
 		if(err) throw err;
 		logger.log('info', 'initializing FOCUS...');
 		if (process.env['NODE_ENV'] === 'testing') {
-			app.use(express.logger());
+			// app.use(express.logger());
 		}
 		else {
 			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
