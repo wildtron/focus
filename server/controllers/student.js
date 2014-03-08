@@ -216,7 +216,7 @@ exports.submit = function (req, res, next) {
             if (item) {
 				section = item;
                 logger.log('debug', item);
-                section_dir = config.upload_dir + item._id;
+                section_dir = config.upload_dir + item._id.replace(' ','_');
                 logger.log('verbose', 'creating subject dir', section_dir);
 				util.mkdir(config.upload_dir, function () {
 					util.mkdir(section_dir, createStudentDir);
