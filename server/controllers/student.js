@@ -4,6 +4,7 @@ var db = require(__dirname + '/../config/database'),
     TolerableError = require(__dirname + '/../lib/tolerable_error'),
     config = require(__dirname + '/../config/config').config,
     http = require('http'),
+	path = require('path'),
     fs = require('fs'),
     collectionName = 'students',
     _findByAccessToken = function (access_token, cb, next) {
@@ -216,7 +217,7 @@ exports.submit = function (req, res, next) {
             if (item) {
 				section = item;
                 logger.log('debug', item);
-                section_dir = config.upload_dir + item._id.replace(/\s+/g, '_');
+                section_dir = path.normalize(config.upload_dir + item._id.replace(/\s+/g, '_'));
                 logger.log('verbose', 'creating subject dir', section_dir);
 				util.mkdir(config.upload_dir, function () {
 					util.mkdir(section_dir, createStudentDir);
