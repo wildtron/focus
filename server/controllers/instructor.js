@@ -25,7 +25,9 @@ exports.login = function (req, res, next) {
                     }
                 ]
             }, {
-                password : 0
+                password : 0,
+				ip_address : 0,
+				last_login : 0
             }, getSectionCollection);
         },
         getSectionCollection = function (err, _item) {

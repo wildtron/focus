@@ -14,8 +14,7 @@ describe('Instructor Authentication', function () {
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
             res.body.message.should.be.string;
             res.body.message.should.be.equal('password is missing');
             done();
@@ -28,8 +27,7 @@ describe('Instructor Authentication', function () {
         .expect(400)
         .end(function (err, res) {
             should.not.exist(err);
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
             res.body.message.should.be.string;
             res.body.message.should.be.equal('username is missing');
             done();
@@ -52,17 +50,8 @@ describe('Instructor Authentication', function () {
         .expect(200)
         .end(function (err, res) {
             should.not.exist(err);
+			res.body.should.have.keys('classes', 'class', '_id', 'first_name', 'middle_name', 'last_name', 'sex');
             res.headers.should.have.ownProperty('set-cookie');
-            res.headers['set-cookie'].should.be.an('array');
-            res.body.should.be.an('object');
-            res.body.should.have.ownProperty('classes');
-            res.body.should.have.ownProperty('_id');
-            res.body.should.have.ownProperty('first_name');
-            res.body.should.have.ownProperty('middle_name');
-            res.body.should.have.ownProperty('last_name');
-            res.body.should.have.ownProperty('sex');
-            res.body.should.not.have.ownProperty('password');
-            res.body.should.not.have.ownProperty('access_token');
             done();
         });
     });

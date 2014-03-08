@@ -12,7 +12,7 @@ describe('Instructor get students', function() {
 		.expect(401)
 		.end(function (err, res) {
 			should.not.exist(err);
-			res.body.should.have.ownProperty('message');
+			res.body.should.have.keys('message');
 			res.body.message.should.be.string;
 			res.body.message.should.be.equal('Invalid access_token');
 			done();
@@ -29,7 +29,7 @@ describe('Instructor get students', function() {
 			.expect(400)
 			.end(function (err, res) {
 				should.not.exist(err);
-				res.body.should.have.ownProperty('message');
+				res.body.should.have.keys('message');
 				res.body.message.should.be.string;
 				res.body.message.should.be.equal('section_id is missing');
 				done();
