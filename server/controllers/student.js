@@ -67,12 +67,12 @@ exports.login = function (req, res, next) {
                 }}, function (err) {
                     if (err) return next(err);
                 });
+                logger.log('info', 'logged in locally', data.username, data.student_number);
                 return res.send({
                     access_token : item.access_token,
                     first_name : item.first_name,
                     last_name : item.last_name
                 });
-                logger.log('info', 'logged in locally', data.username, data.student_number);
             }
             else {
                 logger.log('verbose', 'trying to login via systemone', data.username, data.student_number);
@@ -144,12 +144,12 @@ exports.login = function (req, res, next) {
                 collection.insert(temp, function (err) {
                     if (err) return next(err);
                 });
+                logger.log('info', 'logged in via systemone', data.username, data.student_number);
                 return res.send({
                     access_token : temp.access_token,
                     first_name : temp.first_name,
                     last_name : temp.last_name
                 });
-                logger.log('info', 'logged in via systemone', data.username, data.student_number);
             }
         };
     logger.log('info', 'student trying to login');
@@ -218,7 +218,8 @@ exports.submit = function (req, res, next) {
                 next(new TolerableError('no current subject'));
             }
         },
-        createStudentDir = function () {
+        createStudentDir = function (err) {
+            if (err) return next(err);
             student_dir = section_dir + '/' + student._id;
             logger.log('verbose', 'creating student dir', student_dir);
             util.mkdir(student_dir, uploadFiles);
@@ -229,6 +230,7 @@ exports.submit = function (req, res, next) {
         readWriteFile = function (file, index) {
             logger.log('verbose', 'reading file', file.name);
             fs.readFile(file.path, function (err, data) {
+				fs.unlink(file.path);
                 file.cleanName = util.cleanFileName(file.name);
                 if (err) return next(err);
                 logger.log('verbose', 'writing file', file.cleanName);
@@ -241,7 +243,7 @@ exports.submit = function (req, res, next) {
             if (err) return next(err);
             if (++counter === files.length) {
                 logger.log('verbose', 'saving in db');
-				db.get().collection(collectioName, saveInDb);
+				db.get().collection(collectionName, saveInDb);
             }
 		},
 		saveInDb = function (err, collection) {
@@ -257,6 +259,9 @@ exports.submit = function (req, res, next) {
 		},
         sendResponse = function (err) {
             if (err) return next(err);
+			if (process.env['NODE_ENV'] === 'testing') {
+				fs.unlink();
+			}
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
     logger.log('info', 'someone submitted file/s');

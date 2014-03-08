@@ -8,8 +8,9 @@ var express = require('express'),
     db = require(__dirname + '/config/database'),
     router = require(__dirname + '/config/router'),
     config = require(__dirname + '/config/config').config,
-	bootstrap = function () {
+	bootstrap = function (err) {
 		var logFile;
+		if(err) throw err;
 		logger.log('info', 'initializing FOCUS...');
 		if (process.env['NODE_ENV'] === 'testing') {
 			app.use(express.logger());

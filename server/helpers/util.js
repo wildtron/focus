@@ -12,7 +12,6 @@ exports.chk_rqd = function (reqd, body, next) {
     while (i--) {
         if (!body[temp = reqd[i]]) {
             next(new TolerableError(temp + ' is missing'));
-            throw {};
         }
         ret[temp] = body[temp];
     }
@@ -49,8 +48,7 @@ exports.mkdir = function (dir, cb) {
         if (exists) cb();
         else {
             fs.mkdir(dir, 600, function (err) {
-                if (err) throw err;
-                cb();
+                cb(err);
             });
         }
     });
@@ -82,7 +80,7 @@ exports.cleanFileName = function (file_name) {
 
 
 exports.runTest = function () {
-    var mocha = new Mocha({reporter : 'spec'});
+    var mocha = new Mocha();
 
     fs.readdirSync(__dirname + '/../test/').filter(function(file){
         return file.substr(-3) === '.js';
