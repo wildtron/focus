@@ -37,7 +37,7 @@ describe('Instructor get students', function() {
         });
     });
 
-	it('should get e of cmsc161 uv-2L of 2010-43168', function (done) {
+	it('should get files of cmsc161 uv-2L of 2010-43168', function (done) {
 		api.post('/instructor/login')
 		.send({username : 'mamkat', password : '12345'})
 		.expect(200)
@@ -49,14 +49,15 @@ describe('Instructor get students', function() {
 				should.not.exist(err);
 
 				res.body.should.be.an('array');
-				res.body[0].should.have.keys('_id', 'first_name', 'last_name', 'files');
-
+				res.body[0].should.contain.keys('_id', 'first_name', 'last_name');
 				res.body[0]._id.should.be.string;
 				res.body[0]._id.should.be.equal('2010-43168');
 
-				res.body[0].files.should.be.an('array');
-				res.body[0].files[0].should.have.keys('name', 'size', 'date', 'version', 'path');
-				res.body[0].files[0].name.should.match(/exer1/gi);
+				if (res.body[0].files) {
+					res.body[0].files.should.be.an('array');
+					res.body[0].files[0].should.have.keys('name', 'size', 'date', 'version', 'path');
+					res.body[0].files[0].name.should.match(/exer1/gi);
+				}
 				done();
 			})
         });
