@@ -12,6 +12,7 @@ exports.chk_rqd = function (reqd, body, next) {
     while (i--) {
         if (!body[temp = reqd[i]]) {
             next(new TolerableError(temp + ' is missing'));
+			return false;
         }
         ret[temp] = body[temp];
     }
@@ -38,8 +39,10 @@ exports.pad = function (num, size) {
 exports.extractFiles = function (files, name, next) {
     if (files[name])
         return (files[name] instanceof Array) ? files[name] : [files[name]];
-    if (next)
-        next(new Error(name + ' file is missing'));
+    if (next) {
+        next(new TolerableError(name + ' is missing'));
+		return false;
+	}
     return [];
 }
 
@@ -47,7 +50,7 @@ exports.mkdir = function (dir, cb) {
     fs.exists(dir, function (exists) {
         if (exists) cb();
         else {
-            fs.mkdir(dir, 600, function (err) {
+            fs.mkdir(dir, 666, function (err) {
                 cb(err);
             });
         }
@@ -80,19 +83,21 @@ exports.cleanFileName = function (file_name) {
 
 
 exports.runTest = function () {
-    var mocha = new Mocha();
+    var mocha = new Mocha({reporter : 'spec'});
 
-    fs.readdirSync(__dirname + '/../test/').filter(function(file){
+    fs.readdirSync(__dirname + '/../tests/').filter(function(file){
         return file.substr(-3) === '.js';
     }).forEach(function(file){
         mocha.addFile(
-            path.join(__dirname + '/../test/', file)
+            path.join(__dirname + '/../tests/', file)
         );
     });
 
-    mocha.run(function(failures){
-        process.on('exit', function () {
-            process.exit(failures);
-        });
-    });
+	setTimeout(function () {
+		mocha.run(function (failures) {
+			process.on('exit', function () {
+				process.exit(failures);
+			});
+		});
+    }, 2000);
 }

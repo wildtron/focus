@@ -16,12 +16,12 @@ exports.setup = function (app) {
     app.post('/student/login', student.login);
     app.post('/student/logout', student.logout);
     app.post('/student/submit', student.submit);
-    app.get('/students', student.findAll);
-    app.post('/student/findByAcessToken', student.findByAcessToken);
+    app.post('/student/findByAccessToken', student.findByAccessToken);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
-    app.get('/instructors', instructor.findAll);
+
+    app.get('/section/getStudents', section.getStudents);
 
     app.get('*', function (req, res) {
         res.redirect('/index.html');
@@ -31,7 +31,7 @@ exports.setup = function (app) {
     app.use(function (err, req, res, next) {
         logger.log('warn', err.message);
         res.send(400, {message : err.message});
-        return ;
+        return;
     });
 
 	logger.log('verbose', 'done setting up router');

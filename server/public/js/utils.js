@@ -8,9 +8,9 @@
         if (headers)
             for (i in headers)
                 request.setRequestHeader(i, headers[i]);
-        
-        request.onload = function() {
-            if (request.status >= 200 && request.status < 400) {
+
+        request.onload = function () {
+            if (request.readyState === 4) {
                 success_cb && success_cb(JSON.parse(request.responseText), request);
             }
         };

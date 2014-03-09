@@ -66,6 +66,11 @@ root = this;
             document.getElementsByClassName('active_nav')[0].className = '';
             document.getElementById('submissions_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = 'SUBMISSIONS';
+			temp = document.getElementById('section_submissions_select');
+			_this.classes.forEach(function (a) {
+				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
+			});
+			getFiles();
         },
         logs = function () {
             var active = document.getElementsByClassName('active_section')[0];
@@ -98,7 +103,7 @@ root = this;
             while (i--) {
                 dom.innerHTML += '  \
                     <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
-                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" />    \
+                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div locked\')&&(this.src=\'/img/click-to-unlock.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
@@ -169,7 +174,32 @@ root = this;
                 document.title = "Company";
                 clearInterval(timer);
             }
-        };
+        },
+		getFiles = function () {
+			xhr('GET', url + 'section/getStudents?'
+				+ 'section_id=' + document.getElementById('section_submissions_select').value
+				+ '&exer_number=' + document.getElementById('exer_number_submissions_select').value
+				+ '&student_number=' + document.getElementById('students_submissions_select').value
+				+ '&order=' + document.getElementById('order_submissions_select').value
+				, {}, function (res) {
+				var temp1 = document.getElementById('students_submissions_select'),
+					temp2 = document.getElementById('files_div');
+				temp1.innerHTML = '<option value="all">Everyone</option>';
+				temp2.innerHTML = '';
+				res.forEach(function (s) {
+					temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+					s.files&&s.files.forEach(function (f) {
+						temp2.innerHTML += '	\
+					<div class="file_div">	\
+						<img class="c" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+Size: '+f.size+' bytes\r\n\
+Date: '+new Date(f.date)+'"/>	\
+						<div class="file_name_div">'+f.name+'</div>	\
+					</div>';
+					});
+				});
+			});
+		};
 
     root.onresize = function () {
         var temp1 = document.getElementsByClassName('section_div'),
@@ -201,9 +231,9 @@ root = this;
         xhr('POST', url + 'instructor/login', {
             username : username.value,
             password : password.value
-        }, function (response) {
+        }, function (response, req) {
             var temp, i;
-            if (response.message) {
+            if (req.status === 401) {
                 self.innerHTML = 'ERROR!';
                 self.className = 'sign_in_error';
                 setTimeout(function () {
@@ -213,7 +243,7 @@ root = this;
                     username.focus();
                 }, 1000);
             }
-            else {
+            else if (req.status === 200){
                 _this = response;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
 
@@ -237,7 +267,6 @@ root = this;
                         });
                         document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
                     });
-                    console.log('socket emit');
                 }
 
                 self.innerHTML = 'SUCCESS!';
@@ -360,6 +389,11 @@ root = this;
         }
     };
 
+	document.getElementById('section_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('exer_number_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('students_submissions_select').addEventListener('change', getFiles);
+	document.getElementById('order_submissions_select').addEventListener('change', getFiles);
+
     page('feed', feed);
     page('records', records);
     page('submissions', submissions);
@@ -368,8 +402,6 @@ root = this;
     page('*', login);
 
     page.show('');
-
-    console.dir(getCookie('focus'));
 
     getCookie('focus') && document.getElementById('sign_in_button').click();
 //}(this));

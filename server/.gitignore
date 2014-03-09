@@ -8,10 +8,8 @@ lib-cov
 *.gz
 
 pids
-logs
 results
 
 npm-debug.log
 node_modules
-temp
-uploads
+trash
