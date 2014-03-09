@@ -9,11 +9,13 @@
     "socket.io": "~0.9.16",
     "google-spreadsheets": "~0.3.0",
     "googleapis": "~0.6.1",
-    "winston": "~0.7.2"
+    "winston": "~0.7.2",
+    "nodemon": "~1.0.15"
   },
   "scripts": {
-    "start": "node server.js",
-    "test": "make test"
+    "start": "nodemon server.js",
+    "test": "make test",
+    "dev-test": "mocha tests -R spec -t 5000 -s 0 --watch"
   },
   "repository": {
     "type": "git",
@@ -36,10 +38,6 @@
   "devDependencies": {
     "supertest": "~0.9.0",
     "chai": "~1.9.0",
-    "grunt-simple-mocha": "~0.4.0",
-    "grunt": "~0.4.2",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-express-server": "~0.4.13",
     "mocha": "~1.17.1"
   }
 }

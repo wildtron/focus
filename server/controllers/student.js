@@ -1,10 +1,8 @@
 var db = require(__dirname + '/../config/database'),
     util = require(__dirname + '/../helpers/util'),
     logger = require(__dirname + '/../lib/logger'),
-    TolerableError = require(__dirname + '/../lib/tolerable_error'),
     config = require(__dirname + '/../config/config').config,
     http = require('http'),
-	path = require('path'),
     fs = require('fs'),
     collectionName = 'students',
     _findByAccessToken = function (access_token, cb, next) {
@@ -78,11 +76,11 @@ exports.login = function (req, res, next) {
                 });
             }
             else {
-                logger.log('verbose', 'student:login trying to login via systemone', data.username, data.student_number);
-				if (process.env['NODE_ENV'] === 'testing') {
+				if (process.env['NODE_ENV'] === 'testing') {	// dont try systemone on test env
 					return res.send(401, {message : 'Wrong username or password'});
 				}
 				else {
+					logger.log('verbose', 'student:login trying to login via systemone', data.username, data.student_number);
 					loginViaSystemOne();
 				}
             }
@@ -176,12 +174,13 @@ exports.logout = function (req, res, next) {
                 collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, function (err) {
                     if (err) return next(err);
                 });
-                logger.log('info', 'Logout successful');
+                logger.log('info', 'student:logout Logout successful');
                 return res.send({message : "Logout successful"});
             }
             else
                 return res.send(401, {message : "Invalid access_token"});
         };
+	logger.log('info', 'student:logout someone is trying to logout');
 	if (!data) return;
     db.get().collection(collectionName, getStudent);
 };
@@ -197,7 +196,7 @@ exports.submit = function (req, res, next) {
             if (err) return next(err);
 			if (item) {
 				student = item;
-				logger.log('verbose', 'getting current subject');
+				logger.log('verbose', 'student:submit getting current subject');
 				_getCurrentSubject(student._id, createSectionDir, next);
 			}
 			else {
@@ -209,9 +208,9 @@ exports.submit = function (req, res, next) {
             if (err) return next(err);
             if (item) {
 				section = item;
-                logger.log('debug', item);
-                section_dir = path.normalize(config.upload_dir + item._id.replace(/\s+/g, '_'));
-                logger.log('verbose', 'creating subject dir', section_dir);
+                logger.log('debug', 'student:submit', item);
+                section_dir = config.upload_dir + item._id.replace(/\s+/g, '_');
+                logger.log('verbose', 'student:submit creating subject dir', section_dir);
 				util.mkdir(section_dir, createStudentDir);
             }
             else {
@@ -222,22 +221,24 @@ exports.submit = function (req, res, next) {
         createStudentDir = function (err) {
             if (err) return next(err);
             student_dir = section_dir + '/' + student._id;
-            logger.log('verbose', 'creating student dir', student_dir);
+            logger.log('verbose', 'student:submit creating student dir', student_dir);
             util.mkdir(student_dir, uploadFiles);
         },
         uploadFiles = function () {
             files.forEach(readWriteFile);
         },
         readWriteFile = function (file, index) {
-            logger.log('verbose', 'reading file', file.name);
+            logger.log('verbose', 'student:submit reading file', file.name);
             fs.readFile(file.path, function (err, data) {
 				if(err) return next(err);
 				console.log(file.path);
 				fs.unlink(file.path, function (err) {
 					if (err) return next(err);
 					file.cleanName = util.cleanFileName(file.name);
-					logger.log('verbose', 'writing file', file.cleanName);
-					util.getSafeFileName(student_dir + '/' + file.cleanName, function (path) {
+					logger.log('verbose', 'student:submit writing file', file.cleanName);
+					util.getSafeFileName(student_dir + '/' + file.cleanName, function (path, version) {
+						file.version = version;
+						file.path = path.substring(config.upload_dir.length);
 						if (process.env['NODE_ENV'] === 'testing')
 							getStudentCollection();
 						else
@@ -249,7 +250,7 @@ exports.submit = function (req, res, next) {
 		getStudentCollection = function (err) {
             if (err) return next(err);
             if (++counter === files.length) {
-                logger.log('verbose', 'saving in db');
+                logger.log('verbose', 'student:submit saving in db');
 				db.get().collection(collectionName, saveInDb);
             }
 		},
@@ -261,6 +262,8 @@ exports.submit = function (req, res, next) {
 					files : files.map(function(f){
 						return {
 							name : f.cleanName,
+							version : f.version,
+							path : f.path,
 							size : f.size,
 							date : +new Date
 						}
@@ -270,11 +273,11 @@ exports.submit = function (req, res, next) {
 		},
         sendResponse = function (err) {
             if (err) return next(err);
-			logger.log('info', student._id, ' successfully submitted file/s');
+			logger.log('info', 'student:submit', student._id, ' successfully submitted file/s');
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
+    logger.log('verbose', 'student:submit someone submitted file/s');
 	if (!files) return;
-    logger.log('verbose', 'someone submitted file/s');
     _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject, next);
 };
 
@@ -282,12 +285,12 @@ exports.findByAccessToken = function (req, res, next) {
     var sendStudent = function (err, item) {
             if (err) return next(err);
             if (item) {
-                logger.log('info', 'findByAccessToken : student found');
+                logger.log('info', 'student:findByAccessToken : student found');
                 logger.log('debug', item);
                 return res.send(item);
             }
             else {
-                logger.log('info', 'findByAccessToken : student not found');
+                logger.log('info', 'student:findByAccessToken : student not found');
                 return res.send(404, 'student not found');
             }
         };
@@ -295,3 +298,10 @@ exports.findByAccessToken = function (req, res, next) {
 	logger.log('info', 'findByAccessToken');
     _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent, next);
 };
+
+exports.getFile = function (req, res, next) {
+	var file = config.upload_dir + req.query.path;
+	console.log("student:getFile someone wants to download file");
+	res.download(file);
+};
+

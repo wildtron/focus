@@ -3,6 +3,7 @@ root = this;
     var temp,
         _this,
         socket,
+		currentChat,
         refreshInterval,
         url = document.body.attributes['data-url'].value,
         toTitleCase = function (str) {
@@ -103,7 +104,7 @@ root = this;
             while (i--) {
                 dom.innerHTML += '  \
                     <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
-                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div locked\')&&(this.src=\'/img/click-to-unlock.png\');"/>    \
+                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
@@ -132,7 +133,9 @@ root = this;
                     temp;
                 while (i--) {
                     temp = document.getElementById(_this.class.students[i]._id);
-                    if (!temp.classList.contains('locked'))
+                    if (!temp.classList.contains('locked') &&
+						!temp.classList.contains('not_connected')
+						)
                         temp.childNodes[1].setAttribute('src', 'http://' + _this.class.students[i].ip_address + ':8286');
                 }
             }, (+interval) * 1000);
@@ -142,6 +145,7 @@ root = this;
                 student = getStudentBySN(student_number),
                 j,
                 k;
+			currentChat = student_number;
             dom.innerHTML = '';
             student.messages || (student.messages = []);
             cache = student.messages;
@@ -176,7 +180,7 @@ root = this;
             }
         },
 		getFiles = function () {
-			xhr('GET', url + 'section/getStudents?'
+			xhr('GET', url + 'section/getStudentsWithFiles?'
 				+ 'section_id=' + document.getElementById('section_submissions_select').value
 				+ '&exer_number=' + document.getElementById('exer_number_submissions_select').value
 				+ '&student_number=' + document.getElementById('students_submissions_select').value
@@ -191,7 +195,7 @@ root = this;
 					s.files&&s.files.forEach(function (f) {
 						temp2.innerHTML += '	\
 					<div class="file_div">	\
-						<img class="c" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+						<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="c" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
 Size: '+f.size+' bytes\r\n\
 Date: '+new Date(f.date)+'"/>	\
 						<div class="file_name_div">'+f.name+'</div>	\
@@ -200,6 +204,7 @@ Date: '+new Date(f.date)+'"/>	\
 				});
 			});
 		};
+
 
     root.onresize = function () {
         var temp1 = document.getElementsByClassName('section_div'),
@@ -257,6 +262,12 @@ Date: '+new Date(f.date)+'"/>	\
                     socket.on('warning', function (data) {
                         alert(data);
                     });
+					socket.on('online', function (sn) {
+						var temp = document.getElementById(sn);
+						console.log(sn, 'is now connected');
+						temp.className = temp.className.replace('not_connected', 'idle');
+						console.log(temp.className);
+					});
                     socket.on('update_chat', function (message, student_number) {
                         console.log('received chat update', message, student_number);
                         var student = getStudentBySN(student_number);
@@ -265,7 +276,11 @@ Date: '+new Date(f.date)+'"/>	\
                             incoming : true,
                             message : message
                         });
-                        document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
+						if (currentChat) {
+							buildChatHistory(student_number);
+						} else {
+							document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
+						}
                     });
                 }
 
@@ -370,6 +385,7 @@ Date: '+new Date(f.date)+'"/>	\
     });
 
     document.getElementById('chat_name_div').addEventListener('click', function (e) {
+		currentChat = '';
         e.target.parentNode.style.display = 'none';
     });
 

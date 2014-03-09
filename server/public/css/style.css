@@ -594,6 +594,7 @@ section{
     background: #33CC66;
     border: 2px solid #27AE60;
 }
+.window_div.not_connected,
 .window_div.locked{
     background: #333333;
     border: 2px solid #000000;

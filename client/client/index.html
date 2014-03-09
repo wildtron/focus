@@ -9,9 +9,10 @@
         <link rel="stylesheet" href="css/client.css" />
         <script src="js/config.js"></script>
     </head>
-    <script type='text/javascript'>
+    <!--script type='text/javascript'>
         document.write('<body data-url="http://'+motherServer+':'+port+'/">');
-    </script>
+    </script-->
+	<body data-url="http://127.0.0.1:3000/">
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
@@ -33,9 +34,10 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-        <script type="text/javascript">
+        <!--script type="text/javascript">
             document.write('<script type="text/javascript" src="http://'+motherServer+':'+port+'/socket.io/socket.io.js"/><\/script>');
-        </script>
+        </script-->
+		<script type="text/javascript" src="http://127.0.0.1:3000/socket.io/socket.io.js"/></script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
             if (typeof require !== '' + void 0) {
@@ -64,7 +66,8 @@
             }
         </script>
         <script type="text/javascript">
-            (function(root){
+            //(function(root){
+			root = this;
                 var url = document.body.attributes['data-url'].value,
                     chat_content = document.getElementById('chat_content'),
                     socket,
@@ -82,6 +85,7 @@
                         socket.emit('join_room', {student_number : cookies.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
+							chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
                         });
                     };
 
@@ -102,7 +106,7 @@
                         self.className = '';
                         self.innerHTML = 'Login via SystemOne';
                         student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
-                        chat_content.focus();
+                        document.getElementById('chat_area').focus();
                     }, 250);
                 }
 
@@ -160,7 +164,7 @@
                                 self.className = '';
                                 self.innerHTML = 'Login via SystemOne';
                                 student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
-                                chat_content.focus();
+                                document.getElementById('chat_area').focus();
                             }, 250);
 
                             /*
@@ -223,11 +227,11 @@
                     if (e.ctrlKey && e.keyCode == 10) {
                         socket.emit('update_chat', {
                             message : e.target.value,
-                            student_number : _student_number
+                            student_number : cookies.get('student_number')
                         });
                         chat_content.innerHTML += '<li>' + e.target.value + '</li>';
                         e.target.value = '';
-                        chat_content.scrollTop = chat_content.scrollHeight;
+						chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
                     }
                 };
 
@@ -268,6 +272,11 @@
                                     _this.className = '';
                                     _this.value = '';
                                     chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
+									socket.emit('update_chat', {
+										message : JSON.parse(xhr.responseText).message,
+										student_number : cookies.get('student_number')
+									});
+									chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
                                 }, 500);
                             }, 1000);
                         } else {
@@ -290,7 +299,7 @@
                 };
 
                 document.getElementById('username_input').focus();
-            }(this));
+            //}(this));
         </script>
     </body>
 </html>

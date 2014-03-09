@@ -8,20 +8,21 @@ var db = require(__dirname + '/database'),
 // imports
 db.addImport(section.collectionName);
 db.addImport(instructor.collectionName);
-if (process.env['NODE_ENV'] === 'testing') {
+// if (process.env['NODE_ENV'] === 'testing') {
 	db.addImport(student.collectionName);
-}
+// }
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
     app.post('/student/logout', student.logout);
     app.post('/student/submit', student.submit);
+    app.get('/student/getFile', student.getFile);
     app.post('/student/findByAccessToken', student.findByAccessToken);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
 
-    app.get('/section/getStudents', section.getStudents);
+    app.get('/section/getStudentsWithFiles', section.getStudentsWithFiles);
 
     app.get('*', function (req, res) {
         res.redirect('/index.html');
@@ -30,7 +31,7 @@ exports.setup = function (app) {
     // error handling
     app.use(function (err, req, res, next) {
         logger.log('warn', err.message);
-        res.send(400, {message : err.message});
+        res.send(err.code || 400, {message : err.message});
         return;
     });
 

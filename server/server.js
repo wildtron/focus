@@ -1,3 +1,7 @@
+if (!process.env['NODE_ENV']) {	// if env is not set, make it development
+	process.env['NODE_ENV'] = 'development';
+}
+
 var express = require('express'),
     app = express(),
     fs = require('fs'),
@@ -7,43 +11,36 @@ var express = require('express'),
     logger = require(__dirname + '/lib/logger'),
     db = require(__dirname + '/config/database'),
     router = require(__dirname + '/config/router'),
-    config = require(__dirname + '/config/config').config,
-	bootstrap = function (err) {
-		var logFile;
-		if (err) throw err;
-		logger.log('info', 'initializing FOCUS...');
-		if (process.env['NODE_ENV'] !== 'testing') {
-			logFile = fs.createWriteStream(__dirname + '/logs/' + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'});
-			app.use(express.logger({stream : logFile}));
-		}
-		app.use(express.bodyParser({uploadDir : __dirname + '/temp'}));
-		app.use(express.compress());
-		app.use(express.limit('25mb'));
-		app.use(express.methodOverride());
-		app.use(express.cookieParser(config.COOKIE_SECRET));
-		app.use(express.static(__dirname + '/public'));
-		app.use(function (req, res, next) {
-			res.setHeader('Access-Control-Allow-Origin', '*');
-			res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-			res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-			res.setHeader('Access-Control-Allow-Credentials', true);
-			db.setOnConnect(next);
-		});
-		app.use(app.router);
+    config = require(__dirname + '/config/config').config;
 
-		logger.log('verbose', 'setting up router');
-		router.setup(app);
-		logger.log('verbose', 'handling sockets');
-		router.handleSocket(io);
-	};
 
-if (!process.env['NODE_ENV']) {
-	process.env['NODE_ENV'] = 'development';
+logger.log('info', 'initializing FOCUS. ENV = ', process.env['NODE_ENV']);
+
+if (process.env['NODE_ENV'] !== 'testing') {	// don't log on file if testing
+	app.use(express.logger({
+		stream : fs.createWriteStream(config.logs_dir + new Date().toJSON().substring(0, 10) + '.log', {flags: 'a'})}
+	));
 }
 
-console.log('NODE_ENV', process.env['NODE_ENV']);
+app.use(express.bodyParser({uploadDir : config.temp_dir}));
+app.use(express.compress());
+app.use(express.limit(config.upload_file_limit));
+app.use(express.methodOverride());
+app.use(express.cookieParser(config.COOKIE_SECRET));
+app.use(express.static(config.public_dir));
+app.use(function (req, res, next) {
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	db.setOnConnect(next);
+});
+app.use(app.router);
 
-bootstrap();
+logger.log('verbose', 'setting up router');
+router.setup(app);
+logger.log('verbose', 'handling sockets');
+router.handleSocket(io);
 
 server.listen(config.port);
 logger.log('info', 'Server listening on port : ', config.port);

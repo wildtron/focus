@@ -1,4 +1,5 @@
-var config = {
+var path = require('path'),
+	config = {
     "mode" : "development",
     "development": {
         mode : "development",
@@ -31,7 +32,11 @@ var config = {
             "CMSC 191" : "Special Topics",
             "IT 1(MST)" : "Information Technology Literacy"
         },
-        upload_dir : __dirname + '/../uploads/',
+        upload_dir : path.normalize(__dirname + '/../uploads/'),
+        public_dir : path.normalize(__dirname + '/../public'),
+        logs_dir : path.normalize(__dirname + '/../logs/'),
+        temp_dir : path.normalize(__dirname + '/../temp'),
+		upload_file_limit : '25mb',
         systemone : {
             host : 'rodolfo.uplb.edu.ph',
             port : 80,

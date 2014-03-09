@@ -62,8 +62,8 @@ describe('Student File Submit', function() {
 		.end(function (err, res) {
 			api.post('/student/submit')
 			.field('access_token', res.body.access_token)
-			.attach('file', __dirname + '/fixtures/input.txt')
-			.attach('file', __dirname + '/fixtures/Moon.java')
+			.attach('file', __dirname + '/fixtures/lagrimas_exer1.txt')
+			.attach('file', __dirname + '/fixtures/lagrimas_exer2.txt')
 			.expect(200)
 			.end(function (err, res) {
 				should.not.exist(err);

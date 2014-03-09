@@ -63,10 +63,10 @@ exports.getSafeFileName = function (path, cb) {
         check = function (path) {
             fs.exists(path, function (exists) {
                 if (exists) {
-                    check(original_path + '-' + (++version));
+                    check(original_path + '-' + (++version), version);
                 }
                 else {
-                    cb(path);
+                    cb(path, version);
                 }
             });
         };
@@ -78,7 +78,7 @@ exports.cleanFileName = function (file_name) {
             .replace(/\.\./gi, '')              // remove consecutive 2 dots
             .replace(/^\./i, '')                // remove dot on if first character
             .replace(/\s+/gi, '-')              // replace space/s with dash
-            .replace(/[^a-zA-Z0-9\.-]/gi, '');  // strip any special characters
+            .replace(/[^a-zA-Z0-9\.-_]/gi, '');  // strip any special characters
 };
 
 
@@ -100,4 +100,8 @@ exports.runTest = function () {
 			});
 		});
     }, 2000);
+}
+
+exports.isSN = function (student_number) {
+	return /^\d{4}-\d{5}$/.test(student_number);
 }

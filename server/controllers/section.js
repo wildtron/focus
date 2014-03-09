@@ -1,15 +1,14 @@
 var collectionName = 'sections',
     util = require(__dirname + '/../helpers/util'),
     db = require(__dirname + '/../config/database'),
-    logger = require(__dirname + '/../lib/logger'),
-    config = require(__dirname + '/../config/config').config;
+    logger = require(__dirname + '/../lib/logger');
 
 exports.collectionName = collectionName;
 
-exports.getStudents = function (req, res, next) {
+exports.getStudentsWithFiles = function (req, res, next) {
     var item,
         collection,
-        data = util.chk_rqd(['section_id'], req.query, next),
+        data = util.chk_rqd(['section_id', 'exer_number', 'student_number', 'order'], req.query, next),
         getInstructor = function (err, _collection) {
             if (err) return next(err);
             collection = _collection;
@@ -30,15 +29,32 @@ exports.getStudents = function (req, res, next) {
             }
         },
         getStudents = function (err, collection) {
+			var where = {classes : {$in : [data.section_id]}},
+				projection = {
+					access_token : 0,
+					password : 0
+				};
+			if (util.isSN(data.student_number)) {
+				where._id = data.student_number;
+			}
+			if (!isNaN(data.exer_number)) {
+				projection = {
+					first_name : 1,
+					last_name : 1,
+					files : {
+						$elemMatch : {
+							name : new RegExp('exer' + data.exer_number, 'gi')
+						}
+					}
+				};
+			}
             if (err) return next(err);
             logger.log('verbose', 'section:getStudent getting students');
-            collection.find(
-				{classes : {$in : ['CMSC 161 UV-2L']}},
-                {
-                    classes : 0,
-                    password : 0,
-                    access_token : 0
-                }
+            collection.find({
+					$query : where,
+					$orderby : {}
+				},
+				projection
             ).toArray(sendResponse);
         },
         sendResponse = function (err, docs) {
@@ -46,7 +62,7 @@ exports.getStudents = function (req, res, next) {
             logger.log('verbose', 'section:getStudent successful');
             return res.send(docs);
         };
-	if (!data) return;
     logger.log('info', 'section:getStudent someone is trying to get the students of', data.section_id);
+	if (!data) return;
     db.get().collection('instructors', getInstructor);
 };

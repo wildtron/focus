@@ -119,8 +119,9 @@ exports.logout = function (req, res, next) {
         },
         updateInstructor = function (err, item) {
             if (err) return next(err);
+			logger.log('verbose', item._id, 'clearing access_token');
+			res.clearCookie('focus');
             if (item) {
-                logger.log('verbose', item._id, 'clearing access_token');
                 collection.update(
                     {'_id' : item._id},
                     {$set : {access_token: null}},
@@ -128,7 +129,6 @@ exports.logout = function (req, res, next) {
                         if (err) return next(err);
                     }
                 );
-                res.clearCookie('focus');
                 logger.log('info', item._id, 'logged out successful');
                 return res.send({message : "Logout successful"});
             }
