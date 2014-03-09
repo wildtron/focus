@@ -62,8 +62,27 @@ describe('Student File Submit', function() {
 		.end(function (err, res) {
 			api.post('/student/submit')
 			.field('access_token', res.body.access_token)
-			.attach('file', __dirname + '/fixtures/lagrimas_exer1.txt')
-			.attach('file', __dirname + '/fixtures/lagrimas_exer2.txt')
+			.attach('file', __dirname + '/fixtures/lagrimas_exer1.java')
+			.attach('file', __dirname + '/fixtures/lagrimas_exer2.c')
+			.expect(200)
+			.end(function (err, res) {
+				should.not.exist(err);
+				res.body.should.have.keys('message');
+				res.body.message.should.be.equal('Successfully submitted 2 files');
+				done();
+			});
+        });
+    });
+
+	it('should send 2 files successfully', function (done) {
+		api.post('/student/login')
+		.send({student_number : '2010-41794', username : 'wildtron', password : 'asdfasdf'})
+		.expect(200)
+		.end(function (err, res) {
+			api.post('/student/submit')
+			.field('access_token', res.body.access_token)
+			.attach('file', __dirname + '/fixtures/ferrer_exer3.asm')
+			.attach('file', __dirname + '/fixtures/ferrrer_exer4.zip')
 			.expect(200)
 			.end(function (err, res) {
 				should.not.exist(err);

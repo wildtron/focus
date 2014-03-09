@@ -20,5 +20,5 @@
         };
 
         request.send(JSON.stringify(data || {}));
-    }
+    };
 }(this));

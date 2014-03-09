@@ -34,9 +34,6 @@ exports.getStudentsWithFiles = function (req, res, next) {
 					access_token : 0,
 					password : 0
 				};
-			if (util.isSN(data.student_number)) {
-				where._id = data.student_number;
-			}
 			if (!isNaN(data.exer_number)) {
 				projection = {
 					first_name : 1,
@@ -47,6 +44,9 @@ exports.getStudentsWithFiles = function (req, res, next) {
 						}
 					}
 				};
+			}
+			if (util.isSN(data.student_number)) {
+				where._id = data.student_number;
 			}
             if (err) return next(err);
             logger.log('verbose', 'section:getStudent getting students');

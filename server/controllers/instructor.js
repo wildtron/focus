@@ -2,7 +2,14 @@ var collectionName = 'instructors',
     util = require(__dirname + '/../helpers/util'),
     db = require(__dirname + '/../config/database'),
     logger = require(__dirname + '/../lib/logger'),
-    config = require(__dirname + '/../config/config').config;
+    config = require(__dirname + '/../config/config').config,
+    _findByAccessToken = function (access_token, cb, next, where) {
+        var getInstructor = function(err, collection) {
+                if (err) return next(err);
+                collection.findOne(where || {access_token : access_token}, {password : 0}, cb);
+            };
+        db.get().collection(collectionName, getInstructor);
+    };
 
 exports.collectionName = collectionName;
 
@@ -111,31 +118,106 @@ exports.login = function (req, res, next) {
 };
 
 exports.logout = function (req, res, next) {
-    var collection,
-        getInstructor = function(err, _collection) {
+    var	item,
+		getCollection = function (err, _item) {
             if (err) return next(err);
-            collection = _collection;
-            collection.findOne({'access_token' : (req.signedCookies['focus'] || '#')}, updateInstructor);
-        },
-        updateInstructor = function (err, item) {
-            if (err) return next(err);
-			logger.log('verbose', item._id, 'clearing access_token');
-			res.clearCookie('focus');
-            if (item) {
-                collection.update(
-                    {'_id' : item._id},
-                    {$set : {access_token: null}},
-                    function (err) {
-                        if (err) return next(err);
-                    }
-                );
-                logger.log('info', item._id, 'logged out successful');
-                return res.send({message : "Logout successful"});
+            if (_item) {
+				item = _item;
+				db.get().collection(collectionName, updateInstructor);
             }
             else {
-                logger.log('warn', 'someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
-                return res.send({message : "Invalid access_token"});
+                logger.log('warn', 'instructor:logout someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
+                return res.send(401, {message : "Invalid access_token"});
             }
+		},
+		updateInstructor = function (err, collection) {
+            if (err) return next(err);
+			logger.log('verbose', 'instructor:logout', item._id, 'clearing access_token');
+			res.clearCookie('focus');
+			collection.update(
+				{'_id' : item._id},
+				{$set : {access_token: null}},
+				function (err) {
+					if (err) return next(err);
+				}
+			);
+			logger.log('info', item._id, 'instructor:logout logged out successful');
+			return res.send({message : "Logout successful"});
         };
-    db.get().collection(collectionName, getInstructor);
+    logger.log('info', 'instructor:logout someone is trying to logout');
+	_findByAccessToken(req.signedCookies['focus'] || '#', getCollection, next);
+};
+
+exports.getLogs = function (req, res, next) {
+	var section,
+		data = util.chk_rqd(['student_number', 'from', 'to', 'section_id'], req.query, next),
+		getSectionCollection = function (err, item) {
+			if (err) return next(err);
+			if (item) {
+				// get section collection
+				logger.log('verbose', 'instructor:getLogs getting sections collection');
+				db.get().collection('sections', getSection);
+			}
+			else {
+				logger.log('warn', 'instructor:getLogs someone trying to get logs with unrecognized token', (req.signedCookies['focus'] || '#'));
+				return res.send(401, {message : "Invalid access_token"});
+			}
+		},
+		getSection = function (err, collection) {
+			if (err) return next(err);
+			// find section
+			logger.log('verbose', 'instructor:getLogs finding section');
+			collection.findOne({_id : data.section_id}, getLogsCollection);
+		},
+		getLogsCollection = function (err, item) {
+			if (err) return next(err);
+			if (item) {
+				section = item;
+				// get logs
+				logger.log('verbose', 'instructor:getLogs gettings logs collection');
+				db.get().collection('logs', getLogs);
+			}
+			else
+				res.send(400, {message : 'Section not found'});
+		},
+		getLogs = function (err, collection) {
+			var where = {
+				student_number : {
+					$in : section.students
+				}
+			};
+			if (err) return next(err);
+
+			if (util.isSN(data.student_number)) {
+				where.student_number = data.student_number;
+			}
+
+			if (!isNaN(data.from) && !isNaN(data.to)) {
+				where.date = {
+					$gte : data.from,
+					$lt : data.to
+				};
+			}
+
+			logger.log('verbose', 'instructor:getLogs finding logs');
+			collection.find(where).toArray(sendResponse);
+		},
+		sendResponse = function (err, docs) {
+			if (err) return next(err);
+			if (docs)
+				res.send({
+					students : section.students,
+					logs : docs
+				});
+			else
+				res.send(404, {message : 'Found no logs'});
+		};
+
+    logger.log('info', 'instructor:getLogs someone is trying to get the logs');
+
+	// verify instructor
+	_findByAccessToken(false, getSectionCollection, next, {
+		access_token : req.signedCookies['focus'] || '#',
+		classes : {$in : [data.section_id]}
+	});
 };

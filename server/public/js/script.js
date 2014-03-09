@@ -56,7 +56,8 @@ root = this;
             document.getElementById('header_title_div').innerHTML = 'RECORDS';
         },
         submissions = function () {
-            var active = document.getElementsByClassName('active_section')[0];
+            var active = document.getElementsByClassName('active_section')[0],
+				temp;
             if (+active.attributes['data-order'].value < 3) {
                 active.className = 'current-to-' + randomEffect();
                 document.getElementById('submissions_section').className = randomEffect() + '-to-current active_section';
@@ -68,13 +69,15 @@ root = this;
             document.getElementById('submissions_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = 'SUBMISSIONS';
 			temp = document.getElementById('section_submissions_select');
+			temp.innerHTML = '';
 			_this.classes.forEach(function (a) {
 				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
 			});
 			getFiles();
         },
         logs = function () {
-            var active = document.getElementsByClassName('active_section')[0];
+            var active = document.getElementsByClassName('active_section')[0],
+				temp;
             if (active.id !== 'logs_section') {
                 active.className = 'current-to-' + randomEffect();
                 document.getElementById('logs_section').className = randomEffect() + '-to-current active_section';
@@ -82,8 +85,17 @@ root = this;
             document.getElementsByClassName('active_nav')[0].className = '';
             document.getElementById('logs_a').className = 'active_nav';
             document.getElementById('header_title_div').innerHTML = 'LOGS';
+			temp = document.getElementById('section_logs_select');
+			temp.innerHTML = '';
+			_this.classes.forEach(function (a) {
+				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
+			});
+			document.getElementById('from_logs_input').value = (new Date().toJSON().substring(0, 9)) + '1';
+			document.getElementById('to_logs_input').value = new Date().toJSON().substring(0, 10);
+			getLogs();
         },
         logout = function () {
+			clearInterval(refreshInterval);
             _this = null;
             xhr('POST', url + 'instructor/logout');
             document.getElementsByClassName('active_nav')[0].className = '';
@@ -179,29 +191,59 @@ root = this;
                 clearInterval(timer);
             }
         },
-		getFiles = function () {
+		getFiles = function (e) {
 			xhr('GET', url + 'section/getStudentsWithFiles?'
 				+ 'section_id=' + document.getElementById('section_submissions_select').value
 				+ '&exer_number=' + document.getElementById('exer_number_submissions_select').value
 				+ '&student_number=' + document.getElementById('students_submissions_select').value
-				+ '&order=' + document.getElementById('order_submissions_select').value
+				+ '&order=date'	// + document.getElementById('order_submissions_select').value
 				, {}, function (res) {
 				var temp1 = document.getElementById('students_submissions_select'),
 					temp2 = document.getElementById('files_div');
-				temp1.innerHTML = '<option value="all">Everyone</option>';
+				if (!e || e.target.id === 'section_submissions_select') {
+					temp1.innerHTML = '<option value="all">Everyone</option>';
+				}
 				temp2.innerHTML = '';
 				res.forEach(function (s) {
-					temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+					if (!e || e.target.id === 'section_submissions_select') {
+						temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+					}
 					s.files&&s.files.forEach(function (f) {
 						temp2.innerHTML += '	\
 					<div class="file_div">	\
-						<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="c" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+						<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+Name: '+f.name+'\r\n\
+Version: '+f.version+'\r\n\
 Size: '+f.size+' bytes\r\n\
 Date: '+new Date(f.date)+'"/>	\
-						<div class="file_name_div">'+f.name+'</div>	\
+						<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
 					</div>';
 					});
 				});
+			});
+		},
+		getLogs = function (e) {
+			xhr('GET', url + 'instructor/getLogs?'
+				+ 'section_id=' + document.getElementById('section_logs_select').value
+				+ '&from=' + document.getElementById('from_logs_input').value
+				+ '&to=' + document.getElementById('to_logs_input').value
+				+ '&student_number=' + document.getElementById('students_logs_select').value
+				, {}, function (res) {
+				var temp1 = document.getElementById('students_logs_select'),
+					temp2 = document.getElementById('log_div');
+				if (!e || e.target.id === 'section_logs_select') {
+					temp1.innerHTML = '<option value="all">Everyone</option>';
+					res.students.forEach(function (s) {
+						temp1.innerHTML += '<option value="'+s+'">'+s+'</option>';
+					});
+				}
+				temp2.innerHTML = '<pre>';
+				res.logs.forEach(function (l) {
+					var date = new Date(l.date);
+					date = date.getYear() + '/' + date.getMonth() + '/' + date.getDay() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+					temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
+				});
+				temp2.innerHTML += '</pre>';
 			});
 		};
 
@@ -368,7 +410,6 @@ Date: '+new Date(f.date)+'"/>	\
                 temp.style.height = root.innerHeight + 'px';
             }
         }
-        console.dir(temp);
     });
 
     document.body.addEventListener('keyup', function (e) {
@@ -408,7 +449,12 @@ Date: '+new Date(f.date)+'"/>	\
 	document.getElementById('section_submissions_select').addEventListener('change', getFiles);
 	document.getElementById('exer_number_submissions_select').addEventListener('change', getFiles);
 	document.getElementById('students_submissions_select').addEventListener('change', getFiles);
-	document.getElementById('order_submissions_select').addEventListener('change', getFiles);
+	// document.getElementById('order_submissions_select').addEventListener('change', getFiles);
+
+	document.getElementById('section_logs_select').addEventListener('change', getLogs);
+	document.getElementById('students_logs_select').addEventListener('change', getLogs);
+	document.getElementById('from_logs_input').addEventListener('click', getLogs);
+	document.getElementById('to_logs_input').addEventListener('click', getLogs);
 
     page('feed', feed);
     page('records', records);

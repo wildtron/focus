@@ -105,3 +105,9 @@ exports.runTest = function () {
 exports.isSN = function (student_number) {
 	return /^\d{4}-\d{5}$/.test(student_number);
 }
+
+exports.toTitleCase = function (str) {
+	return str.replace(/\w\S*/g, function (txt) {
+		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	});
+}
