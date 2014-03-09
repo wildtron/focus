@@ -197,29 +197,33 @@ root = this;
 				+ '&exer_number=' + document.getElementById('exer_number_submissions_select').value
 				+ '&student_number=' + document.getElementById('students_submissions_select').value
 				+ '&order=date'	// + document.getElementById('order_submissions_select').value
-				, {}, function (res) {
+				, {}, function (res, req) {
 				var temp1 = document.getElementById('students_submissions_select'),
 					temp2 = document.getElementById('files_div');
-				if (!e || e.target.id === 'section_submissions_select') {
-					temp1.innerHTML = '<option value="all">Everyone</option>';
-				}
-				temp2.innerHTML = '';
-				res.forEach(function (s) {
+				if (req.status === 200) {
 					if (!e || e.target.id === 'section_submissions_select') {
-						temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+						temp1.innerHTML = '<option value="all">Everyone</option>';
 					}
-					s.files&&s.files.forEach(function (f) {
-						temp2.innerHTML += '	\
-					<div class="file_div">	\
-						<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-Name: '+f.name+'\r\n\
-Version: '+f.version+'\r\n\
-Size: '+f.size+' bytes\r\n\
-Date: '+new Date(f.date)+'"/>	\
-						<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
-					</div>';
+					temp2.innerHTML = '';
+					res.forEach(function (s) {
+						if (!e || e.target.id === 'section_submissions_select') {
+							temp1.innerHTML += '<option value="'+s._id+'">'+toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+						}
+						s.files&&s.files.forEach(function (f) {
+							temp2.innerHTML += '	\
+						<div class="file_div">	\
+							<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
+	Name: '+f.name+'\r\n\
+	Version: '+f.version+'\r\n\
+	Size: '+f.size+' bytes\r\n\
+	Date: '+new Date(f.date)+'"/>	\
+							<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
+						</div>';
+						});
 					});
-				});
+				} else {
+					logout();
+				}
 			});
 		},
 		getLogs = function (e) {
@@ -228,22 +232,26 @@ Date: '+new Date(f.date)+'"/>	\
 				+ '&from=' + document.getElementById('from_logs_input').value
 				+ '&to=' + document.getElementById('to_logs_input').value
 				+ '&student_number=' + document.getElementById('students_logs_select').value
-				, {}, function (res) {
+				, {}, function (res, req) {
 				var temp1 = document.getElementById('students_logs_select'),
 					temp2 = document.getElementById('log_div');
-				if (!e || e.target.id === 'section_logs_select') {
-					temp1.innerHTML = '<option value="all">Everyone</option>';
-					res.students.forEach(function (s) {
-						temp1.innerHTML += '<option value="'+s+'">'+s+'</option>';
+				if (req.status === 200) {
+					if (!e || e.target.id === 'section_logs_select') {
+						temp1.innerHTML = '<option value="all">Everyone</option>';
+						res.students.forEach(function (s) {
+							temp1.innerHTML += '<option value="'+s+'">'+s+'</option>';
+						});
+					}
+					temp2.innerHTML = '<pre>';
+					res.logs.forEach(function (l) {
+						var date = new Date(l.date);
+						date = date.getYear() + '/' + date.getMonth() + '/' + date.getDay() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+						temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
 					});
+					temp2.innerHTML += '</pre>';
+				} else {
+					logout();
 				}
-				temp2.innerHTML = '<pre>';
-				res.logs.forEach(function (l) {
-					var date = new Date(l.date);
-					date = date.getYear() + '/' + date.getMonth() + '/' + date.getDay() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-					temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
-				});
-				temp2.innerHTML += '</pre>';
 			});
 		};
 
