@@ -39,14 +39,17 @@ var http = require('http'),
     fs = require('fs'),
     os = require('os'),
     net = require('net'),
+    url = require('url'),
+    crypto = require('crypto'),
+    config = require('./config'),
     interfaces = os.networkInterfaces(),
     port = 8286,
     addresses='\n',
-    z,
-    config = require('./config'),
+    z,type,
+    hash,
+    get, post,
     SESSIONID,
-    headers = {},
-    url = require('url');
+    headers = {};
 
 headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
@@ -149,25 +152,68 @@ http.createServer(function(req, res){
  * */
 
 http.createServer(function (req, res) {
-    var data = '',
-    getData='',
-    type,
     checkSession=function(callback){
-        console.log(SESSIONID === getData.access_token && config.motherServer === req.connection);
-        if(!SESSIONID){
-            console.log("!sync:"+SESSIONID);
-            res.writeHead(401, headers,{'Content-Type':'text/json'});
-            res.end('{"status":"Token is not synchronized to localhost"}');
-        } else if(SESSIONID !== getData.access_token){
-            res.writeHead(401, headers,{'Content-Type':'text/json'});
-            res.end('{"status":"Token doesn\'t match."}');
-        } else if(SESSIONID === getData.access_token && config.motherServer === req.connection) {
-            console.log(SESSIONID);
-            callback();
-        } else {
-            res.writeHead(401, headers,{'Content-Type':'text/json'});
-            res.end('{"status":"Server requesting is unidentified."}');
-        }
+        // parse GET
+        get = url.parse(req.url,true).query;
+
+        var data, parse = function(chunk){
+            try{
+                post = JSON.parse(chunk);
+            }catch(e) {
+                data =chunk+'';
+                data = qs.parse(data);
+            } finally {
+                post = {};
+            }
+
+            if(SESSIONID){
+                res.writeHead(401, headers,{'Content-Type':'text/json'});
+                res.end('{"status":"Token is not synchronized to localhost"}');
+                return;
+            }
+
+            post = data;
+
+            z = (JSON.stringify(post) == "{}") ? '':',';
+            parameters = JSON.parse((JSON.stringify(get) + JSON.stringify(post)).replace(/\}\{/, z));
+            if(!parameters){
+                res.writeHead(400, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Missing parameters.\"}');
+            } else if(!parameters.command){
+                res.writeHead(400, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Missing command.\"}');
+            } else if(!parameters.salt){
+                res.writeHead(400, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Missing salt.\"}');
+            } else if(!parameters.hash){
+                res.writeHead(400, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Missing hash.\"}');
+            }
+
+            hash = null;
+
+            try {
+                hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
+            } catch(e) {
+                res.writeHead(500, headers, {'Content-Type':'text/json'});
+                res.end('{\"Status\":\"Problem with POST data\"}');
+            }
+
+            if(hash !== parameters.hash){
+                res.writeHead(401, headers,{'Content-Type':'text/json'});
+                res.end('{"status":"Token doesn\'t match."}');
+            } else if(hash === parameters.hash) {
+                console.log(SESSIONID);
+                callback();
+            } else {
+                res.writeHead(401, headers,{'Content-Type':'text/json'});
+                res.end('{"status":"Server requesting is unidentified."}');
+            }
+        };
+        if(req.method === 'GET')
+            parse();
+        else req.on('data', parse);
+
     };
 
     if (req.method === 'OPTIONS') {
@@ -175,13 +221,11 @@ http.createServer(function (req, res) {
         res.writeHead(200, headers);
         res.end();
     } else if(req.method === 'GET') {
-        getData = url.parse(req.url,true).query;
-        type = getData.type || "jpeg";
         checkSession(function(){
             console.log('Received GET Request.');
-            var dir = "/tmp/"+SESSIONID+type;
-            console.log(__dirname);
-            var cmd = __dirname+"/scripts/shot.py "+dir;
+            type = parameters.type || "jpeg";
+            var dir = "/tmp/"+SESSIONID+type,
+                cmd = __dirname+"/scripts/shot.py "+dir+' '+type;
             exec(cmd, function (err, stdout, stderr) {
                 console.log(err, stdout, stderr);
                 res.writeHead(200,headers, {'Content-Type' : 'image/png'});
@@ -192,18 +236,10 @@ http.createServer(function (req, res) {
         checkSession(function(){
             console.log('Received POST Request.');
             req.on('end', function () {
-                var decodedBody,
-                    action = '',
+                var action = '',
                     msg = '';
                 console.log('end-part response.');
-                try{
-                    decodedBody = JSON.parse(data);
-                } catch(e){
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
-                    res.end('{\"Status\":\"Problem with POST data\"}');
-                    return;
-                }
-                switch(decodedBody.method){
+                switch(parameters.command){
                     // shutdown
                     case 'shutdown':
                         console.log('Shutdown command initiated.');
@@ -242,7 +278,7 @@ http.createServer(function (req, res) {
                     // send the active window
                     default:
                         action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                        decodedBody.method='';
+                        parameters.command='';
                         msg='ActiveWindow';
                         break;
                 }
@@ -251,7 +287,7 @@ http.createServer(function (req, res) {
                 try {
                         exec(action, function (err, stdout, stderr) {
                         console.log(err, stdout, stderr);
-                        if(decodedBody.method === ''){
+                        if(parameters.command === ''){
                             msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
                             var t = msg.split("WM_CLASS(STRING) = ");
                             msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
