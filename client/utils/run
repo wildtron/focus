@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.69 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.242.176 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.251.171 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.94 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.102 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.196 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.201 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.251 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.45 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.148 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.216 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.49 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.73 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.255 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.199 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.69 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.120 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.5.67 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+ sshpass -p useruser ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null user@10.0.4.21 "export DISPLAY=:0.0; bash /home/user/Desktop/focus/interface.sh ; export DISPLAY=:0.0; bash /home/user/Desktop/focus/local.sh"&
+
+

@@ -48,15 +48,11 @@ var http = require('http'),
     headers = {},
     url = require('url');
 
-// IE8 does not allow domains to be specified, just the *
-// headers["Access-Control-Allow-Origin"] = req.headers.origin;
 headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
 headers["Access-Control-Allow-Credentials"] = false;
 headers["Access-Control-Max-Age"] = '86400'; // 24 hours
 headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept";
-
-console.log(interfaces);
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -69,7 +65,6 @@ http.createServer(function(req, res){
         req.on('data', function (chunk){
             postData += chunk;
         });
-
         req.on('end', function() {
             console.log("Trying to set session to server");
             try{
@@ -156,6 +151,7 @@ http.createServer(function(req, res){
 http.createServer(function (req, res) {
     var data = '',
     getData='',
+    type,
     checkSession=function(callback){
         console.log(SESSIONID === getData.access_token && config.motherServer === req.connection);
         if(!SESSIONID){
@@ -180,10 +176,12 @@ http.createServer(function (req, res) {
         res.end();
     } else if(req.method === 'GET') {
         getData = url.parse(req.url,true).query;
+        type = getData.type || "jpeg";
         checkSession(function(){
             console.log('Received GET Request.');
-            var dir = "/tmp/"+SESSIONID+".png";
-            var cmd = "./scripts/shot.py "+dir;
+            var dir = "/tmp/"+SESSIONID+type;
+            console.log(__dirname);
+            var cmd = __dirname+"/scripts/shot.py "+dir;
             exec(cmd, function (err, stdout, stderr) {
                 console.log(err, stdout, stderr);
                 res.writeHead(200,headers, {'Content-Type' : 'image/png'});
@@ -244,34 +242,38 @@ http.createServer(function (req, res) {
                     // send the active window
                     default:
                         action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                        method='';
+                        decodedBody.method='';
                         msg='ActiveWindow';
                         break;
                 }
-                if(action !== ''){
-                    try {
-                            exec(action, function (err, stdout, stderr) {
-                            console.log(err, stdout, stderr);
-                            if(decodedBody.method === ''){
-                                msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                                var t = msg.split("WM_CLASS(STRING) = ");
-                                msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                                console.log(msg);
-                            }
-                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                            res.end('{"status" : "'+msg+'"}');
-                        });
-                    } catch (e){
-                        console.log(e);
-                    }
+
+                // TRY
+                try {
+                        exec(action, function (err, stdout, stderr) {
+                        console.log(err, stdout, stderr);
+                        if(decodedBody.method === ''){
+                            msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                            var t = msg.split("WM_CLASS(STRING) = ");
+                            msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                            console.log(msg);
+                        }
+                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                        res.end('{"status" : "'+msg+'"}');
+                    });
+                } catch (e){
+                    console.log(e);
+                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                    res.end('{"status" : "'+msg+'"}');
                 }
+                // CATCH-end
+
             });
-        });
+       });
     } else {
-        checkSession(function(){
+       checkSession(function(){
             res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
             res.end('{"status" : "task unavailable"}');
-        });
+       });
     }
 }).listen(config.activityPort);
 

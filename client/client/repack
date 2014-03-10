@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-zip focus.nw index.html package.json css/* font/* img/* js/*
+rm app.nw
+zip app.nw index.html package.json css/* font/* img/* js/*

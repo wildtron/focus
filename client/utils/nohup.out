@@ -1,0 +1,1189 @@
+Warning: Permanently added '10.0.5.69' (ECDSA) to the list of known hosts.
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+Warning: Permanently added '10.0.5.69' (ECDSA) to the list of known hosts.
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+[4191:0310/155929:WARNING:process_singleton_linux.cc(577)] Not handling interprocess notification as browser is shutting down
+[4269:0310/155929:ERROR:process_singleton_linux.cc(262)] Failed to create /home/user/.config/focus/SingletonLock: File exists
+[4191:0310/155929:WARNING:process_singleton_linux.cc(577)] Not handling interprocess notification as browser is shutting down
+/home/user/Desktop/focus/interface: line 11:  4191 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  4269 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan0: 
+   [ { address: '10.0.5.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce5d',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan0: 
+   [ { address: '10.0.5.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce5d',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+ssh: connect to host 10.0.242.176 port 22: No route to host
+Warning: Permanently added '10.0.5.67' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.199' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.196' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.69' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.21' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.201' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.251' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.69' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.102' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.73' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.148' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.49' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.120' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.94' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.45' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.255' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.216' (ECDSA) to the list of known hosts.
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+[3541:0310/160033:ERROR:process_singleton_linux.cc(262)] Failed to create /home/user/.config/focus/SingletonLock: File exists
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff: No such file or directory
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’  adding: home/user/Desktop/focus/client/index.html: No such file or directory
+ (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.jsrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff: No such file or directory
+: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.pngrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js: No such file or directory
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 79%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png  adding: home/user/Desktop/focus/client/package.json (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 57%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff  adding: home/user/Desktop/focus/client/index.html (deflated 58%)
+ (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+[3218:0310/160034:INFO:simple_index_file.cc(397)] Simple Cache Index is being restored from disk.
+[3571:0310/160034:INFO:simple_index_file.cc(397)] Simple Cache Index is being restored from disk.
+[3081:0310/160035:INFO:simple_index_file.cc(397)] Simple Cache Index is being restored from disk.
+[3236:0310/160210:INFO:CONSOLE(201)] ""Destroy session to localhost:10610 so that controls are off"", source: file:///home/user/Desktop/focus/client/index.html (201)
+[3236:0310/160215:INFO:CONSOLE(203)] ""Trying to destroy session to local server."", source: file:///home/user/Desktop/focus/client/index.html (203)
+[3236:0310/160215:INFO:CONSOLE(210)] "", source: file:///home/user/Desktop/focus/client/index.html (210)
+[3236:0310/160215:INFO:CONSOLE(210)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (210)
+[3236:0310/160238:INFO:CONSOLE(0)] "Uncaught SyntaxError: Unexpected end of input", source: file:///home/user/Desktop/focus/client/index.html (0)
+[3236:0310/160238:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3236:0310/160238:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3236:0310/160238:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3236:0310/160238:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+[3236:0310/160238:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+[3236:0310/160238:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3236:0310/160238:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3236:0310/160238:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3236:0310/160238:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+[3236:0310/160238:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+ssh: connect to host 10.0.251.171 port 22: Connection timed out
+ssh: connect to host 10.0.242.176 port 22: Connection timed out
+/home/user/Desktop/focus/interface: line 11:  3267 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3301 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3236 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3081 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3504 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3054 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3402 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3667 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3218 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3438 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3137 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3205 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11: 15471 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3050 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  4405 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  eth5: 
+   [ { address: '10.0.5.199', family: 'IPv4', internal: false },
+     { address: 'fe80::226:18ff:fedc:34fb',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+/home/user/Desktop/focus/interface: line 11:  3571 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan2: 
+   [ { address: '10.0.4.21', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb0f',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.148', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf69',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.49', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9c3',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.251', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce6c',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf79',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.94', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb20',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan0: 
+   [ { address: '10.0.5.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce5d',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.255', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9cd',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.5.120', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb11',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.216', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf72',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+listening on port 8286
+listening on port 8286
+listening on port 8286
+
+events.js:72
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.102', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb10',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.45', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9e1',
+       family: 'IPv6',
+       internal: false } ] }
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  eth3: 
+   [ { address: '10.0.4.196', family: 'IPv4', internal: false },
+     { address: 'fe80::226:18ff:fed1:67e',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.5.73', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce6a',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.201', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb15',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+Warning: Permanently added '10.0.5.67' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.251' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.199' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.255' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.73' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.148' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.216' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.120' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.94' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.196' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.69' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.49' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.102' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.45' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.201' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.4.21' (ECDSA) to the list of known hosts.
+Warning: Permanently added '10.0.5.69' (ECDSA) to the list of known hosts.
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+ (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json  adding: home/user/Desktop/focus/client/index.html (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woffrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.cssrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff: No such file or directory
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff  adding: home/user/Desktop/focus/client/index.html (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff: No such file or directory
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.pngrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.cssrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff[3663:0310/160326:ERROR:process_singleton_linux.cc(262)] Failed to create /home/user/.config/focus/SingletonLock: File exists
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.jsrm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’ (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 58%)
+ (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+ (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+rm: cannot remove ‘/home/user/Desktop/focus/client/app.nw’: No such file or directory
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+
+/home/user/Desktop/focus/server/server.js:160
+        cakkback();
+        ^
+ReferenceError: cakkback is not defined
+    at checkSession (/home/user/Desktop/focus/server/server.js:160:9)
+    at Server.<anonymous> (/home/user/Desktop/focus/server/server.js:184:9)
+    at Server.EventEmitter.emit (events.js:98:17)
+    at HTTPParser.parser.onIncoming (http.js:2108:12)
+    at HTTPParser.parserOnHeadersComplete [as onHeadersComplete] (http.js:121:23)
+    at Socket.socket.ondata (http.js:1966:22)
+    at TCP.onread (net.js:527:27)
+[3409:0310/160449:INFO:CONSOLE(201)] ""Destroy session to localhost:10610 so that controls are off"", source: file:///home/user/Desktop/focus/client/index.html (201)
+[3409:0310/160454:INFO:CONSOLE(203)] ""Trying to destroy session to local server."", source: file:///home/user/Desktop/focus/client/index.html (203)
+[3409:0310/160454:INFO:CONSOLE(210)] "", source: file:///home/user/Desktop/focus/client/index.html (210)
+[3409:0310/160454:INFO:CONSOLE(210)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (210)
+[3409:0310/160507:INFO:CONSOLE(0)] "Uncaught SyntaxError: Unexpected end of input", source: file:///home/user/Desktop/focus/client/index.html (0)
+[3409:0310/160507:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3409:0310/160507:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3409:0310/160507:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3409:0310/160507:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+[3409:0310/160507:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+[3409:0310/160507:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3409:0310/160507:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3409:0310/160507:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3409:0310/160507:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+[3409:0310/160507:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+[3739:0310/160419:INFO:CONSOLE(0)] "Uncaught SyntaxError: Unexpected end of input", source: file:///home/user/Desktop/focus/client/index.html (0)
+[3739:0310/160419:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3739:0310/160419:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3739:0310/160419:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3739:0310/160419:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+[3739:0310/160419:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+[3739:0310/160419:INFO:CONSOLE(143)] ""Authentication from server was success."", source: file:///home/user/Desktop/focus/client/index.html (143)
+[3739:0310/160419:INFO:CONSOLE(153)] ""Setting environment for login"", source: file:///home/user/Desktop/focus/client/index.html (153)
+[3739:0310/160419:INFO:CONSOLE(158)] ""Moving sections"", source: file:///home/user/Desktop/focus/client/index.html (158)
+[3739:0310/160419:INFO:CONSOLE(172)] ""Sending setSession."", source: file:///home/user/Desktop/focus/client/index.html (172)
+localhost attempts to set SESSIONID
+Trying to set session to server
+[3739:0310/160419:INFO:CONSOLE(180)] "Uncaught InvalidStateError: An attempt was made to use an object that is not, or is no longer, usable.", source: file:///home/user/Desktop/focus/client/index.html (180)
+{ session: 'a177ad0be0d49cf964bd60540a19c14e' }
+JSON parse was successful.
+session was found from the payload
+localhost attempts to set SESSIONID
+Trying to set session to server
+{ session: 'a177ad0be0d49cf964bd60540a19c14e' }
+JSON parse was successful.
+session was found from the payload
+
+/home/user/Desktop/focus/server/server.js:160
+        cakkback();
+        ^
+ReferenceError: cakkback is not defined
+    at checkSession (/home/user/Desktop/focus/server/server.js:160:9)
+    at Server.<anonymous> (/home/user/Desktop/focus/server/server.js:184:9)
+    at Server.EventEmitter.emit (events.js:98:17)
+    at HTTPParser.parser.onIncoming (http.js:2108:12)
+    at HTTPParser.parserOnHeadersComplete [as onHeadersComplete] (http.js:121:23)
+    at Socket.socket.ondata (http.js:1966:22)
+    at TCP.onread (net.js:527:27)
+
+/home/user/Desktop/focus/server/server.js:160
+        cakkback();
+        ^
+ReferenceError: cakkback is not defined
+    at checkSession (/home/user/Desktop/focus/server/server.js:160:9)
+    at Server.<anonymous> (/home/user/Desktop/focus/server/server.js:184:9)
+    at Server.EventEmitter.emit (events.js:98:17)
+    at HTTPParser.parser.onIncoming (http.js:2108:12)
+    at HTTPParser.parserOnHeadersComplete [as onHeadersComplete] (http.js:121:23)
+    at Socket.socket.ondata (http.js:1966:22)
+    at TCP.onread (net.js:527:27)
+/home/user/Desktop/focus/interface: line 11:  3429 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3252 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3465 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3218 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3294 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3409 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3373 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3739 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3600 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3220 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11: 15918 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3571 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  eth5: 
+   [ { address: '10.0.5.199', family: 'IPv4', internal: false },
+     { address: 'fe80::226:18ff:fedc:34fb',
+       family: 'IPv6',
+       internal: false } ] }
+/home/user/Desktop/focus/interface: line 11:  4570 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+listening on port 8286
+
+/home/user/Desktop/focus/interface: line 11:  3390 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+/home/user/Desktop/focus/interface: line 11:  3830 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.216', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf72',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.49', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9c3',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf79',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+listening on port 8286
+
+
+events.js:72
+events.js:72
+        throw er; // Unhandled 'error' event
+        throw er; // Unhandled 'error' event
+   listening on port 8286
+   
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+        ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan0: 
+   [ { address: '10.0.5.69', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce5d',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.5.73', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce6a',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan2: 
+   [ { address: '10.0.4.21', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb0f',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+listening on port 8286
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.4.251', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:ce6c',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.201', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb15',
+       family: 'IPv6',
+       internal: false } ] }
+events.js:72
+        throw er; // Unhandled 'error' event
+  { lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.94', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb20',
+       family: 'IPv6',
+       internal: false } ] }
+    listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+listening on port 8286
+
+ events.js:72
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.102', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb10',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+       ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.148', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cf69',
+       family: 'IPv6',
+       internal: false } ] }
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.5.120', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb11',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+listening on port 8286
+
+events.js:72
+
+        throw er; // Unhandled 'error' event
+        throw er; // Unhandled 'error' event
+
+ events.js:72
+            throw er; // Unhandled 'error' event
+                 ^
+        ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+            ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan4: 
+   [ { address: '10.0.4.255', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9cd',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  eth3: 
+   [ { address: '10.0.4.196', family: 'IPv4', internal: false },
+     { address: 'fe80::226:18ff:fed1:67e',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+/home/user/Desktop/focus/interface: line 11:  3676 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan3: 
+   [ { address: '10.0.5.45', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:c9e1',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+ssh: connect to host 10.0.242.176 port 22: Connection timed out
+ssh: connect to host 10.0.251.171 port 22: Connection timed out
+Warning: Permanently added '10.0.4.21' (ECDSA) to the list of known hosts.
+  adding: home/user/Desktop/focus/client/index.html (deflated 79%)
+  adding: home/user/Desktop/focus/client/package.json (deflated 57%)
+  adding: home/user/Desktop/focus/client/css/client.css (deflated 81%)
+  adding: home/user/Desktop/focus/client/font/nexa-light.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Bold.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-CondLight.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/font/OpenSans-Regular.woff (deflated 1%)
+  adding: home/user/Desktop/focus/client/img/logo-full.png (deflated 2%)
+  adding: home/user/Desktop/focus/client/img/logout.png (deflated 23%)
+  adding: home/user/Desktop/focus/client/js/config.js (deflated 2%)
+  adding: home/user/Desktop/focus/client/js/cookies.js (deflated 58%)
+[3421:0310/160737:WARNING:process_singleton_linux.cc(577)] Not handling interprocess notification as browser is shutting down
+[3421:0310/160737:WARNING:process_singleton_linux.cc(577)] Not handling interprocess notification as browser is shutting down
+/home/user/Desktop/focus/interface: line 11:  3421 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+{ lo: 
+   [ { address: '127.0.0.1', family: 'IPv4', internal: true },
+     { address: '::1', family: 'IPv6', internal: true } ],
+  wlan2: 
+   [ { address: '10.0.4.21', family: 'IPv4', internal: false },
+     { address: 'fe80::226:5aff:fe02:cb0f',
+       family: 'IPv6',
+       internal: false } ] }
+listening on port 8286
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: listen EADDRINUSE
+    at errnoException (net.js:904:11)
+    at Server._listen2 (net.js:1042:14)
+    at listen (net.js:1064:10)
+    at Server.listen (net.js:1138:5)
+    at Object.<anonymous> (/home/user/Desktop/focus/server/server.js:277:4)
+    at Module._compile (module.js:456:26)
+    at Object.Module._extensions..js (module.js:474:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:312:12)
+    at Function.Module.runMain (module.js:497:10)
+/home/user/Desktop/focus/interface: line 11:  3663 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+/home/user/Desktop/focus/interface: line 11:  3541 Terminated              /home/user/Desktop/focus/client/node_modules/nodewebkit/nodewebkit$arch/nw /home/user/Desktop/focus/client app.nw
+bash: /home/user/Desktop/focus/local: No such file or directory
+bash: /home/user/Desktop/focus/local: No such file or directory

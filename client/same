@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# This is used to run FOCUS desktop application
+# not so complicated so don't thinker with it
+# okay? :D
+./interface.sh &
+./server.sh &

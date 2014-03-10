@@ -7,9 +7,13 @@ Client
     Startup script that prevents the user from closing or shutting down
         the client and localserver
     Script to protect the localserver and the client
+    Clear chat screen and chat details
+    Sockets
+    ScreenShot utility - file too big
 
 Server
     Needs security
+    Sockets!
 
 Mobile
     Haven't started yet.

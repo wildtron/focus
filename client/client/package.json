@@ -2,10 +2,10 @@
     "name": "focus",
     "main": "index.html",
     "window" : {
-        "toolbar" : false,
-        "min_height" : 400,
+        "toolbar" : true,
+        "min_height" : 450,
         "min_width" : 300,
-        "max_height" : 400,
+        "max_height" : 450,
         "max_width" : 300,
         "resizable" : false,
         "always-on-top" : false,
