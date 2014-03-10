@@ -7,28 +7,7 @@
  *      lock
  * */
 /*
- * usage:
- *  http://host:8286
- *
- *  GET /?command
- *      returns screenshot of image
- *
- *  POST /
- *      method=
- *          returns currently active window
- *      method=shutdown
- *          shuts down the system
- *      method=logoff
- *          logs off the system
- *      method=lock
- *          disables the mouse and keyboard and turns of the screen
- *      method=lock
- *          enables the mouse and keyboard and turns on the screen
- *
- *  http://localhost:10610
- *
- *  POST /
- *
+ * Usage is found in README outside the local server directory
  *
  * */
 
@@ -210,9 +189,11 @@ http.createServer(function (req, res) {
                 res.end('{"status":"Server requesting is unidentified."}');
             }
         };
-        if(req.method === 'GET')
+        if(req.method === 'GET'){
             parse();
-        else req.on('data', parse);
+        }
+
+        req.on('data', parse);
 
     };
 
@@ -223,7 +204,7 @@ http.createServer(function (req, res) {
     } else if(req.method === 'GET') {
         checkSession(function(){
             console.log('Received GET Request.');
-            type = parameters.type || "jpeg";
+            type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
                 cmd = __dirname+"/scripts/shot.py "+dir+' '+type;
             exec(cmd, function (err, stdout, stderr) {
