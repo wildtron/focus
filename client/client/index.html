@@ -65,7 +65,7 @@
         </script>
         <script type="text/javascript">
             //(function(root){
-			root = this;
+            root = this;
                 var url = document.body.attributes['data-url'].value,
                     chat_content = document.getElementById('chat_content'),
                     socket,
@@ -83,7 +83,7 @@
                         socket.emit('join_room', {student_number : cookies.get('student_number')});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
-							chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
+                            chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
                         });
                     };
 
@@ -193,10 +193,12 @@
                     request.send(JSON.stringify({
                         access_token : cookies.get('FOCUSSESSID')
                     }));
+
                     cookies.remove('FOCUSSESSID');
                     cookies.remove('first_name');
                     cookies.remove('last_name');
                     cookies.remove('student_number')
+
                     var sessionServer='http://localhost:10610';
                     console.log('Destroy session to localhost:10610 so that controls are off');
                     setTimeoutTimer = setTimeout(function(){
@@ -214,7 +216,9 @@
                             clearInterval(setSessionTimer);
                         }
                     }, 5000);
-
+                    document.getElementById('chat_div').innerHTML= "<ul id=\"chat_content\">" +
+                                                           "     <li class=\"incoming\"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>" +
+                                                           "</ul>";
                     document.getElementById('front_section').className = 'left-to-current';
                     document.getElementById('main_section').className = 'current-to-right';
                     document.getElementById('username_input').focus();
@@ -229,7 +233,7 @@
                         });
                         chat_content.innerHTML += '<li>' + e.target.value + '</li>';
                         e.target.value = '';
-						chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
+                        chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
                     }
                 };
 
@@ -270,11 +274,11 @@
                                     _this.className = '';
                                     _this.value = '';
                                     chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
-									socket.emit('update_chat', {
-										message : JSON.parse(xhr.responseText).message,
-										student_number : cookies.get('student_number')
-									});
-									chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
+                                    socket.emit('update_chat', {
+                                        message : JSON.parse(xhr.responseText).message,
+                                        student_number : cookies.get('student_number')
+                                    });
+                                    chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
                                 }, 500);
                             }, 1000);
                         } else {

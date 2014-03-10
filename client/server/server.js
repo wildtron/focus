@@ -10,7 +10,7 @@
  * usage:
  *  http://host:8286
  *
- *  GET /
+ *  GET /?command
  *      returns screenshot of image
  *
  *  POST /

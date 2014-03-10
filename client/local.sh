@@ -6,4 +6,4 @@
 
 arch=`getconf LONG_BIT`
 
-/home/user/Desktop/focus/server/nodejs$arch/bin/node /home/user/Desktop/focus/server/server.js
+./server/nodejs$arch/bin/node ./server/server.js
