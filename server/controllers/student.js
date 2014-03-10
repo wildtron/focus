@@ -41,7 +41,7 @@ var db = require(__dirname + '/../config/database'),
 					student_number : student_number,
 					name : name,
 					log : log,
-					date : +new Date
+					date : +(new Date())
 				}, function (err) {
 					if (err) {
 						if (next) return next(err);

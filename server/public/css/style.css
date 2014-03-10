@@ -684,6 +684,7 @@ section{
 }
 .file_div img{
     cursor: pointer;
+	background: #333;
 }
 .file_name_div{
     position: absolute;
@@ -714,6 +715,7 @@ section{
     text-align: left;
     font-size: 12px;
     border: 1px solid #CCC;
+	overflow: auto;
 }
 .off_span{color: #C0392B;}
 .active_span{color: #27AE60;}
@@ -727,6 +729,7 @@ section{
     right: 10px;
     bottom: 0;
     display: none;
+	background: #FFF;
 }
 #chat_name_div{
     cursor: pointer;

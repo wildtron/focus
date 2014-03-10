@@ -115,7 +115,7 @@ root = this;
             dom.innerHTML = '';
             while (i--) {
                 dom.innerHTML += '  \
-                    <div class="window_div ' + (students[i].status || "idle") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
+                    <div class="window_div ' + (students[i].status || "active") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
                         <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
@@ -213,10 +213,10 @@ root = this;
 							temp2.innerHTML += '	\
 						<div class="file_div">	\
 							<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-	Name: '+f.name+'\r\n\
-	Version: '+f.version+'\r\n\
-	Size: '+f.size+' bytes\r\n\
-	Date: '+new Date(f.date)+'"/>	\
+Name: '+f.name+'\r\n\
+Version: '+f.version+'\r\n\
+Size: '+f.size+' bytes\r\n\
+Date: '+new Date(f.date)+'"/>	\
 							<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
 						</div>';
 						});
@@ -245,7 +245,7 @@ root = this;
 					temp2.innerHTML = '<pre>';
 					res.logs.forEach(function (l) {
 						var date = new Date(l.date);
-						date = date.getYear() + '/' + date.getMonth() + '/' + date.getDay() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+						date = date.getMonth() + '/' + date.getDay() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 						temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
 					});
 					temp2.innerHTML += '</pre>';
@@ -315,7 +315,7 @@ root = this;
 					socket.on('online', function (sn) {
 						var temp = document.getElementById(sn);
 						console.log(sn, 'is now connected');
-						temp.className = temp.className.replace('not_connected', 'idle');
+						temp.className = temp.className.replace('not_connected', 'active');
 						console.log(temp.className);
 					});
                     socket.on('update_chat', function (message, student_number) {
@@ -407,13 +407,13 @@ root = this;
                 xhr('POST', ip, {method : 'unlock'}, function (data) {
                     if (data.status === 'Unlocking') {
                         window.childNodes[1].setAttribute('src', ip);
-                        window.className = window.className.replace(/locked|off|active/g, 'idle');
+                        window.className = window.className.replace(/locked|off|active/g, 'active');
                     }
                 });
             }
             else {
                 temp = document.getElementById('fs_shot');
-                temp.setAttribute('src', ip);
+                temp.setAttribute('src', ip + '?type=png');
                 temp.style.width = root.innerWidth + 'px';
                 temp.style.height = root.innerHeight + 'px';
             }
