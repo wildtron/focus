@@ -1,0 +1,18 @@
+Usage:
+
+GET /?
+    command=png
+            jpeg
+    &hash=sha1(salt+sessionID)
+    &salt=md5(rand_string)
+
+POST /
+
+    PAYLOAD
+    command=shutdown
+            unlock
+            lock
+            logoff
+    &hash=sha1(salt+sessionID)
+    &salt=md5(rand_string)
+
