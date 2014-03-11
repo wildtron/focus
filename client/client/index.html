@@ -237,7 +237,13 @@
                     }
                 };
 
-                temp.ondragover = function () {
+				temp.ondragleave = temp.ondragend = function () {
+					this.disabled = false;
+					this.className = '';
+					this.value = '';
+				};
+
+                temp.ondragstart = temp.ondragover = function () {
                     this.value = 'Drag file here to upload';
                     this.className = 'hover';
                     return !1;
