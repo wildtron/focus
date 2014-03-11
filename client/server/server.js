@@ -40,82 +40,86 @@ headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Overr
 http.createServer(function(req, res){
     var postData='', decodedBody;
     if (req.method === 'OPTIONS') {
-      res.writeHead(200, headers);
+      res.writeHead(300, headers);
       res.end();
     } else if(req.method==='POST'){
         console.log('localhost attempts to set SESSIONID');
         req.on('data', function (chunk){
             postData += chunk;
         });
+
         req.on('end', function() {
             console.log("Trying to set session to server");
             try{
                 decodedBody = JSON.parse(postData);
-                console.log(decodedBody);
+                console.log("JSON parse was successful.");
+
+                if(decodedBody.hasOwnProperty('session')){
+                    console.log("session was found from the payload");
+                    /*
+                    *  connect to motherServer and ensure the integrity of sent SESSIONID
+                    * */
+                    console.log("verifying session from server");
+                    var integrityCheckResult;
+                    postData = qs.stringify({
+                        'access_token' : decodedBody.session
+                    });
+
+                    var postRequest = http.request({
+                        host: config.motherHost,
+                        port: config.motherPort,
+                        path: '/student/findByAccessToken',
+                        method: 'POST',
+                        headers : {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    }, function(response){
+                        console.log("received response for verification from server");
+                        response.setEncoding('utf8');
+                        response.on('data', function(chunk){
+                            integrityCheckResult = chunk;
+                            SESSIONID=decodedBody.session;
+                            var json;
+
+                            try{
+                                console.log("received data from server. Parsing...");
+                                json = JSON.parse(integrityCheckResult);
+
+                                if(json.access_token === SESSIONID){
+                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                    res.end('{"status":"Session set"}');
+                                } else {
+                                    res.writeHead(401, headers, {'Content-Type' : 'text/json'});
+                                    res.end('{"status":"Session was invalid."}');
+                                }
+                            } catch (e){
+                                res.writeHead(400, headers, {'Content-Type' : 'text/json'});
+                                res.end('{"status":"Failed to set session", "error": "'+e+'"}');
+                            }
+                        });
+                    });
+
+                    postRequest.write(postData);
+                    postRequest.on('error', function(e){
+                        res.writeHead(500, headers, {'Content-Type': 'text/json'});
+                        res.end('{"status":"Failed to set session", "error": "'+e+'"}');
+                    });
+                    postRequest.end();
+                } else if(decodedBody.hasOwnProperty('destroy')){
+                    console.log("destroy was found from the payload");
+                    SESSIONID=undefined;
+                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                    res.end('{"status":"Session destroyed"}');
+                } else {
+                    console.log("session was not found from the payload");
+                    res.writeHead(500, headers, {'Content-Type' : 'text/json'});
+                    res.end('{"status":"Failed to set session"}');
+                }
             } catch (e) {
                 console.log(e);
                 res.writeHead(500, headers, {'Content-Type':'text/json'});
                 res.end('{"status":"Problem with POST data"}');
                 return;
-            }
-            console.log("JSON parse was successful.");
-            if(decodedBody.session){
-                console.log("session was found from the payload");
-                /*
-                 *  connect to motherServer and ensure the integrity of sent SESSIONID
-                 * */
-                var integrityCheckResult;
-                postData = qs.stringify({
-                    'access_token' : decodedBody.session
-                });
-
-                var postRequest = http.request({
-                    host: config.motherHost,
-                    port: config.motherPort,
-                    path: '/student/findByAccessToken',
-                    method: 'POST',
-                    headers : {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                }, function(response){
-                    response.setEncoding('utf8');
-                    response.on('data', function(chunk){
-                        integrityCheckResult = chunk;
-                        SESSIONID=decodedBody.session;
-                        var json;
-                        try{
-                            json = JSON.parse(integrityCheckResult);
-                        } catch (e){
-                            res.writeHead(500, headers, {'Content-Type' : 'text/json'});
-                            res.end('{"status":"Failed to set session"}');
-                        }
-
-                        if(json.access_token === SESSIONID){
-                            res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                            res.end('{"status":"Session set"}');
-                        } else {
-                            res.writeHead(500, headers, {'Content-Type' : 'text/json'});
-                            res.end('{"status":"Failed to set session"}');
-                        }
-                    });
-                });
-
-                postRequest.write(postData);
-                postRequest.on('error', function(e){
-                    console.log(e);
-                    res.writeHead(500, headers, {'Content-Type': 'text/json'});
-                    res.end('{"status":"Failed to set session"}');
-                });
-                postRequest.end();
-            } else if(decodedBody.hasOwnProperty('destroy')){
-                console.log("destroy was found from the payload");
-                SESSIONID=undefined;
-                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                res.end('{"status":"Session destroyed"}');
-            } else {
-                console.log("session was not found from the payload");
-                res.writeHead(500, headers, {'Content-Type' : 'text/json'});
-                res.end('{"status":"Failed to set session"}');
             }
         });
     }
@@ -199,7 +203,7 @@ http.createServer(function (req, res) {
 
     if (req.method === 'OPTIONS') {
         console.log('OPTIONS');
-        res.writeHead(200, headers);
+        res.writeHead(300, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){
