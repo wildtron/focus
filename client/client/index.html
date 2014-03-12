@@ -15,7 +15,7 @@
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Student Number" id="student_number_input" required="required" value="2010-41794" autofocus="true"/><br />
+                <input type="text" placeholder="Student Number" id="student_number_input" required="required" value="2010-41794" autofocus="true" pattern="(19|20)[0-9]{2}-[0-9]{5}" maxlength="10"/><br />
                 <input type="text" placeholder="Username" id="username_input" required="required" value="wildtron" autofocus="true"/><br />
                 <input type="password" placeholder="Password" id="password_input" required="required" value=""/>
                 <button id="sign_in_button">Login via SystemOne</button>
@@ -111,8 +111,9 @@
                 document.getElementById('sign_in_button').onclick = function () {
                     var self = this,
                     request = new XMLHttpRequest();
+                    if(username.value == '' || student_number.value == '' || password.value == '')
+                        return;
                     student_number.disabled = password.disabled = username.disabled = 'disabled';
-
                     request.open('POST', url + 'student/login', true);
                     request.setRequestHeader('Content-Type', 'application/json');
                     request.send(JSON.stringify({
@@ -121,10 +122,13 @@
                         password : password.value
                     }));
 
-                    request.onreadystatechange = function() {
-                        var response = JSON.parse(request.responseText);
+                    request.onreadystatechange = function(event) {
+                        // replaced request.responseText to xhr.responseText
+                        // it looked like request.responseText resends the whole request just to get the response
+                        var xhr = event.target,
+                            response;
 
-                        if (request.status == 401) {
+                        if (xhr.status == 401 && xhr.readyState == 4) {
                             self.innerHTML = 'Error!';
                             self.className = 'sign_in_error';
                             setTimeout(function () {
@@ -135,7 +139,8 @@
                             }, 2000);
 
 
-                        } else if(request.status == 200) {
+                        } else if(xhr.status == 200 && xhr.readyState == 4) {
+                            response = JSON.parse(xhr.responseText);
                             /*
                                 * When the server authenticates the payload and it was successful,
                                 * set cookies to the client
@@ -166,10 +171,10 @@
                             }, 250);
 
                             /*
-                                * Send the FOCUSSESSID to local server. Do this until local server sets the session
-                                */
-                            //setSessionTimer = setInterval(function(){
+                            * Send the FOCUSSESSID to local server. Do this until local server sets the session
+                            */
                             console.log('Sending setSession.');
+
                             var sessionServer='http://localhost:10610',
                                 setSessionRequest = new XMLHttpRequest();
                             setSessionRequest.open('POST', sessionServer, true);
@@ -177,11 +182,15 @@
                             setSessionRequest.send(JSON.stringify({
                                 session : cookies.get('FOCUSSESSID')
                             }));
-                            if(setSessionRequest.readyState + setSessionRequest.status == 204){
-                                console.log('Session synchronized with local server.');
-                                clearInterval(this);
+
+                            setSessionRequest.onreadystatechange = function(event){
+                                var xhr = event.target;
+
+                                if(xhr.status == 200 && xhr.readyState == 4)
+                                    alert(JSON.parse(xhr.responseText).status);
+                                else if(xhr.status == 401 && xhr.readyState == 4)
+                                    alert('Please re-login.');
                             }
-                            //}, 5000);
                         }
                     }
                 };
@@ -209,13 +218,14 @@
                         setSessionRequest.send(JSON.stringify({
                             destroy : cookies.get('FOCUSSESSID')
                         }));
-                        console.log(setSessionRequest);
+
                         if(setSessionRequest.readyState + setSessionRequest.status == 204){
                             console.log('Session destroyed from local server');
                             clearTimeout(this);
                             clearInterval(setSessionTimer);
                         }
                     }, 5000);
+
                     document.getElementById('chat_div').innerHTML= "<ul id=\"chat_content\">" +
                                                            "     <li class=\"incoming\"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>" +
                                                            "</ul>";
