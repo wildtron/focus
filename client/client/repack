@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-rm app.nw
-zip app.nw index.html package.json css/* font/* img/* js/*
+zip -r -u app.nw index.html package.json css/* font/* img/* js/* server/*

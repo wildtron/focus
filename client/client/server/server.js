@@ -25,7 +25,6 @@ var http = require('http'),
     port = 8286,
     addresses='\n',
     z,type,
-    hash,
     get, post,
     SESSIONID,
     headers = {};
@@ -74,27 +73,28 @@ http.createServer(function(req, res){
                             'Content-Type': 'application/x-www-form-urlencoded'
                         }
                     }, function(response){
-                        console.log("received response for verification from server");
+                        console.log("Received response for verification from server");
                         response.setEncoding('utf8');
                         response.on('data', function(chunk){
+                            var json;
                             integrityCheckResult = chunk;
                             SESSIONID=decodedBody.session;
-                            var json;
 
                             try{
-                                console.log("received data from server. Parsing...");
+                                console.log("Received data from server. Parsing...");
                                 json = JSON.parse(integrityCheckResult);
-
                                 if(json.access_token === SESSIONID){
+                                    console.log("Session was found valid.");
                                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                     res.end('{"status":"Session set"}');
                                 } else {
+                                    console.log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
                                     res.end('{"status":"Session was invalid."}');
                                 }
                             } catch (e){
                                 res.writeHead(400, headers, {'Content-Type' : 'text/json'});
-                                res.end('{"status":"Failed to set session", "error": "'+e+'"}');
+                                res.end('{"status":"Failed to set session. Server did not respond accordingly", "error": "'+e+'"}');
                             }
                         });
                     });
@@ -111,9 +111,9 @@ http.createServer(function(req, res){
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     res.end('{"status":"Session destroyed"}');
                 } else {
-                    console.log("session was not found from the payload");
-                    res.writeHead(500, headers, {'Content-Type' : 'text/json'});
-                    res.end('{"status":"Failed to set session"}');
+                    console.log("No type was found from client request");
+                    res.writeHead(404, headers, {'Content-Type' : 'text/json'});
+                    res.end('{"status":"Failed to do action"}');
                 }
             } catch (e) {
                 console.log(e);
@@ -135,65 +135,79 @@ http.createServer(function(req, res){
  * */
 
 http.createServer(function (req, res) {
-    checkSession=function(callback){
-        // parse GET
-        get = url.parse(req.url,true).query;
+    var parameters,
+        checkSession=function(callback){
 
-        var data, parse = function(chunk){
-            try{
-                post = JSON.parse(chunk);
-            }catch(e) {
-                data =chunk+'';
-                data = qs.parse(data);
-            } finally {
-                post = {};
-            }
+        var parse = function(chunk){
+            var hash,
+                payload,
+                post={},
+                get = url.parse(req.url,true).query || "";
 
-            if(SESSIONID){
+            if(!SESSIONID){
                 res.writeHead(401, headers,{'Content-Type':'text/json'});
                 res.end('{"status":"Token is not synchronized to localhost"}');
-                return;
             }
 
-            post = data;
+            console.log(SESSIONID);
 
-            z = (JSON.stringify(post) == "{}") ? '':',';
-            parameters = JSON.parse((JSON.stringify(get) + JSON.stringify(post)).replace(/\}\{/, z));
-            if(!parameters){
-                res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Missing parameters.\"}');
-            } else if(!parameters.command){
-                res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Missing command.\"}');
-            } else if(!parameters.salt){
-                res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Missing salt.\"}');
-            } else if(!parameters.hash){
-                res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Missing hash.\"}');
+            if(chunk === undefined && req.method === 'POST'){
+                res.writeHead(401, headers,{'Content-Type':'text/json'});
+                res.end('{"status":"Missing parameters."}');
             }
 
-            hash = null;
+            payload = String(chunk);
+
+            try{
+                // try to parse in JSON format
+                post = JSON.parse(payload);
+            } catch(e) {
+                // try to parse in normal payload format
+                post = qs.parse(payload);
+            }
 
             try {
-                hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
-            } catch(e) {
-                res.writeHead(500, headers, {'Content-Type':'text/json'});
-                res.end('{\"Status\":\"Problem with POST data\"}');
-            }
+                console.log('Parsing parameters...');
+                parameters = JSON.parse((JSON.stringify(get) + JSON.stringify(post)).replace(/\}\{/, ','));
 
-            if(hash !== parameters.hash){
-                res.writeHead(401, headers,{'Content-Type':'text/json'});
-                res.end('{"status":"Token doesn\'t match."}');
-            } else if(hash === parameters.hash) {
-                console.log(SESSIONID);
-                callback();
-            } else {
-                res.writeHead(401, headers,{'Content-Type':'text/json'});
-                res.end('{"status":"Server requesting is unidentified."}');
+                console.log('Parameter was successfully parsed.');
+                console.log(JSON.stringify(parameters));
+
+                if(!parameters.command){
+                    console.log('No command');
+                    res.writeHead(400, headers, {'Content-Type':'text/json'});
+                    res.end('{"status":"Missing command."}');
+                } else if(!parameters.salt){
+                    console.log('No salt');
+                    res.writeHead(400, headers, {'Content-Type':'text/json'});
+                    res.end('{"status":"Missing salt."}');
+                } else if(!parameters.hash){
+                    console.log('No hash');
+                    res.writeHead(400, headers, {'Content-Type':'text/json'});
+                    res.end('{"status":"Missing hash."}');
+                }
+                try {
+                    hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
+
+                    if(hash !== parameters.hash){
+                        res.writeHead(401, headers,{'Content-Type':'text/json'});
+                        res.end('{"status":"Token doesn\'t match."}');
+                    } else if(hash === parameters.hash) {
+                        console.log(SESSIONID);
+                        callback();
+                    }
+                } catch(e) {
+                    res.writeHead(400, headers, {'Content-Type':'text/json'});
+                    res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+                }
+            } catch(e) {
+                res.writeHead(400, headers, {'Content-Type':'text/json'});
+                res.end('{"Status":"Problem with sent data", "error":'+e+'}');
             }
         };
+
         if(req.method === 'GET'){
+            console.log("GET was used. :D");
             parse();
         }
 
@@ -210,9 +224,15 @@ http.createServer(function (req, res) {
             console.log('Received GET Request.');
             type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
-                cmd = __dirname+"/scripts/shot.py "+dir+' '+type;
+                cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
             exec(cmd, function (err, stdout, stderr) {
                 console.log(err, stdout, stderr);
+                if(err){
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
+                    res.end('{"Status":"Problem with sent data", "error":'+e+'}');
+                }
+
+
                 res.writeHead(200,headers, {'Content-Type' : 'image/png'});
                 fs.createReadStream(dir).pipe(res);
             });
