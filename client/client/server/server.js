@@ -21,6 +21,8 @@ var http = require('http'),
     url = require('url'),
     crypto = require('crypto'),
     config = require('./config'),
+    Keyboard = require('keyboard'),
+    child, action,moodMonitor=false,
     interfaces = os.networkInterfaces(),
     port = 8286,
     addresses='\n',
@@ -37,6 +39,7 @@ headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Overr
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
+    console.log('Called how many times?');
     var postData='', decodedBody;
     if (req.method === 'OPTIONS') {
       res.writeHead(300, headers);
@@ -122,8 +125,12 @@ http.createServer(function(req, res){
                 return;
             }
         });
+    } else {
+        res.writeHead(405, headers, {'Content-Type': 'text/json'});
+        res.end('{"status": "I did not use that."}');
     }
 }).listen(config.sessionPort,'localhost');
+console.log('listening to port '+config.sessionPort);
 
 
 /*
@@ -317,6 +324,49 @@ http.createServer(function (req, res) {
        });
     }
 }).listen(config.activityPort);
-
-
 console.log("listening on port "+config.activityPort);
+
+
+// this server is for the typed keys of the user
+// this will not logged the user's keys but instead
+// will tell if they are BORED, CONFUSED or OFFTASK
+
+var timer = setTimeout(function(){
+}, 20000);
+
+var typing = function(obj){
+
+};
+
+exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(err, stdout, stderr){
+    if(!err){
+        moodMonitor=true;
+        devices = stdout.split("\n");
+
+        devices.pop();
+        len=devices.length;
+
+        for(i=0;i<len;i++){
+            keyboard[i] = new Keyboard(devices[i]);
+            keyboard[i].on('keydown', typing);
+            keyboard[i].on('keypress', typing);
+            keyboard[i].on('error', console.log(devices[i], e));
+        }
+    } else {
+        console.log(err, stderr);
+        console.log('Monitor is impossible.');
+    }
+});
+
+http.createServer(function(req,res){
+    if (req.method === 'OPTIONS') {
+      res.writeHead(300, headers);
+      res.end();
+    } else if(req.method === 'PUT') {
+
+    } else {
+        res.write(405,headers, {'Content-Type': 'text/json'});
+        res.end('{"status":"Easter egg."}');
+    }
+}).listen(config.keyPort);
+console.log('listening on port '+config.keyPort);
