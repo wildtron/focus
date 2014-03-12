@@ -445,6 +445,7 @@ Date: '+new Date(f.date)+'"/>	\
         if (e.ctrlKey && e.keyCode == 10) {
             socket.emit('update_chat', {
                 student_number : sn,
+				username : _this._id,
                 message : e.target.value
             });
             student.messages.push({message : e.target.value});

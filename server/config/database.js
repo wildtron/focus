@@ -79,3 +79,17 @@ exports.get = function () {
 exports.addImport = function (collectionName) {
     imports.push(collectionName);
 };
+
+exports.saveChatHistory = function (instructor, student_number, incoming) {
+	var save = function (err, collection) {
+		if (err) return console.dir(err);
+		collection.insert({
+			instructor : instructor,
+			student_number : student_number,
+			incoming : !!incoming
+		}, function (err) {
+			if (err) return console.dir(err);
+		});
+	};
+	db.collection('chat_history', save);
+};

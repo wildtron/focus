@@ -1,16 +1,17 @@
 var db = require(__dirname + '/database'),
     logger = require(__dirname + '/../lib/logger'),
+    util = require(__dirname + '/../helpers/util'),
     TolerableError = require(__dirname + '/../lib/tolerable_error'),
     section = require(__dirname + '/../controllers/section'),
     student = require(__dirname + '/../controllers/student'),
     instructor = require(__dirname + '/../controllers/instructor');
 
 // imports
-db.addImport(section.collectionName);
-db.addImport(instructor.collectionName);
-// if (process.env['NODE_ENV'] === 'testing') {
+if (process.env['NODE_ENV'] === 'testing') {
 	db.addImport(student.collectionName);
-// }
+	db.addImport(section.collectionName);
+	db.addImport(instructor.collectionName);
+}
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
@@ -41,29 +42,39 @@ exports.setup = function (app) {
 };
 
 exports.handleSocket = function (io) {
+	var rooms = {},
+		getRoomBySocketId = function (id) {
+			var room;
+			for (iroom in rooms)
+				if (~room.sockets.indexOf(id))
+					return room;
+			return false;
+		};
     io.set('log level', 0);
 
     io.sockets.on('connection', function (socket) {
-        socket.on('create_rooms', function (data) {
-            if (data.students instanceof Array) {
-                var i = data.students.length;
-                while (i--) {
-                    socket.join(data.students[i]);
-                }
-            }
-            else {
-                socket.emit('warning', 'students missing');
-            }
-        });
 
         socket.on('join_room', function (data) {
-            if (data.student_number) {
-                socket.join(data.student_number);
-                socket.broadcast.to(data.student_number).emit('online', data.student_number);
-                socket.emit('warning', 'attendance recorded');
+			data = util.chk_rqd(['identifier', 'instructor', 'student_number'], data);
+            if (data) {
+                if (!rooms[data.student_number + data.instructor]) {
+					rooms[data.student_number + data.instructor] = {
+						student_number : data.student_number,
+						instructor : data.instructor,
+						connected : 0,
+						sockets : []
+					};
+				}
+				else if (rooms[data.student_number + data.instructor].connected === 2) {
+					return socket.emit('warning', 'who are you? o.O');
+				}
+				rooms[data.student_number + data.instructor].sockets.push(socket.id);
+				rooms[data.student_number + data.instructor].connected++;
+				socket.join(data.student_number + data.instructor);
+                socket.broadcast.to(data.student_number + data.instructor).emit('online', data);
             }
             else {
-                socket.emit('warning', 'student_number missing');
+                socket.emit('warning', 'incomplete data on join_room');
             }
         });
 
@@ -87,6 +98,8 @@ exports.handleSocket = function (io) {
                 if (room && rooms[room]) {
                     room = room.replace('/','');
                     socket.leave(room);
+					room = getRoomBySocketId(socket.id);
+					socket.broadcast.to(Object.keys(room)[0]).emit('disconnect', data);
                 }
             }
         });
