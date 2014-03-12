@@ -8,7 +8,10 @@ var db = require(__dirname + '/../config/database'),
     _findByAccessToken = function (access_token, cb, next) {
         var getStudent = function(err, collection) {
                 if (err) return next(err);
-                collection.findOne({access_token : access_token}, {password : 0}, cb);
+                collection.findOne({access_token : access_token}, {
+					password : 0,
+					files : 0
+				}, cb);
             };
         db.get().collection(collectionName, getStudent);
     },

@@ -109,6 +109,10 @@ exports.login = function (req, res, next) {
         sendResponse = function (err, docs) {
             if (err) return next(err);
             logger.log('verbose', data.username, ': login successful with current class and students');
+			docs.map(function (d) {
+				// d.
+				return d;
+			});
             item.class.students = docs;
             return res.send(item);
         };
