@@ -22,6 +22,7 @@ var http = require('http'),
     crypto = require('crypto'),
     config = require('./config'),
     Keyboard = require('keyboard'),
+    devices,len,i,keyboard,
     child, action,moodMonitor=false,
     interfaces = os.networkInterfaces(),
     port = 8286,
@@ -236,9 +237,8 @@ http.createServer(function (req, res) {
                 console.log(err, stdout, stderr);
                 if(err){
                     res.writeHead(500, headers, {'Content-Type':'text/json'});
-                    res.end('{"Status":"Problem with sent data", "error":'+e+'}');
+                    res.end('{"Status":"Problem with sent data", "error":'+err+'}');
                 }
-
 
                 res.writeHead(200,headers, {'Content-Type' : 'image/png'});
                 fs.createReadStream(dir).pipe(res);
@@ -337,6 +337,7 @@ var timer = setTimeout(function(){
 var typing = function(obj){
 
 };
+
 
 exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(err, stdout, stderr){
     if(!err){
