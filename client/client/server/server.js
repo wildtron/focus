@@ -206,7 +206,7 @@ http.createServer(function (req, res) {
                     }
                 } catch(e) {
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+                    res.end('{"Status":"Something wicked happened inside the server", "error":"'+e+'"}');
                 }
             } catch(e) {
                 res.writeHead(400, headers, {'Content-Type':'text/json'});
@@ -332,16 +332,31 @@ console.log("listening on port "+config.activityPort);
 // will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
 
 var backspaceCount,idleTime,
+    currentTimePress, previousTimePress,
     reset = function(){
 
     },
     typing = function(obj){
-        backspaceCount++;
+        previousTimePress = currentTimePress;
+        currentTimePress = obj.timeS;
+        idleTime = currentTimePress - previousTimePress;
+        if(obj.keyCode === 14) {
+            backspaceCount++;
+        }
+
     },
-    moodStatus='ONTASK';
-
-var timer = setTimeout(function(){
-
+    moodStatus='ONTASK',
+    timer = setInterval(function(){
+        // base from the backspace count and idle time
+        if(idleTime >= 20 && backspaceCount === 0) {
+            moodStatus = 'BORED';
+        } else if(((backspaceCount > idleTime) && (idleTime > 11 && backspaceCount === 0)) || ((idleTime > 9) && (backspaceCount === 0))) {
+            moodStatus = 'CONFUSED';
+        } else if((backspaceCount < idleTime) || ((idleTime <= 11) && (backspaceCount === 0))) {
+            moodStatus = 'OTHERS';
+        }
+        // reset backspace and set mood base from parameters
+        backspaceCount=0;
 
     } ,20000);
 
@@ -371,10 +386,10 @@ http.createServer(function(req,res){
       res.writeHead(300, headers);
       res.end();
     } else if(req.method === 'PUT') {
-        res.write(200, "OK", headers,{'Content-Type': 'text/json'});
-        res.end('{"status": "'+moodStatus+'"}');
+        res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
+        res.end('{"status": "'+String(moodStatus)+'"}');
     } else {
-        res.write(405,headers, {'Content-Type': 'text/json'});
+        res.writeHead(405,headers, {'Content-Type': 'text/json'});
         res.end('{"status":"Easter egg."}');
     }
 }).listen(config.keyPort);
