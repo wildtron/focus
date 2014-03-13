@@ -80,11 +80,14 @@
                     },
                     connectSocket = function () {
                         socket = io.connect(url);
-                        socket.emit('join_room', {student_number : cookies.get('student_number')});
+                        socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                             chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
                         });
+						socket.on('warning', function (message) {
+							console.dir(message);
+						});
                     };
 
                 root.ondragover = function(e) { e.preventDefault(); return false };

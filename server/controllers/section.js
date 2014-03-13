@@ -76,7 +76,7 @@ exports._getSectionInstructor = function (section_id, cb, next) {
 				classes : {
 					$in : [section_id]
 				}
-			}, cb);
+			}, {password : 0}, cb);
 		};
 	db.get().collection('instructors', getInstructor);
 }

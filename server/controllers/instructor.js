@@ -224,8 +224,9 @@ exports.getLogs = function (req, res, next) {
 
 exports._findByAccessToken = function (access_token, cb, next, where) {
 	var getInstructor = function(err, collection) {
-			if (err) return next(err);
+			if (err && next) return next(err);
+			if (err) return console.dir(err);
 			collection.findOne(where || {access_token : access_token}, {password : 0}, cb);
 		};
 	db.get().collection(collectionName, getInstructor);
-}
+};
