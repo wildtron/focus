@@ -206,7 +206,7 @@ http.createServer(function (req, res) {
                     }
                 } catch(e) {
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+                    res.end('{"Status":"Something wicked happened inside the server", "error":"'+e+'"}');
                 }
             } catch(e) {
                 res.writeHead(400, headers, {'Content-Type':'text/json'});
@@ -332,21 +332,41 @@ console.log("listening on port "+config.activityPort);
 // will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
 
 var backspaceCount,idleTime,
+    currentTimePress, previousTimePress,
     reset = function(){
 
     },
     typing = function(obj){
-        backspaceCount++;
+        console.log(backspaceCount);
+        previousTimePress = currentTimePress;
+        currentTimePress = obj.timeS;
+        idleTime = currentTimePress - previousTimePress;
+        if(obj.keyCode === 14) {
+            backspaceCount++;
+        }
+
     },
-    moodStatus='ONTASK';
+    moodStatus='ONTASK',
+    keyboard=[],
+    Timer = function(time, callback){
+        var timer;
 
-var timer = setTimeout(function(){
+        this.start = function(){
+            time=setInterval(callback,time);
+        };
+
+        this.stop = function(){
+            clearInterval(time);
+        };
+
+        this.restart = function(){
+            clearInterval(timer);
+            this.start();
+        };
 
 
-    } ,20000);
-
-
-exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(err, stdout, stderr){
+    },
+    logBin = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', function(err, stdout, stderr){
     if(!err){
         moodMonitor=true;
         devices = stdout.split("\n");
@@ -358,7 +378,7 @@ exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(
             keyboard[i] = new Keyboard(devices[i]);
             keyboard[i].on('keydown', typing);
             keyboard[i].on('keypress', typing);
-            keyboard[i].on('error', console.log(devices[i], e));
+            keyboard[i].on('error', console.log);
         }
     } else {
         console.log(err, stderr);
@@ -371,10 +391,10 @@ http.createServer(function(req,res){
       res.writeHead(300, headers);
       res.end();
     } else if(req.method === 'PUT') {
-        res.write(200, "OK", headers,{'Content-Type': 'text/json'});
-        res.end('{"status": "'+moodStatus+'"}');
+        res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
+        res.end('{"status": "'+String(moodStatus)+'"}');
     } else {
-        res.write(405,headers, {'Content-Type': 'text/json'});
+        res.writeHead(405,headers, {'Content-Type': 'text/json'});
         res.end('{"status":"Easter egg."}');
     }
 }).listen(config.keyPort);

@@ -33,7 +33,7 @@ child = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', fu
             keyboard[i] = new Keyboard(devices[i]);
             keyboard[i].on('keydown', typing);
             keyboard[i].on('keypress', typing);
-            keyboard[i].on('error', console.log(devices[i], e));
+            keyboard[i].on('error', console.log);
         }
 
     } else {
