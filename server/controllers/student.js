@@ -4,82 +4,7 @@ var db = require(__dirname + '/../config/database'),
     config = require(__dirname + '/../config/config').config,
     http = require('http'),
     fs = require('fs'),
-    collectionName = 'students',
-    _findByAccessToken = function (access_token, cb, next) {
-        var getStudent = function(err, collection) {
-                if (err) return next(err);
-                collection.findOne({access_token : access_token}, {
-					password : 0,
-					files : 0
-				}, cb);
-            };
-        db.get().collection(collectionName, getStudent);
-    },
-    _getCurrentSubject = function (student_number, cb, next) {
-        var getSection = function (err, collection) {
-                var date = new Date(),
-                    day = "UMTWHFS"[date.getDay()];
-                if (err) return next(err);
-                date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
-                collection.findOne({
-                    days : new RegExp(day),
-                    from : { $lt : date},
-                    to : { $gte : date},
-                    students : {
-                        $in : [student_number]
-                    }
-                }, cb);
-            };
-        db.get().collection('sections', getSection);
-    },
-	_log = function (student_number, log, name, next, cb) {
-		var insertLog = function (err, collection) {
-				if (err) {
-					if (next) return next(err);
-					throw err;
-				}
-				name = util.toTitleCase(name);
-				logger.log('verbose', 'student:_log inserting log', student_number, name, log);
-				collection.insert({
-					student_number : student_number,
-					name : name,
-					log : log,
-					date : +(new Date())
-				}, function (err) {
-					if (err) {
-						if (next) return next(err);
-						throw err;
-					}
-					cb && cb();
-				});
-			},
-			getStudent = function (err, collection) {
-				if (err) {
-					if (next) return next(err);
-					throw err;
-				}
-				collection.findOne({_id : student_number}, {
-					first_name : 1,
-					last_name : 1
-				}, getName);
-			},
-			getName = function (err, item) {
-				if (err) {
-					if (next) return next(err);
-					throw err;
-				}
-				name = item.first_name + ' ' + item.last_name;
-				db.get().collection('logs', insertLog);
-			};
-		logger.log('verbose', 'student:_log will insert a log');
-		if (name) {
-			db.get().collection('logs', insertLog);
-		}
-		else {
-			logger.log('verbose', 'student:_log name not provided, getting student');
-			db.get().collection(collectionName, getStudent);
-		}
-	};
+    collectionName = 'students';
 
 exports.collectionName = collectionName;
 
@@ -120,7 +45,7 @@ exports.login = function (req, res, next) {
                     if (err) return next(err);
                 });
                 logger.log('info', 'student:login logged in locally', data.username, data.student_number);
-				_log(data.student_number, 'logged in', item.first_name + ' ' + item.last_name);
+				exports.exports._log(data.student_number, 'logged in', item.first_name + ' ' + item.last_name);
                 return res.send({
                     access_token : item.access_token,
                     first_name : item.first_name,
@@ -199,7 +124,7 @@ exports.login = function (req, res, next) {
                     if (err) return next(err);
                 });
                 logger.log('info', 'student:login logged in via systemone', data.username, data.student_number);
-				_log(data.student_number, 'logged in', temp.first_name + ' ' + temp.last_name);
+				exports._log(data.student_number, 'logged in', temp.first_name + ' ' + temp.last_name);
                 return res.send({
                     access_token : temp.access_token,
                     first_name : temp.first_name,
@@ -228,7 +153,7 @@ exports.logout = function (req, res, next) {
                     if (err) return next(err);
                 });
                 logger.log('info', 'student:logout Logout successful');
-				_log(item._id, 'logged out', item.first_name + ' ' + item.last_name);
+				exports._log(item._id, 'logged out', item.first_name + ' ' + item.last_name);
                 return res.send({message : "Logout successful"});
             }
             else
@@ -251,7 +176,7 @@ exports.submit = function (req, res, next) {
 			if (item) {
 				student = item;
 				logger.log('verbose', 'student:submit getting current subject');
-				_getCurrentSubject(student._id, createSectionDir, next);
+				exports._getCurrentSubject(student._id, createSectionDir, next);
 			}
 			else {
                 logger.log('info', 'student:submit student not found');
@@ -328,14 +253,14 @@ exports.submit = function (req, res, next) {
         sendResponse = function (err) {
             if (err) return next(err);
 			logger.log('info', 'student:submit', student._id, ' successfully submitted file/s');
-			_log(student._id, 'submitted ' + files.length + ' file(s) [' + files.map(function (f) {
+			exports._log(student._id, 'submitted ' + files.length + ' file(s) [' + files.map(function (f) {
 				return f.cleanName + ' v' + f.version + ' - ' + f.size + 'bytes';
 			}).join(', ') + ']', student.first_name + ' ' + student.last_name);
 			return res.send({message : 'Successfully submitted ' + files.length + ' file' + (files.length > 1 ? 's' : '')});
         };
     logger.log('verbose', 'student:submit someone submitted file/s');
 	if (!files) return;
-    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject, next);
+    exports._findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, getCurrentSubject, next);
 };
 
 exports.findByAccessToken = function (req, res, next) {
@@ -353,7 +278,7 @@ exports.findByAccessToken = function (req, res, next) {
         };
 
 	logger.log('info', 'findByAccessToken');
-    _findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent, next);
+    exports._findByAccessToken(util.chk_rqd(['access_token'], req.body, next).access_token, sendStudent, next);
 };
 
 exports.getFile = function (req, res, next) {
@@ -366,11 +291,96 @@ exports.log = function (req, res, next) {
 	var data = util.chk_rqd(['access_token', 'log'], req.body, next),
 		logActivity = function (err, item) {
 			if (err) return next(err);
-			_log(item._id, data.log, data.first_name + ' ' + data.last_name, next, sendResponse);
+			exports._log(item._id, data.log, data.first_name + ' ' + data.last_name, next, sendResponse);
 		},
 		sendResponse = function () {
 			res.send({message : 'Log successful'});
 		};
 	logger.log('info', 'student:log someone is trying to log');
-    _findByAccessToken(data.access_token, logActivity, next);
+    exports._findByAccessToken(data.access_token, logActivity, next);
+};
+
+
+
+
+
+
+/** Student related utilities **/
+
+exports._findByAccessToken = function (access_token, cb, next) {
+	var getStudent = function(err, collection) {
+			if (err) return next(err);
+			collection.findOne({access_token : access_token}, {
+				password : 0,
+				files : 0
+			}, cb);
+		};
+	db.get().collection(collectionName, getStudent);
+};
+
+exports._getCurrentSubject = function (student_number, cb, next) {
+	var getSection = function (err, collection) {
+			var date = new Date(),
+				day = "UMTWHFS"[date.getDay()];
+			if (err) return next(err);
+			date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
+			collection.findOne({
+				days : new RegExp(day),
+				from : { $lt : date},
+				to : { $gte : date},
+				students : {
+					$in : [student_number]
+				}
+			}, cb);
+		};
+	db.get().collection('sections', getSection);
+};
+
+exports._log = function (student_number, log, name, next, cb) {
+	var insertLog = function (err, collection) {
+			if (err) {
+				if (next) return next(err);
+				throw err;
+			}
+			name = util.toTitleCase(name);
+			logger.log('verbose', 'student:_log inserting log', student_number, name, log);
+			collection.insert({
+				student_number : student_number,
+				name : name,
+				log : log,
+				date : +(new Date())
+			}, function (err) {
+				if (err) {
+					if (next) return next(err);
+					throw err;
+				}
+				cb && cb();
+			});
+		},
+		getStudent = function (err, collection) {
+			if (err) {
+				if (next) return next(err);
+				throw err;
+			}
+			collection.findOne({_id : student_number}, {
+				first_name : 1,
+				last_name : 1
+			}, getName);
+		},
+		getName = function (err, item) {
+			if (err) {
+				if (next) return next(err);
+				throw err;
+			}
+			name = item.first_name + ' ' + item.last_name;
+			db.get().collection('logs', insertLog);
+		};
+	logger.log('verbose', 'student:_log will insert a log');
+	if (name) {
+		db.get().collection('logs', insertLog);
+	}
+	else {
+		logger.log('verbose', 'student:_log name not provided, getting student');
+		db.get().collection(collectionName, getStudent);
+	}
 };

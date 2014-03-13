@@ -66,3 +66,17 @@ exports.getStudentsWithFiles = function (req, res, next) {
 	if (!data) return;
     db.get().collection('instructors', getInstructor);
 };
+
+
+/** Section related utilities **/
+
+exports._getSectionInstructor = function (section_id, cb, next) {
+	var getInstructor = function (err, collection) {
+			collection.findOne({
+				classes : {
+					$in : [section_id]
+				}
+			}, cb);
+		};
+	db.get().collection('instructors', getInstructor);
+}
