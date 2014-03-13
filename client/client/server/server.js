@@ -210,7 +210,7 @@ http.createServer(function (req, res) {
                 }
             } catch(e) {
                 res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{"Status":"Problem with sent data", "error":'+e+'}');
+                res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
             }
         };
 
@@ -329,14 +329,21 @@ console.log("listening on port "+config.activityPort);
 
 // this server is for the typed keys of the user
 // this will not logged the user's keys but instead
-// will tell if they are BORED, CONFUSED or OFFTASK
+// will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
+
+var backspaceCount,idleTime,
+    reset = function(){
+
+    },
+    typing = function(obj){
+        backspaceCount++;
+    },
+    moodStatus='ONTASK';
 
 var timer = setTimeout(function(){
-}, 20000);
 
-var typing = function(obj){
 
-};
+    } ,20000);
 
 
 exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(err, stdout, stderr){
@@ -364,10 +371,12 @@ http.createServer(function(req,res){
       res.writeHead(300, headers);
       res.end();
     } else if(req.method === 'PUT') {
-
+        res.write(200, "OK", headers,{'Content-Type': 'text/json'});
+        res.end('{"status": "'+moodStatus+'"}');
     } else {
         res.write(405,headers, {'Content-Type': 'text/json'});
         res.end('{"status":"Easter egg."}');
     }
 }).listen(config.keyPort);
 console.log('listening on port '+config.keyPort);
+
