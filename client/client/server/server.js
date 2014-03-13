@@ -337,6 +337,7 @@ var backspaceCount,idleTime,
 
     },
     typing = function(obj){
+        console.log(backspaceCount);
         previousTimePress = currentTimePress;
         currentTimePress = obj.timeS;
         idleTime = currentTimePress - previousTimePress;
@@ -346,22 +347,26 @@ var backspaceCount,idleTime,
 
     },
     moodStatus='ONTASK',
-    timer = setInterval(function(){
-        // base from the backspace count and idle time
-        if(idleTime >= 20 && backspaceCount === 0) {
-            moodStatus = 'BORED';
-        } else if(((backspaceCount > idleTime) && (idleTime > 11 && backspaceCount === 0)) || ((idleTime > 9) && (backspaceCount === 0))) {
-            moodStatus = 'CONFUSED';
-        } else if((backspaceCount < idleTime) || ((idleTime <= 11) && (backspaceCount === 0))) {
-            moodStatus = 'OTHERS';
-        }
-        // reset backspace and set mood base from parameters
-        backspaceCount=0;
+    keyboard=[],
+    Timer = function(time, callback){
+        var timer;
 
-    } ,20000);
+        this.start = function(){
+            time=setInterval(callback,time);
+        };
+
+        this.stop = function(){
+            clearInterval(time);
+        };
+
+        this.restart = function(){
+            clearInterval(timer);
+            this.start();
+        };
 
 
-exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(err, stdout, stderr){
+    },
+    logBin = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', function(err, stdout, stderr){
     if(!err){
         moodMonitor=true;
         devices = stdout.split("\n");
@@ -373,7 +378,7 @@ exec('cat /proc/bus/input/devices | grep sysreq | awk \'{print $4}\'', function(
             keyboard[i] = new Keyboard(devices[i]);
             keyboard[i].on('keydown', typing);
             keyboard[i].on('keypress', typing);
-            keyboard[i].on('error', console.log(devices[i], e));
+            keyboard[i].on('error', console.log);
         }
     } else {
         console.log(err, stderr);
