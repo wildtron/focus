@@ -1,2 +1,2 @@
-var motherServer = '192.168.1.50',
+var motherServer = '10.0.5.49',
     port = 3000;

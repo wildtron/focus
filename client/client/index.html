@@ -56,11 +56,13 @@
                 });
 
                 // check session every 500ms, if not autofocus on window
+/*
                 setInterval(function(){
                     if(!cookies.get('FOCUSSESSID')){
                         win.focus();
                     } else clearInterval(this);
                 },500);
+*/
             }
         </script>
         <script type="text/javascript">
@@ -137,8 +139,10 @@
                                 student_number.disabled = password.disabled = username.disabled = '';
                                 username.focus();
                             }, 2000);
-
-
+                        }  else if(xhr.status == 0 && xhr.readyState == 4) {
+                            alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
+                            console.log('server '+motherServer+' is unreacheable. this is critical. Please report to your instructor.');
+                            student_number.disabled = password.disabled = username.disabled = '';
                         } else if(xhr.status == 200 && xhr.readyState == 4) {
                             response = JSON.parse(xhr.responseText);
                             /*
@@ -190,7 +194,11 @@
                                     alert('Welcome!');
                                 else if(xhr.status == 401 && xhr.readyState == 4){
                                     alert('Please re-login.');
-                                    document.getElementById('logout_button').click;
+                                    document.getElementById('logout_button').click();
+                                    document.getElementById('front_section').className = 'left-to-current';
+                                    document.getElementById('main_section').className = 'current-to-right';
+                                    document.getElementById('username_input').focus();
+
                                 }
                             }
                         }
