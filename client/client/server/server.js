@@ -25,12 +25,87 @@ var http = require('http'),
     devices,len,i,keyboard,
     child, action,moodMonitor=false,
     interfaces = os.networkInterfaces(),
-    port = 8286,
     addresses='\n',
     z,type,
     get, post,
-    SESSIONID,
-    headers = {};
+    SESSIONID, isLocked = false,
+    headers = {},
+    backspaceCount=0,idleTime=0,
+    lastTimePress= ((+new Date())/1000).toFixed(0),
+    typing = function(obj){
+        lastTimePress = obj.timeS;
+        if(obj.keyCode === 14) {
+            backspaceCount++;
+        }
+    },
+
+    moodStatus='OTHER',
+    keyboard=[],
+    Timer = function(time, callback){
+        var timer;
+
+        this.start = function(){
+            timer=setInterval(callback,time);
+            console.log('Timer started');
+        };
+
+        this.stop = function(){
+            clearInterval(timer);
+            console.log('Timer stopped');
+        };
+
+        this.restart = function(){
+            clearInterval(timer);
+            this.start();
+        };
+    },
+
+    logBin = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', function(err, stdout, stderr){
+        if(!err){
+            moodMonitor=true;
+            devices = stdout.split("\n");
+
+            devices.pop();
+            len=devices.length;
+
+            for(i=0;i<len;i++){
+                keyboard[i] = new Keyboard(devices[i]);
+                keyboard[i].on('keydown', typing);
+                keyboard[i].on('keypress', typing);
+                keyboard[i].on('error', console.log);
+            }
+        } else {
+            console.log(err, stderr);
+            console.log('Monitor is impossible.');
+        }
+    }), masterTimer = new Timer(20000, function(){
+        idleTime = ((+new Date())/1000).toFixed(0) - lastTimePress;
+
+        /*
+         *  This evaluation is base from
+         *  The Development and Implementation of an Intelligent
+         *  Agent that Detects Student’s Negative Affect while Making
+         *  a Computer Program
+         *
+         * of
+         *
+         * Larry A. Vea, Miguel Ramon D. Medina, Regine P. Toriaga and Nicole Joseph D. Padla
+         *
+         * from School Of Information Technology, Mapua Institute of Technology
+         *
+         * */
+        if(idleTime >= 20 && backspaceCount === 0){
+            moodStatus = 'BORED';
+        } else if ((backspaceCount > idleTime && (idleTime > 11 && backspaceCount === 0)) || (idleTime > 9 && backspaceCount === 0)) {
+            moodStatus = 'CONFUSED';
+        } else if ((backspaceCount < idleTime) || ((idleTime <= 11) && (backspaceCount === 0))) {
+            moodStatus = 'OTHER';
+        }
+        console.log(idleTime+','+backspaceCount);
+        backspaceCount = 0;
+        console.log('20 seconds passed');
+        console.log('Mood is: '+moodStatus);
+    });
 
 headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
@@ -40,8 +115,7 @@ headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Overr
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
-    console.log('Called how many times?');
-    var postData='', decodedBody;
+    var postData='',postRequest, decodedBody;
     if (req.method === 'OPTIONS') {
       res.writeHead(300, headers);
       res.end();
@@ -68,7 +142,7 @@ http.createServer(function(req, res){
                         'access_token' : decodedBody.session
                     });
 
-                    var postRequest = http.request({
+                    postRequest = http.request({
                         host: config.motherHost,
                         port: config.motherPort,
                         path: '/student/findByAccessToken',
@@ -91,6 +165,8 @@ http.createServer(function(req, res){
                                     console.log("Session was found valid.");
                                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                     res.end('{"status":"Session set"}');
+                                    isLocked = false;
+                                    masterTimer.start();
                                 } else {
                                     console.log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
@@ -114,6 +190,7 @@ http.createServer(function(req, res){
                     SESSIONID=undefined;
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     res.end('{"status":"Session destroyed"}');
+                    masterTimer.stop();
                 } else {
                     console.log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
@@ -143,21 +220,20 @@ console.log('listening to port '+config.sessionPort);
  * */
 
 http.createServer(function (req, res) {
-    var parameters,
+    var parameters=[],
         checkSession=function(callback){
 
         var parse = function(chunk){
             var hash,
                 payload,
                 post={},
-                get = url.parse(req.url,true).query || "";
+                get = url.parse(req.url,true).query || "",
+                key;
 
             if(!SESSIONID){
                 res.writeHead(401, headers,{'Content-Type':'text/json'});
                 res.end('{"status":"Token is not synchronized to localhost"}');
             }
-
-            console.log(SESSIONID);
 
             if(chunk === undefined && req.method === 'POST'){
                 res.writeHead(401, headers,{'Content-Type':'text/json'});
@@ -166,19 +242,33 @@ http.createServer(function (req, res) {
 
             payload = String(chunk);
 
-            try{
-                // try to parse in JSON format
-                post = JSON.parse(payload);
-            } catch(e) {
-                // try to parse in normal payload format
-                post = qs.parse(payload);
+            if(chunk !== undefined){
+                try{
+                    // try to parse in JSON format
+                    post = JSON.parse(payload);
+                } catch(e) {
+                    // try to parse in normal payload format
+                    post = qs.parse(payload);
+                }
             }
+            console.log(JSON.stringify(get));
 
             try {
                 console.log('Parsing parameters...');
-                parameters = JSON.parse((JSON.stringify(get) + JSON.stringify(post)).replace(/\}\{/, ','));
 
-                console.log('Parameter was successfully parsed.');
+
+                if(get !== ""){
+                    for(key in get){
+                        parameters[key] = get[key];
+                    }
+                }
+
+                if(post !== undefined){
+                    for(key in post){
+                        parameters[key] = post[key];
+                    }
+                }
+
                 console.log(JSON.stringify(parameters));
 
                 if(!parameters.command){
@@ -240,6 +330,11 @@ http.createServer(function (req, res) {
                     res.end('{"Status":"Problem with sent data", "error":'+err+'}');
                 }
 
+                if(isLocked){
+                    headers['Client-Locked'] = true;
+                } else {
+                    headers['Client-Locked'] = false;
+                }
                 res.writeHead(200,headers, {'Content-Type' : 'image/png'});
                 fs.createReadStream(dir).pipe(res);
             });
@@ -271,7 +366,7 @@ http.createServer(function (req, res) {
                         *  turn off screen and enable screensaver
                         *  xset dpms force off
                         * */
-                        action = './scripts/disable.sh';
+                        action = 'sh '+__dirname+'/scripts/disable.sh';
                         msg ='Locking';
                         break;
                     // unlock
@@ -284,10 +379,18 @@ http.createServer(function (req, res) {
                         * killall gnome-screensaver
                         *
                         * */
-                        action = './scripts/enable.sh';
+                        action = 'sh '+__dirname+'/scripts/enable.sh';
                         msg = 'Unlocking';
                         break;
                     // send the active window
+                    case 'proclist':
+                        /*
+                         * this sends all processes with window
+                         *
+                         * */
+                        action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
+                        msg = 'Process List';
+                        break;
                     default:
                         action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
                         parameters.command='';
@@ -299,19 +402,35 @@ http.createServer(function (req, res) {
                 try {
                         exec(action, function (err, stdout, stderr) {
                         console.log(err, stdout, stderr);
+                        if(err){
+                            res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
+                            res.end('{"status" : "Failed doing task."}');
+                        }
+
+                        if(parameters.command === 'lock'){
+                            isLocked = true;
+                        } else if(parameters.command === 'unlock'){
+                            isLocked = false;
+                        }
+
                         if(parameters.command === ''){
                             msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
                             var t = msg.split("WM_CLASS(STRING) = ");
                             msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                            console.log(msg);
+                        } else if(parameters.command === 'proclist'){
+                            var out = stdout.split('\n');
+                            headers['Content-Type'] = 'text/json';
+                            res.writeHead(200, "OK", headers);
+                            res.end(JSON.stringify({status: out}));
                         }
+
                         res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                         res.end('{"status" : "'+msg+'"}');
                     });
                 } catch (e){
                     console.log(e);
                     res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                    res.end('{"status" : "'+msg+'"}');
+                    res.end('{"status" : "Something wicked happened."}');
                 }
                 // CATCH-end
 
@@ -331,60 +450,6 @@ console.log("listening on port "+config.activityPort);
 // this will not logged the user's keys but instead
 // will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
 
-var backspaceCount,idleTime,
-    currentTimePress, previousTimePress,
-    reset = function(){
-
-    },
-    typing = function(obj){
-        console.log(backspaceCount);
-        previousTimePress = currentTimePress;
-        currentTimePress = obj.timeS;
-        idleTime = currentTimePress - previousTimePress;
-        if(obj.keyCode === 14) {
-            backspaceCount++;
-        }
-
-    },
-    moodStatus='ONTASK',
-    keyboard=[],
-    Timer = function(time, callback){
-        var timer;
-
-        this.start = function(){
-            time=setInterval(callback,time);
-        };
-
-        this.stop = function(){
-            clearInterval(time);
-        };
-
-        this.restart = function(){
-            clearInterval(timer);
-            this.start();
-        };
-
-
-    },
-    logBin = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', function(err, stdout, stderr){
-    if(!err){
-        moodMonitor=true;
-        devices = stdout.split("\n");
-
-        devices.pop();
-        len=devices.length;
-
-        for(i=0;i<len;i++){
-            keyboard[i] = new Keyboard(devices[i]);
-            keyboard[i].on('keydown', typing);
-            keyboard[i].on('keypress', typing);
-            keyboard[i].on('error', console.log);
-        }
-    } else {
-        console.log(err, stderr);
-        console.log('Monitor is impossible.');
-    }
-});
 
 http.createServer(function(req,res){
     if (req.method === 'OPTIONS') {
