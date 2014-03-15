@@ -54,28 +54,113 @@ exports.handleSocket = function (io) {
 
     io.sockets.on('connection', function (socket) {
 
-        socket.on('s_join_room', function (data) {
-			data = util.chk_rqd(['access_token', 'instructor'], data);
-            if (data) {
-				student._findByAccessToken(data.access_token);
-                if (!rooms[data.student_number + data.instructor]) {
-					rooms[data.student_number + data.instructor] = {
-						student_number : data.student_number,
-						instructor : data.instructor,
-						connected : 0,
-						sockets : []
-					};
+        socket.on('s_join_room', function (access_token) {
+			var _student,
+				getCurrentSubject = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					_student = item;
+					_student.socket_id = socket.id;
+					logger.log('socket', 's_join | student : ', item);
+					student._getCurrentSubject(item._id, getInstructor);
 				}
-				else if (rooms[data.student_number + data.instructor].connected === 2) {
-					return socket.emit('warning', 'who are you? o.O');
+				else {
+					socket.emit('warning', 'Invalid access token');
 				}
-				rooms[data.student_number + data.instructor].sockets.push(socket.id);
-				rooms[data.student_number + data.instructor].connected++;
-				socket.join(data.student_number + data.instructor);
-                socket.broadcast.to(data.student_number + data.instructor).emit('online', data);
+			},
+			getInstructor = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					logger.log('socket', 's_join | section : ', item);
+					section._getSectionInstructor(item._id, joinRoom);
+				}
+				else {
+					socket.emit('warning', 'You have no current subject');
+				}
+			},
+			joinRoom = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					logger.log('socket', 's_join | instructor : ', item);
+					if (rooms[_student._id + item._id] && rooms[_student._id + item._id].student) {
+						socket.emit('warning', 'Someone is already connected. wtf o.O');
+					} else if (rooms[_student._id + item._id]) {
+						room[_student._id + item._id].student = socket.id;
+						socket.join(_student._id + item._id);
+						socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					} else {
+						room[_student._id + item._id] = {
+							student : socket.id,
+							instructor : null
+						};
+						socket.join(_student._id + item._id);
+						socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					}
+				}
+				else {
+					socket.emit('warning', 'Section instructor is missing o.O');
+				}
+			};
+            if (access_token) {
+				student._findByAccessToken(access_token, getCurrentSubject);
             }
             else {
-                socket.emit('warning', 'incomplete data on join_room');
+                socket.emit('warning', 'access_token is missing');
+            }
+        });
+
+        socket.on('i_join_room', function (access_token) {
+			var _instructor,
+				getCurrentSubject = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					_student = item;
+					_student.socket_id = socket.id;
+					logger.log('socket', 's_join | student : ', item);
+					student._getCurrentSubject(item._id, getInstructor);
+				}
+				else {
+					socket.emit('warning', 'Invalid access token');
+				}
+			},
+			getInstructor = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					logger.log('socket', 's_join | section : ', item);
+					section._getSectionInstructor(item._id, joinRoom);
+				}
+				else {
+					socket.emit('warning', 'You have no current subject');
+				}
+			},
+			joinRoom = function (err, item) {
+				if (err) console.dir('this should not exist', err);
+				if (item) {
+					logger.log('socket', 's_join | instructor : ', item);
+					if (rooms[_student._id + item._id] && rooms[_student._id + item._id].student) {
+						socket.emit('warning', 'Someone is already connected. wtf o.O');
+					} else if (rooms[_student._id + item._id]) {
+						room[_student._id + item._id].student = socket.id;
+						socket.join(_student._id + item._id);
+						socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					} else {
+						room[_student._id + item._id] = {
+							student : socket.id,
+							instructor : null
+						};
+						socket.join(_student._id + item._id);
+						socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					}
+				}
+				else {
+					socket.emit('warning', 'Section instructor is missing o.O');
+				}
+			};
+            if (access_token) {
+				instructor._findByAccessToken(access_token, getCurrentSubject);
+            }
+            else {
+                socket.emit('warning', 'access_token is missing');
             }
         });
 

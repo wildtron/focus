@@ -45,7 +45,7 @@ exports.login = function (req, res, next) {
                     if (err) return next(err);
                 });
                 logger.log('info', 'student:login logged in locally', data.username, data.student_number);
-				exports.exports._log(data.student_number, 'logged in', item.first_name + ' ' + item.last_name);
+				exports._log(data.student_number, 'logged in', item.first_name + ' ' + item.last_name);
                 return res.send({
                     access_token : item.access_token,
                     first_name : item.first_name,
