@@ -32,8 +32,15 @@ exports.hash = function (string, hash) {
     return crypto.createHash(hash || 'md5').update('' + string).digest('hex');
 };
 
-exports.randString = function () {
-	// return exports.hash();
+exports.randomString = function () {
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+		str = "",
+		i = 32;
+
+    while (i--)
+        str += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return str;
 };
 
 exports.pad = function (num, size) {

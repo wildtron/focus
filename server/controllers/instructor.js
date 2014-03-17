@@ -13,7 +13,7 @@ exports.login = function (req, res, next) {
         getInstructor = function (err, _collection) {
             if (err) return next(err);
             collection = _collection;
-            logger.log('verbose', 'access_token : ', (req.signedCookies['focus'] || '#'));
+            logger.log('verbose', 'access_token : ', (req.cookies['focus'] || '#'));
             collection.findOne({
                 $or : [
                     {
@@ -21,7 +21,7 @@ exports.login = function (req, res, next) {
                         'password'  : data.password
                     },
                     {
-                        'access_token' : (req.signedCookies['focus'] || '#')
+                        'access_token' : (req.cookies['focus'] || '#')
                     }
                 ]
             }, {
@@ -51,31 +51,13 @@ exports.login = function (req, res, next) {
                 }}, function (err) {
                     if (err) return next(err);
                 });
-                db.get().collection('sections', getClass);
+				exports._getCurrentSubject(item.classes, getStudentCollection, next);
             }
-        },
-        getClass = function (err, collection) {
-            var date = new Date(),
-                day = "UMTWHFS"[date.getDay()];
-            if (err) return next(err);
-            date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
-
-            logger.log('verbose', data.username, ': getting current class');
-            logger.log('verbose', 'server time :', day, date);
-
-            collection.findOne({
-                    _id : { $in : item.classes },
-                    days : new RegExp(day),
-                    from : { $lt : date},
-                    to : { $gte : date}
-                },
-                getStudentCollection
-            );
         },
         getStudentCollection = function (err, _class) {
             if (err) return next(err);
             logger.log('verbose', 'setting access token on cookie');
-            res.cookie('focus', item.access_token, {signed : true});
+            res.cookie('focus', item.access_token);
             delete item.access_token;
             if (_class) {
                 item.class = _class;
@@ -103,7 +85,9 @@ exports.login = function (req, res, next) {
             if (err) return next(err);
             logger.log('verbose', data.username, ': login successful with current class and students');
 			docs.map(function (d) {
-				// d.
+				d.salt = util.hash(util.randomString());
+				d.hash = util.hash(d.salt + d.access_token, 'sha1');
+				delete d.access_token;
 				return d;
 			});
             item.class.students = docs;
@@ -123,7 +107,7 @@ exports.logout = function (req, res, next) {
 				db.get().collection(collectionName, updateInstructor);
             }
             else {
-                logger.log('warn', 'instructor:logout someone logged out with unrecognized token', (req.signedCookies['focus'] || '#'));
+                logger.log('warn', 'instructor:logout someone logged out with unrecognized token', (req.cookies['focus'] || '#'));
                 return res.send(401, {message : "Invalid access_token"});
             }
 		},
@@ -142,7 +126,7 @@ exports.logout = function (req, res, next) {
 			return res.send({message : "Logout successful"});
         };
     logger.log('info', 'instructor:logout someone is trying to logout');
-	exports._findByAccessToken(req.signedCookies['focus'] || '#', getCollection, next);
+	exports._findByAccessToken(req.cookies['focus'] || '#', getCollection, next);
 };
 
 exports.getLogs = function (req, res, next) {
@@ -156,7 +140,7 @@ exports.getLogs = function (req, res, next) {
 				db.get().collection('sections', getSection);
 			}
 			else {
-				logger.log('warn', 'instructor:getLogs someone trying to get logs with unrecognized token', (req.signedCookies['focus'] || '#'));
+				logger.log('warn', 'instructor:getLogs someone trying to get logs with unrecognized token', (req.cookies['focus'] || '#'));
 				return res.send(401, {message : "Invalid access_token"});
 			}
 		},
@@ -214,7 +198,7 @@ exports.getLogs = function (req, res, next) {
 
 	// verify instructor
 	exports._findByAccessToken(false, getSectionCollection, next, {
-		access_token : req.signedCookies['focus'] || '#',
+		access_token : req.cookies['focus'] || '#',
 		classes : {$in : [data.section_id]}
 	});
 };
@@ -229,4 +213,21 @@ exports._findByAccessToken = function (access_token, cb, next, where) {
 			collection.findOne(where || {access_token : access_token}, {password : 0}, cb);
 		};
 	db.get().collection(collectionName, getInstructor);
+};
+
+exports._getCurrentSubject = function (classes, cb, next) {
+	var getClass = function (err, collection) {
+			var date = new Date(),
+				day = "UMTWHFS"[date.getDay()];
+			if (err) return next(err);
+			date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
+
+			collection.findOne({
+				_id : { $in : classes },
+				days : new RegExp(day),
+				from : { $lt : date},
+				to : { $gte : date}
+			}, cb);
+		};
+	db.get().collection('sections', getClass);
 };

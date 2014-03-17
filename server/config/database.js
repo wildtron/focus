@@ -80,16 +80,28 @@ exports.addImport = function (collectionName) {
     imports.push(collectionName);
 };
 
-exports.saveChatHistory = function (instructor, student_number, incoming) {
+exports.saveChatHistory = function (message, instructor, student_number, from_student) {
 	var save = function (err, collection) {
 		if (err) return console.dir(err);
 		collection.insert({
+			message : message,
 			instructor : instructor,
 			student_number : student_number,
-			incoming : !!incoming
+			from_student : !!from_student
 		}, function (err) {
 			if (err) return console.dir(err);
 		});
 	};
 	db.collection('chat_history', save);
 };
+
+exports.getChatHistory = function (student_number, cb) {
+	var getHistory = function (err, collection) {
+		if (err) return console.dir(err);
+		collection.find({
+			student_number : student_number
+		}).toArray(cb);
+	};
+	db.collection('chat_history', getHistory);
+};
+
