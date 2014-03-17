@@ -12,9 +12,9 @@ exports.getStudentsWithFiles = function (req, res, next) {
         getInstructor = function (err, _collection) {
             if (err) return next(err);
             collection = _collection;
-            logger.log('verbose', 'section:getStudent access_token : ', (req.signedCookies['focus'] || '#'));
+            logger.log('verbose', 'section:getStudent access_token : ', (req.cookies['focus'] || '#'));
             collection.count({
-				access_token : (req.signedCookies['focus'] || '#'),
+				access_token : (req.cookies['focus'] || '#'),
 				classes : {$in : [data.section_id]}
 			}, {limit : 1}, getStudentCollection);
         },
@@ -24,7 +24,7 @@ exports.getStudentsWithFiles = function (req, res, next) {
 				db.get().collection('students', getStudents);
             }
             else {
-                logger.log('warn', 'section:getStudent unrecognized token', (req.signedCookies['focus'] || '#'));
+                logger.log('warn', 'section:getStudent unrecognized token', (req.cookies['focus'] || '#'));
                 return res.send(401, {message : "Invalid access_token"});
             }
         },
