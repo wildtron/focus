@@ -33,9 +33,13 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
-        <script type="text/javascript">
+        <section id="progress_bar">
+            <progress></progress>
+        </section>
+        <!--script type="text/javascript">
             document.write('<script type="text/javascript" src="http://'+motherServer+':'+port+'/socket.io/socket.io.js"/><\/script>');
-        </script>
+        </script-->
+        <script type="text/javascript" src="js/socket.io.min.js"></script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script>
             if (typeof require !== '' + void 0) {
@@ -83,30 +87,32 @@
                     connectSocket = function () {
                         socket = io.connect(url);
                         socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
-						socket.on('history', function (history) {
-							history.forEach(function (h) {
-								if (h.from_student)
-									chat_content.innerHTML += '<li>' + h.message + '</li>';
-								else
-									chat_content.innerHTML += '<li class="incoming">' + h.message + '</li>';
-							});
+                        socket.on('history', function (history) {
+                            history.forEach(function (h) {
+                                if (h.from_student)
+                                    chat_content.innerHTML += '<li>' + h.message + '</li>';
+                                else
+                                    chat_content.innerHTML += '<li class="incoming">' + h.message + '</li>';
+                            });
                             chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
-						});
+                        });
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                             chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
                         });
-						socket.on('warning', function (message) {
-							console.dir('warning');
-							console.dir(message);
-						});
-						socket.on('disconnect', function () {
-							console.log('disconnect');
-						});
+                        socket.on('warning', function (message) {
+                            console.dir('warning');
+                            console.dir(message);
+                        });
+                        socket.on('disconnect', function () {
+                            console.log('disconnect');
+                        });
                     };
+
 
                 root.ondragover = function(e) { e.preventDefault(); return false };
                 root.ondrop = function(e) { e.preventDefault(); return false };
+
 
                 if(cookies.has('FOCUSSESSID')){
                 /*
@@ -129,11 +135,16 @@
                 document.getElementById('sign_in_button').onclick = function () {
                     var self = this,
                     request = new XMLHttpRequest();
+                    var front = document.getElementById('front_section'),
+                        progress = document.getElementById('progress_bar');
+                    front.style['-webkit-filter'] = 'blur(2px)';
+                    progress.style['display'] = 'block';
                     if(username.value == '' || student_number.value == '' || password.value == '')
                         return;
                     student_number.disabled = password.disabled = username.disabled = 'disabled';
                     request.open('POST', url + 'student/login', true);
                     request.setRequestHeader('Content-Type', 'application/json');
+
                     request.send(JSON.stringify({
                         username : username.value,
                         student_number : student_number.value,
@@ -141,12 +152,12 @@
                     }));
 
                     request.onreadystatechange = function(event) {
-                        // replaced request.responseText to xhr.responseText
-                        // it looked like request.responseText resends the whole request just to get the response
                         var xhr = event.target,
                             response;
-
+                        console.log(xhr.status+' '+xhr.readyState);
                         if (xhr.status == 401 && xhr.readyState == 4) {
+                            front.style['-webkit-filter'] = '';
+                            progress.style['display'] = 'none';
                             self.innerHTML = 'Error!';
                             self.className = 'sign_in_error';
                             setTimeout(function () {
@@ -156,10 +167,15 @@
                                 username.focus();
                             }, 2000);
                         }  else if(xhr.status == 0 && xhr.readyState == 4) {
+                            front.style['-webkit-filter'] = '';
+                            progress.style['display'] = 'none';
                             alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
                             console.log('server '+motherServer+' is unreacheable. this is critical. Please report to your instructor.');
                             student_number.disabled = password.disabled = username.disabled = '';
+                            location.reload();
                         } else if(xhr.status == 200 && xhr.readyState == 4) {
+                            front.style['-webkit-filter'] = '';
+                            progress.style['display'] = 'none';
                             response = JSON.parse(xhr.responseText);
                             /*
                                 * When the server authenticates the payload and it was successful,
@@ -270,11 +286,11 @@
                     }
                 };
 
-				temp.ondragleave = temp.ondragend = function () {
-					this.disabled = false;
-					this.className = '';
-					this.value = '';
-				};
+                temp.ondragleave = temp.ondragend = function () {
+                    this.disabled = false;
+                    this.className = '';
+                    this.value = '';
+                };
 
                 temp.ondragstart = temp.ondragover = function () {
                     this.value = 'Drag file here to upload';

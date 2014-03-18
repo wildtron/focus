@@ -347,7 +347,7 @@ section{
     resize: none;
     width: 275px;
     height: 80px;
-    background: #CCC;   `
+    background: #CCC;
     border: 0;
     font-family: OpenSans;
 }
@@ -376,7 +376,7 @@ section{
 
 @-webkit-keyframes progressBar {
     from {
-        background: #CCC;   `
+        background: #CCC;
         height: 80px;
         line-height: 80px;
         margin-top: 0px;
@@ -388,3 +388,21 @@ section{
         line-height: 25px;
     }
 }
+
+#progress_bar{
+    float:left;
+    background-color: rgba(230, 230, 230, .4);
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    height: 200px;
+    width: 300px;
+    padding-top: 200px;
+    display:none;
+}
+
+
+progress{
+
+}
+
