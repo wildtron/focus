@@ -10,12 +10,14 @@ exports.collectionName = collectionName;
 
 exports.login = function (req, res, next) {
     var item,
+		student,
+		section,
         collection,
         data = util.chk_rqd(['student_number', 'username', 'password'], req.body, next),
         getStudent = function(err, _collection) {
             if (err) return next(err);
             collection = _collection;
-            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number);
+            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number, req.cookies.FOCUSSESSID);
             collection.findOne({
                 $or : [
                     {
@@ -37,20 +39,14 @@ exports.login = function (req, res, next) {
 				}
                 item.last_login = +new Date;
                 logger.log('verbose', 'student:login updating student properties', data.username, data.student_number);
+                logger.log('info', 'student:login logged in locally', data.username, data.student_number);
+				item.ip_address = data.ip_address;
+				student = item;
                 collection.update({'_id' : item._id}, {$set : {
                     access_token : item.access_token,
                     last_login : +new Date,
-                    ip_address : data.ip_address
-                }}, function (err) {
-                    if (err) return next(err);
-                });
-                logger.log('info', 'student:login logged in locally', data.username, data.student_number);
-				exports._log(data.student_number, 'logged in', item.first_name + ' ' + item.last_name);
-                return res.send({
-                    access_token : item.access_token,
-                    first_name : item.first_name,
-                    last_name : item.last_name
-                });
+                    ip_address : student.ip_address
+                }}, getCurrentSubject);
             }
             else {
 				if (process.env['NODE_ENV'] === 'testing') {	// dont try systemone on test env
@@ -117,21 +113,50 @@ exports.login = function (req, res, next) {
                         temp.classes.splice(i, 1);
                     }
                 }
+
+				student = temp;
+
                 collection.remove({'_id': data.student_number}, function (err) {
                     if (err) return next(err);
-                });
-                collection.insert(temp, function (err) {
-                    if (err) return next(err);
+					collection.insert(temp, getCurrentSubject);
                 });
                 logger.log('info', 'student:login logged in via systemone', data.username, data.student_number);
-				exports._log(data.student_number, 'logged in', temp.first_name + ' ' + temp.last_name);
-                return res.send({
-                    access_token : temp.access_token,
-                    first_name : temp.first_name,
-                    last_name : temp.last_name
-                });
             }
-        };
+        },
+		getCurrentSubject = function (err) {
+			if (err) return next(err);
+			logger.log('verbose', 'student:login getting current subject');
+			exports._getCurrentSubject(student._id, getAttendanceCollection);
+		},
+		getAttendanceCollection = function (err, item) {
+			if (item) {
+				section = item;
+				db.get().collection('attendance', recordAttendance);
+			}
+			else {
+				logger.log('info', 'student:login no current subject found');
+				return res.send(401, {message : 'No current subject'});
+			}
+		},
+		recordAttendance = function (err, collection) {
+			if (err) return next(err);
+			collection.update({}, {
+				date : new Date().toJSON().substring(0, 10),
+				student_number : student._id,
+				section_id : section._id
+			}, {upsert : true}, sendResponse);
+		},
+		sendResponse = function (err) {
+			if (err) return next(err);
+			exports._log(student._id, 'logged in', student.first_name + ' ' + student.last_name);
+
+			return res.send({
+				access_token : student.access_token,
+				first_name : student.first_name,
+				last_name : student.last_name,
+				ip_address : student.ip_address
+			});
+		};
     logger.log('info', 'student:login student trying to login');
 	if (!data) return;
     data.ip_address = req.connection.remoteAddress;

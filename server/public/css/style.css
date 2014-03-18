@@ -681,6 +681,20 @@ section{
     font-family: Nexa;
     position: relative;
     display: inline-block;
+	-webkit-transition: -webkit-transform 0.2s;
+	-moz-transition: -moz-transform 0.2s;
+	transition: transform 0.2s;
+	/*
+    animation: fileEffect 1s forwards;
+    -webkit-animation: fileEffect 1s forwards;
+    -o-animation: fileEffect 1s forwards; */
+}
+.file_div:hover {
+	-webkit-transform: scale(1.3);
+	-moz-transform: scale(1.3);
+	-ms-transform: scale(1.3);
+	transform: scale(1.3);
+	opacity: 1;
 }
 .file_div img{
     cursor: pointer;
