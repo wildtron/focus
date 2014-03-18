@@ -22,6 +22,7 @@ if (process.env['NODE_ENV'] !== 'testing') {	// don't log on file if testing
 	));
 }
 
+app.disable('x-powered-by');
 app.use(express.bodyParser({uploadDir : config.temp_dir}));
 app.use(express.compress());
 app.use(express.limit(config.upload_file_limit));

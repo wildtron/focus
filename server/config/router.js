@@ -9,9 +9,9 @@ var db = require(__dirname + '/database'),
 // imports
 if (process.env['NODE_ENV'] === 'testing') {
 	db.addImport(student.collectionName);
-	db.addImport(section.collectionName);
 	db.addImport(instructor.collectionName);
 }
+db.addImport(section.collectionName);
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
@@ -113,7 +113,7 @@ exports.handleSocket = function (io) {
 					db.getChatHistory(_student._id, sendHistory);
 				}
 				else {
-					socket.emit('warning', 'Section instructor is missing o.O');
+					socket.emit('warning', 'Pano ka nakalogin ng walang current subject? o.O');
 				}
 			},
 			sendHistory = function (err, docs) {

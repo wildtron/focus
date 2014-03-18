@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/style.css" />
     </head>
 
-    <body data-url="http://192.168.1.52:3000/">
+    <body>
 
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
@@ -91,12 +91,6 @@
                     <select id='students_submissions_select'>
                         <option value="all">Everyone</option>
 					</select>
-                    <!--ordered by
-                    <select  id='order_submissions_select'>
-                        <option value="date">date</option>
-                        <option value="size">size</option>
-                        <option value="file name">file name</option>
-                    </select-->
                 </div>
                 <div id="files_div"></div>
             </div>
@@ -120,8 +114,8 @@
             </div>
         </section>
 
-        <script type="text/javascript" src="//192.168.1.52:3000/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="js/pages.js"></script>
+        <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
     </body>

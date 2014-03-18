@@ -175,9 +175,10 @@ exports.getLogs = function (req, res, next) {
 			}
 
 			if (!isNaN(data.from) && !isNaN(data.to)) {
+
 				where.date = {
-					$gte : data.from,
-					$lt : data.to
+					$gte : +data.from,
+					$lt : +data.to
 				};
 			}
 
@@ -222,6 +223,8 @@ exports._getCurrentSubject = function (classes, cb, next) {
 				day = "UMTWHFS"[date.getDay()];
 			if (err) return next(err);
 			date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
+
+			logger.log('verbose', 'instructor:_getCurrentSubject system date', day, date);
 
 			collection.findOne({
 				_id : { $in : classes },

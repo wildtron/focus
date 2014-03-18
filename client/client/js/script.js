@@ -1,13 +1,17 @@
+/**
+	script.js
+	- Contains full client app logic
+*/
+
 (function (root) {
-	var motherServer = '192.168.1.52',
-		port = 3000,
+	var socket,
+		url = 'http://192.168.1.52:3000/',
 		localServer = 'http://localhost:10610',
-		url = 'http://' + motherServer + ':' + port + '/',
-		socket,
 
 		/**
 			Cached DOM elements
 		*/
+
 		doc = root.document;
 		chat_area = doc.getElementById('chat_area'),
 		chat_content = doc.getElementById('chat_content'),
@@ -20,37 +24,43 @@
 		*/
 
 		toTitleCase = function (str) {
-			return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+			return str.replace(/\w\S*/g, function (txt) {
+				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+			});
 		},
 		connectSocket = function () {
 			loadScript(url + 'socket.io/socket.io.js',
 			function () {
 				socket = io.connect(url);
 				socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
+
 				socket.on('history', function (history) {
 					history.forEach(function (h) {
 						var li = doc.createElement('li');
 						li.appendChild(doc.createTextNode(h.message));
 						if (!h.from_student) {
-							li.className = "incoming";
+							li.className = 'incoming';
 						}
 						chat_content.appendChild(li);
 					});
 					chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
 				});
+
 				socket.on('update_chat', function (message) {
 					var li = doc.createElement('li');
 					li.appendChild(doc.createTextNode(message));
 					chat_content.appendChild(li);
 					chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
 				});
+
 				socket.on('warning', function (message) {
-					console.dir('warning');
-					console.dir(message);
+					alert(message);
 				});
+
 				socket.on('online', function () {
 					doc.getElementById('name_div').className = 'online';
 				});
+
 				socket.on('disconnect', function () {
 					doc.getElementById('name_div').className = '';
 				});
@@ -66,6 +76,8 @@
 		},
 		resetLoginForm = function () {
 			var button = doc.getElementById('sign_in_button');
+			doc.getElementById('front_section').style['-webkit-filter'] = '';
+			doc.getElementById('progress_bar').style.display = 'none';
 			setTimeout(function () {
 				button.className = '';
 				button.innerHTML = 'Login via SystemOne';
@@ -80,20 +92,22 @@
 			chat_area.focus();
 		};
 
+	/**
+		Attach Events
+	*/
+
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
-			response,
-			front = doc.getElementById('front_section'),
-			progress = doc.getElementById('progress_bar'),
 			request = new XMLHttpRequest(),
-			loginSuccess = function () {
-				cookies.set('FOCUSSESSID', response.access_token, 10800);
+			loginSuccess = function (access_token, instructor) {
+
+				cookies.set('FOCUSSESSID', access_token, 10800);
 
 				chat_content.innerHTML = '<li class="incoming"><b>Welcome! Your attendance is now recorded.</b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below. Thank you.</li>';
 
 				connectSocket();
 
-				doc.getElementById('name_div').innerHTML = 'Chat with ' + toTitleCase(response.instructor);
+				doc.getElementById('name_div').innerHTML = 'Chat with ' + toTitleCase(instructor);
 				self.innerHTML = 'Login Success!';
 				self.className = 'sign_in_success';
 
@@ -105,9 +119,19 @@
 				}, 250);
 			};
 
-		front.style['-webkit-filter'] = 'blur(2px)';
-		progress.style['display'] = 'block';
+		if (username.value === '' ||
+			password.value === '' ||
+			student_number.value === '')
+			return false;
+
+		// setup progress bar
+		doc.getElementById('front_section').style['-webkit-filter'] = 'blur(2px)';
+		doc.getElementById('progress_bar').style['display'] = 'block';
+
+		// disable text fields to prevent request overlaps
 		student_number.disabled = password.disabled = username.disabled = 'disabled';
+
+		// send login request
 		request.open('POST', url + 'student/login', true);
 		request.setRequestHeader('Content-Type', 'application/json');
 		request.send(JSON.stringify({
@@ -118,29 +142,22 @@
 		}));
 
 		request.onreadystatechange = function(event) {
-			var xhr = event.target;
+			var xhr = event.target,
+				response = JSON.parse(xhr.responseText);
 
-			if (xhr.status == 401 && xhr.readyState == 4) {
-				front.style['-webkit-filter'] = '';
-				progress.style.display = 'none';
+			if ((xhr.status == 400 ||xhr.status == 401) && xhr.readyState == 4) {
+				alert(response.message);
 				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
 				resetLoginForm();
 			}
 			else if (xhr.status == 0 && xhr.readyState == 4) {
-				front.style['-webkit-filter'] = '';
-				progress.style['display'] = 'none';
 				alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
 				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
 				resetLoginForm();
 			}
 			else if (xhr.status == 200 && xhr.readyState == 4) {
-				response = JSON.parse(xhr.responseText);
-
-				// set progress bar
-				front.style['-webkit-filter'] = '';
-				progress.style['display'] = 'none';
 
 				// if application, must connect to localServer
 				if (typeof require !== 'undefined') {
@@ -151,13 +168,12 @@
 					request.send(JSON.stringify({
 						session : response.access_token
 					}));
-					request.onreadystatechange = function(event){
+					request.onreadystatechange = function (event) {
 						var xhr = event.target;
-
-						if (xhr.status == 200 && xhr.readyState == 4) {
-							loginSuccess();
+						if (xhr.status === 200 && xhr.readyState === 4) {
+							loginSuccess(response.access_token, response.instructor);
 						}
-						else if (xhr.status == 401 && xhr.readyState == 4) {
+						else if (xhr.status === 401 && xhr.readyState === 4) {
 							alert('Please re-login.');
 							self.innerHTML = 'Error!';
 							self.className = 'sign_in_error';
@@ -170,7 +186,7 @@
 				else {
 					self.innerHTML = 'Login Success!';
 					self.className = 'sign_in_success';
-					loginSuccess();
+					loginSuccess(response.access_token, response.instructor);
 				}
 			}
 		}
@@ -195,7 +211,6 @@
 		doc.getElementById('front_section').className = 'left-to-current';
 		doc.getElementById('main_section').className = 'current-to-right';
 		resetLoginForm();
-		student_number.focus();
 	}, true);
 
 	chat_area.addEventListener('keypress', function (e) {
@@ -275,6 +290,11 @@
 
 		return false;
 	}, true);
+
+
+	/**
+		Game!
+	*/
 
 	if (cookies.has('FOCUSSESSID')) {
 		student_number.value = username.value = password.value = ' ';

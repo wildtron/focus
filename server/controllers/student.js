@@ -137,7 +137,7 @@ exports.login = function (req, res, next) {
 			}
 			else {
 				logger.log('info', 'student:login no current subject found');
-				return res.send(401, {message : 'No current subject'});
+				return res.send(401, {message : 'Sorry but you have no lab class at this time'});
 			}
 		},
 		getAttendanceCollection = function (err, item) {

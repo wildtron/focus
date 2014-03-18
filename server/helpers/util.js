@@ -10,7 +10,7 @@ exports.chk_rqd = function (reqd, body, next) {
         ret = {},
         temp;
     while (i--) {
-        if (!body[temp = reqd[i]]) {
+        if (!body[temp = reqd[i]] || body[temp] instanceof Array) {
             next && next(new TolerableError(temp + ' is missing'));
 			return false;
         }
@@ -88,10 +88,9 @@ exports.cleanFileName = function (file_name) {
     return  file_name
             .replace(/\.\./gi, '')              // remove consecutive 2 dots
             .replace(/^\./i, '')                // remove dot on if first character
-            .replace(/\s+/gi, '-')              // replace space/s with dash
+            .replace(/\s+/gi, '-')              // replace space(s) with dash
             .replace(/[^a-zA-Z0-9\.-_]/gi, '');  // strip any special characters
 };
-
 
 exports.runTest = function () {
     var mocha = new Mocha({reporter : 'spec'});
@@ -111,14 +110,14 @@ exports.runTest = function () {
 			});
 		});
     }, 2000);
-}
+};
 
 exports.isSN = function (student_number) {
 	return /^\d{4}-\d{5}$/.test(student_number);
-}
+};
 
 exports.toTitleCase = function (str) {
 	return str.replace(/\w\S*/g, function (txt) {
 		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
 	});
-}
+};
