@@ -1,4 +1,4 @@
-(function(root){
+(function (root) {
 	var motherServer = '192.168.1.52',
 		port = 3000,
 		localServer = 'http://localhost:10610',
@@ -29,15 +29,19 @@
 				socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
 				socket.on('history', function (history) {
 					history.forEach(function (h) {
-						if (h.from_student)
-							chat_content.innerHTML += '<li>' + h.message + '</li>';
-						else
-							chat_content.innerHTML += '<li class="incoming">' + h.message + '</li>';
+						var li = doc.createElement('li');
+						li.appendChild(doc.createTextNode(h.message));
+						if (!h.from_student) {
+							li.className = "incoming";
+						}
+						chat_content.appendChild(li);
 					});
 					chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
 				});
 				socket.on('update_chat', function (message) {
-					chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
+					var li = doc.createElement('li');
+					li.appendChild(doc.createTextNode(message));
+					chat_content.appendChild(li);
 					chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
 				});
 				socket.on('warning', function (message) {
@@ -139,19 +143,19 @@
 					request.open('POST', localServer, true);
 					request.setRequestHeader('Content-Type', 'application/json');
 					request.send(JSON.stringify({
-						session : cookies.get('FOCUSSESSID')
+						session : response.access_token
 					}));
 					request.onreadystatechange = function(event){
 						var xhr = event.target;
 
 						if (xhr.status == 200 && xhr.readyState == 4) {
-							self.innerHTML = 'Login Success!';
-							self.className = 'sign_in_success';
 							loginSuccess();
 						}
 						else if (xhr.status == 401 && xhr.readyState == 4) {
 							alert('Please re-login.');
-							doc.getElementById('logout_button').click();
+							self.innerHTML = 'Error!';
+							self.className = 'sign_in_error';
+							resetLoginForm();
 						}
 					}
 				}
@@ -282,4 +286,4 @@
 	}
 
 	student_number.focus();
-}(this));
+} (this) );
