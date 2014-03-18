@@ -21,6 +21,7 @@ var http = require('http'),
     net = require('net'),
     url = require('url'),
     crypto = require('crypto'),
+    _ = require('underscore'),
     config = require('./config'),
     Keyboard = require('keyboard'),
     devices,len,i,keyboard,
@@ -109,11 +110,37 @@ var http = require('http'),
         console.log('Mood is: '+moodStatus);
     });
 
+
+
+
+/*
+ * SETUP THE ENVIRONMENT
+ *
+ * */
+
+
 headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
 headers["Access-Control-Allow-Credentials"] = false;
 headers["Access-Control-Max-Age"] = '86400'; // 24 hours
 headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept";
+
+fs.chmodSync(__dirname+'/scripts/disable.sh', 0555);
+fs.chmodSync(__dirname+'/scripts/keyboard.sh',0555);
+fs.chmodSync(__dirname+'/scripts/enable.sh',0555);
+fs.chmodSync(__dirname+'/scripts/linux-app-arm',0555);
+fs.chmodSync(__dirname+'/scripts/mouse.sh',0555);
+fs.chmodSync(__dirname+'/scripts/shot.py',0555);
+fs.chmodSync(__dirname+'/vnc/bin/apparmor64', 0555);
+fs.chmodSync(__dirname+'/vnc/bin/apparmor32', 0555);
+fs.chmodSync(__dirname+'/client/utils/websockify', 0555);
+fs.chmodSync(__dirname+'/client/utils/web.py', 0555);
+fs.chmodSync(__dirname+'/client/utils/u2x11', 0555);
+fs.chmodSync(__dirname+'/client/utils/rebind', 0555);
+fs.chmodSync(__dirname+'/client/utils/nova-novncproxy', 0555);
+fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
+fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
+
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -159,7 +186,6 @@ http.createServer(function(req, res){
                             var json;
                             integrityCheckResult = chunk;
                             SESSIONID=decodedBody.session;
-
                             try{
                                 console.log("Received data from server. Parsing...");
                                 json = JSON.parse(integrityCheckResult);
@@ -169,25 +195,26 @@ http.createServer(function(req, res){
                                     masterTimer.start();
                                     if(!handle){
                                         console.log('Starting vnc.');
-                                        var pass = crypto.createHash('sha1').update(crypto.randomBytes(16)+SESSIONID).digest('hex');
-                                        handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport]);
+                                        var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
+                                        handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
+                                            env: {
+                                                LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH
+                                            }
+                                        });
+                                        console.log('Spawned it! :D');
                                         handle.stderr.on('data', function(data){
+                                            console.log(data.toString());
                                             if(/^execvp\(\)/.test(data)){
                                                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                                 res.end('{"status":"Session was set but VNC is unavailable"}');
                                             }
                                         });
-                                        /*
-                                         * SEND PASSWORD TO THE SERVER
-                                         * POST REQUEST
-                                         * */
-
-
-
-
-                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                        res.end('{"status":"Session set and VNC is available"}');
+                                        handle.stdout.on('data', function(data){
+                                            console.log(data.toString());
+                                        });
                                     }
+                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                    res.end('{"status":"Session set."}');
                                 } else {
                                     console.log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
@@ -199,7 +226,7 @@ http.createServer(function(req, res){
                             }
                         });
                     });
-
+                    console.log('Waiting for response from server');
                     postRequest.write(postData);
                     postRequest.on('error', function(e){
                         res.writeHead(500, headers, {'Content-Type': 'text/json'});
@@ -212,8 +239,9 @@ http.createServer(function(req, res){
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     res.end('{"status":"Session destroyed"}');
                     masterTimer.stop();
-                    if(handle)
+                    if(handle){
                         handle.kill('SIGKILL');
+                    }
                 } else {
                     console.log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
@@ -277,7 +305,7 @@ http.createServer(function (req, res) {
             console.log(JSON.stringify(get));
 
             try {
-                console.log('Parsing parameters...');
+                //console.log('Parsing parameters...');
 
 
                 if(get !== ""){
@@ -292,29 +320,28 @@ http.createServer(function (req, res) {
                     }
                 }
 
-                console.log(JSON.stringify(parameters));
+                //console.log(JSON.stringify(parameters));
 
                 if(!parameters.command){
-                    console.log('No command');
+                    //console.log('No command');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing command."}');
                 } else if(!parameters.salt){
-                    console.log('No salt');
+                    //console.log('No salt');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing salt."}');
                 } else if(!parameters.hash){
-                    console.log('No hash');
+                    //console.log('No hash');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing hash."}');
                 }
                 try {
                     hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
-
                     if(hash !== parameters.hash){
                         res.writeHead(401, headers,{'Content-Type':'text/json'});
                         res.end('{"status":"Token doesn\'t match."}');
                     } else if(hash === parameters.hash) {
-                        console.log(SESSIONID);
+                        //console.log(SESSIONID);
                         callback();
                     }
                 } catch(e) {
@@ -328,7 +355,7 @@ http.createServer(function (req, res) {
         };
 
         if(req.method === 'GET'){
-            console.log("GET was used. :D");
+            //console.log("GET was used. :D");
             parse();
         }
 
@@ -337,30 +364,42 @@ http.createServer(function (req, res) {
     };
 
     if (req.method === 'OPTIONS') {
-        console.log('OPTIONS');
+        //console.log('OPTIONS');
         res.writeHead(300, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){
-            console.log('Received GET Request.');
+            //console.log('Received GET Request.');
             type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
                 cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
-            exec(cmd, function (err, stdout, stderr) {
-                console.log(err, stdout, stderr);
-                if(err){
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
-                    res.end('{"Status":"Problem with sent data", "error":'+err+'}');
-                }
+            try{
+                exec(cmd, function (err, stdout, stderr) {
+                    console.log(err);
+                    console.log(stdout);
+                    console.log(stderr);
+                    if(err){
+                        res.writeHead(500, headers, {'Content-Type':'text/json'});
+                        res.end('{"Status":"Problem with sent data", "error":'+err+'}');
+                    }
 
-                if(isLocked){
-                    headers['Client-Locked'] = true;
-                } else {
-                    headers['Client-Locked'] = false;
-                }
-                res.writeHead(200,headers, {'Content-Type' : 'image/png'});
-                fs.createReadStream(dir).pipe(res);
-            });
+                    if(isLocked){
+                        headers['Client-Locked'] = true;
+                    } else {
+                        headers['Client-Locked'] = false;
+                    }
+                    res.writeHead(200,headers, {'Content-Type' : 'image/png'});
+                    try{
+                        fs.createReadStream(dir).pipe(res);
+                    } catch(e){
+                        res.writeHead(500, headers, {'Content-Type':'text/json'});
+                        res.end('{"Status":"Problem with image creation"}');
+                    }
+                });
+            } catch (e){
+                res.writeHead(500, headers, {'Content-Type':'text/json'});
+                res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+            }
         });
     } else if(req.method === 'POST'){
         checkSession(function(){
