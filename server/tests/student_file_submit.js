@@ -22,7 +22,7 @@ describe('Student File Submit', function() {
 
 	it('should ask for missing file', function (done) {
 		api.post('/student/login')
-		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf', access_token : '#'})
 		.expect(200)
 		.end(function (err, res) {
 			api.post('/student/submit')
@@ -39,7 +39,7 @@ describe('Student File Submit', function() {
 
 	it('should send 1 file successfully', function (done) {
 		api.post('/student/login')
-		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf', access_token : '#'})
 		.expect(200)
 		.end(function (err, res) {
 			api.post('/student/submit')
@@ -57,7 +57,7 @@ describe('Student File Submit', function() {
 
 	it('should send 2 files successfully', function (done) {
 		api.post('/student/login')
-		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf'})
+		.send({student_number : '2010-43168', username : 'ravenjohn', password : 'asdfasdf', access_token : '#'})
 		.expect(200)
 		.end(function (err, res) {
 			api.post('/student/submit')
@@ -76,7 +76,7 @@ describe('Student File Submit', function() {
 
 	it('should send 2 files successfully', function (done) {
 		api.post('/student/login')
-		.send({student_number : '2010-41794', username : 'wildtron', password : 'asdfasdf'})
+		.send({student_number : '2010-41794', username : 'wildtron', password : 'asdfasdf', access_token : '#'})
 		.expect(200)
 		.end(function (err, res) {
 			api.post('/student/submit')

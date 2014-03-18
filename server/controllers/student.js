@@ -163,7 +163,6 @@ exports.login = function (req, res, next) {
 			if (err) return next(err);
 			exports._log(student._id, 'logged in', student.first_name + ' ' + student.last_name);
 			return res.send({
-				_id : student._id,
 				access_token : student.access_token,
 				instructor : (instructor.sex === 'F' ? 'Ms. ' : 'Mr. ') + instructor.first_name + ' ' + instructor.last_name
 			});

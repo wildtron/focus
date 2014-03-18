@@ -135,7 +135,7 @@ root = this;
 						':8286/?command=jpeg' +
 						'&hash=' + students[i].hash +
 						'&salt=' + students[i].salt +
-						'" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
+						'" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="Click to open VNC" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
@@ -431,10 +431,7 @@ Date: '+new Date(f.date)+'"/>	\
                 });
             }
             else {
-                temp = document.getElementById('fs_shot');
-                temp.setAttribute('src', ip + '?command=png&hash=' + student.hash + '&salt=' + student.salt);
-                temp.style.width = root.innerWidth + 'px';
-                temp.style.height = root.innerHeight + 'px';
+                root.open(student.vnc);
             }
         }
     });
