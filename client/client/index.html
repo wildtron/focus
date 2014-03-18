@@ -134,14 +134,15 @@
 
                 document.getElementById('sign_in_button').onclick = function () {
                     var self = this,
-                    request = new XMLHttpRequest();
-                    var front = document.getElementById('front_section'),
-                        progress = document.getElementById('progress_bar');
-                    front.style['-webkit-filter'] = 'blur(2px)';
-                    progress.style['display'] = 'block';
+                    request = new XMLHttpRequest(),front,progress;
                     if(username.value == '' || student_number.value == '' || password.value == '')
                         return;
                     student_number.disabled = password.disabled = username.disabled = 'disabled';
+                    front = document.getElementById('front_section');
+                    progress = document.getElementById('progress_bar');
+                    front.style['-webkit-filter'] = 'blur(2px)';
+                    progress.style['display'] = 'block';
+
                     request.open('POST', url + 'student/login', true);
                     request.setRequestHeader('Content-Type', 'application/json');
 
