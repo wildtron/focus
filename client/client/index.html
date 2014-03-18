@@ -83,12 +83,25 @@
                     connectSocket = function () {
                         socket = io.connect(url);
                         socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
+						socket.on('history', function (history) {
+							history.forEach(function (h) {
+								if (h.from_student)
+									chat_content.innerHTML += '<li>' + h.message + '</li>';
+								else
+									chat_content.innerHTML += '<li class="incoming">' + h.message + '</li>';
+							});
+                            chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
+						});
                         socket.on('update_chat', function (message) {
                             chat_content.innerHTML += '<li class="incoming">' + message + '</li>';
                             chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;
                         });
 						socket.on('warning', function (message) {
+							console.dir('warning');
 							console.dir(message);
+						});
+						socket.on('disconnect', function () {
+							console.log('disconnect');
 						});
                     };
 
@@ -250,10 +263,7 @@
                 temp = document.getElementById('chat_area');
                 temp.onkeypress = function (e) {
                     if (e.ctrlKey && e.keyCode == 10) {
-                        socket.emit('update_chat', {
-                            message : e.target.value,
-                            student_number : cookies.get('student_number')
-                        });
+                        socket.emit('s_update_chat', e.target.value);
                         chat_content.innerHTML += '<li>' + e.target.value + '</li>';
                         e.target.value = '';
                         chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight

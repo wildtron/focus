@@ -1,6 +1,8 @@
 var db = require(__dirname + '/database'),
     logger = require(__dirname + '/../lib/logger'),
+    config = require(__dirname + '/config').config,
     util = require(__dirname + '/../helpers/util'),
+	utils = require("express/node_modules/connect/lib/utils"),
     TolerableError = require(__dirname + '/../lib/tolerable_error'),
     section = require(__dirname + '/../controllers/section'),
     student = require(__dirname + '/../controllers/student'),
@@ -43,12 +45,21 @@ exports.setup = function (app) {
 
 exports.handleSocket = function (io) {
 	var rooms = {},
-		getRoomBySocketId = function (id) {
+		getRoomBySocketId = function (id, student_number) {
 			var room;
-			for (iroom in rooms)
-				if (~room.sockets.indexOf(id))
+			for (room in rooms) {
+				room = rooms[room];
+				if (student_number) {
+					if (room.instructor === id && room.student_id === student_number)
+						return room;
+				} else if (room.student === id || room.instructor === id) {
 					return room;
+				}
+			}
 			return false;
+		},
+		isFromStudent = function (room, id) {
+			return (room.student === id);
 		};
     io.set('log level', 0);
 
@@ -60,7 +71,6 @@ exports.handleSocket = function (io) {
 				if (err) console.dir('this should not exist', err);
 				if (item) {
 					_student = item;
-					_student.socket_id = socket.id;
 					logger.log('socket', 's_join | student : ', item);
 					student._getCurrentSubject(item._id, getInstructor);
 				}
@@ -81,25 +91,31 @@ exports.handleSocket = function (io) {
 			joinRoom = function (err, item) {
 				if (err) console.dir('this should not exist', err);
 				if (item) {
-					logger.log('socket', 's_join | instructor : ', item);
-					if (rooms[_student._id + item._id] && rooms[_student._id + item._id].student) {
-						socket.emit('warning', 'Someone is already connected. wtf o.O');
-					} else if (rooms[_student._id + item._id]) {
-						room[_student._id + item._id].student = socket.id;
-						socket.join(_student._id + item._id);
-						socket.broadcast.to(_student._id + item._id).emit('online', _student);
-					} else {
-						room[_student._id + item._id] = {
-							student : socket.id,
-							instructor : null
+					logger.log('silly', 's_join | instructor : ', item);
+					if (!rooms[_student._id + item._id]) {
+						rooms[_student._id + item._id] = {
+							id : _student._id + item._id,
 						};
-						socket.join(_student._id + item._id);
-						socket.broadcast.to(_student._id + item._id).emit('online', _student);
 					}
+					rooms[_student._id + item._id].student = socket.id;
+					rooms[_student._id + item._id].student_id = _student._id;
+					socket.join(_student._id + item._id);
+					// generate hash and salt
+					_student.salt = util.hash(util.randomString());
+					_student.hash = util.hash(_student.salt + _student.access_token, 'sha1');
+					delete _student.access_token;
+
+					socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					logger.log('silly', 's_join_room getting chat history of', _student._id);
+					db.getChatHistory(_student._id, sendHistory);
 				}
 				else {
 					socket.emit('warning', 'Section instructor is missing o.O');
 				}
+			},
+			sendHistory = function (err, docs) {
+				if (err) return console.dir(err);
+				socket.emit('history', docs);
 			};
             if (access_token) {
 				student._findByAccessToken(access_token, getCurrentSubject);
@@ -112,51 +128,43 @@ exports.handleSocket = function (io) {
         socket.on('i_join_room', function (access_token) {
 			var _instructor,
 				getCurrentSubject = function (err, item) {
-				if (err) console.dir('this should not exist', err);
-				if (item) {
-					_student = item;
-					_student.socket_id = socket.id;
-					logger.log('socket', 's_join | student : ', item);
-					student._getCurrentSubject(item._id, getInstructor);
-				}
-				else {
-					socket.emit('warning', 'Invalid access token');
-				}
-			},
-			getInstructor = function (err, item) {
-				if (err) console.dir('this should not exist', err);
-				if (item) {
-					logger.log('socket', 's_join | section : ', item);
-					section._getSectionInstructor(item._id, joinRoom);
-				}
-				else {
-					socket.emit('warning', 'You have no current subject');
-				}
-			},
-			joinRoom = function (err, item) {
-				if (err) console.dir('this should not exist', err);
-				if (item) {
-					logger.log('socket', 's_join | instructor : ', item);
-					if (rooms[_student._id + item._id] && rooms[_student._id + item._id].student) {
-						socket.emit('warning', 'Someone is already connected. wtf o.O');
-					} else if (rooms[_student._id + item._id]) {
-						room[_student._id + item._id].student = socket.id;
-						socket.join(_student._id + item._id);
-						socket.broadcast.to(_student._id + item._id).emit('online', _student);
-					} else {
-						room[_student._id + item._id] = {
-							student : socket.id,
-							instructor : null
-						};
-						socket.join(_student._id + item._id);
-						socket.broadcast.to(_student._id + item._id).emit('online', _student);
+					if (err) console.dir('this should not exist', err);
+					if (item) {
+						_instructor = item;
+						logger.log('socket', 'i_join | instructor : ', item);
+						instructor._getCurrentSubject(item.classes, joinRooms);
 					}
-				}
-				else {
-					socket.emit('warning', 'Section instructor is missing o.O');
-				}
-			};
+					else {
+						socket.emit('warning', 'Invalid access token');
+					}
+				},
+				joinRooms = function (err, item) {
+					var temp;
+					if (err) console.dir('this should not exist', err);
+					if (item) {
+						for (temp in io.sockets.manager.roomClients[socket.id]) {
+							console.log('leaving', temp.substring(1));
+							socket.leave(temp.substring(1));
+						}
+						item.students.forEach(function (_student) {
+							if (!rooms[_student + _instructor._id]) {
+								rooms[_student + _instructor._id] = {
+									id : _student + _instructor._id,
+									student : null,
+									student_id : null
+								};
+							}
+							rooms[_student + _instructor._id].instructor = socket.id;
+							rooms[_student + _instructor._id].instructor_id = _instructor._id;
+							socket.join(_student + _instructor._id);
+							socket.broadcast.to(_student + _instructor._id).emit('online', _student);
+						});
+					} else {
+						socket.emit('warning', 'Section is missing o.O');
+					}
+				};
             if (access_token) {
+				logger.log('silly', 'i_join access_token :', access_token);
 				instructor._findByAccessToken(access_token, getCurrentSubject);
             }
             else {
@@ -164,32 +172,62 @@ exports.handleSocket = function (io) {
             }
         });
 
-		socket.on('get_history', function (data) {
+		socket.on('i_get_history', function (student_number) {
+			var room = getRoomBySocketId(socket.id),
+				sendHistory = function (err, docs) {
+					if (err) return console.dir(err);
+					socket.emit('history', docs);
+				};
+			if (room) {
+				logger.log('silly', 'socket i_get_history', student_number);
+				db.getChatHistory(student_number, sendHistory);
+			} else {
+				socket.emit('warning', 'get_history Socket id not in a room');
+			}
 		});
 
-        socket.on('update_chat', function (data) {
-            if (data.student_number && data.message) {
-                socket.broadcast.to(data.student_number).emit('update_chat', data.message, data.student_number);
-            }
-            else if (data.student_number){
-                socket.emit('warning', 'message is missing');
-            }
+        socket.on('s_update_chat', function (message) {
+            var room = getRoomBySocketId(socket.id);
+			if (room && message) {
+				db.saveChatHistory(message, room.instructor_id, room.student_id, true);
+                socket.broadcast.to(room.id).emit('update_chat', room.student_id, message);
+			}
             else {
-                socket.emit('warning', 'student_number missing');
+                socket.emit('warning', 'no room or no message');
+            }
+        });
+
+        socket.on('i_update_chat', function (message, student_number) {
+            var room = getRoomBySocketId(socket.id);
+			logger.log('silly', 'i_update_chat sn', student_number, 'inst', room.instructor_id);
+			if (rooms[student_number + room.instructor_id] && message) {
+				room = rooms[student_number + room.instructor_id];
+				db.saveChatHistory(message, room.instructor_id, student_number, false);
+                socket.broadcast.to(room.id).emit('update_chat', message);
+			}
+            else {
+                socket.emit('warning', 'no room or no message');
             }
         });
 
         socket.on('disconnect', function () {
-            var rooms = io.sockets.manager.roomClients[socket.id],
-                room;
-
-            for (room in rooms) {
-                if (room && rooms[room]) {
-                    room = room.replace('/','');
-                    socket.leave(room);
-					room = getRoomBySocketId(socket.id);
-					socket.broadcast.to(Object.keys(room)[0]).emit('disconnect', data);
-                }
+            var room;
+			for (room in rooms) {
+				if (room.instructor === socket.id) {
+					socket.broadcast.to(room.id).emit('disconnect');
+					socket.leave(room.id);
+					room.instructor = room.instructor_id = null;
+					if (!room.student)
+						delete rooms[room.id];
+				}
+				else if (room.student === socket.id) {
+					socket.broadcast.to(room.id).emit('disconnect', room.student_id);
+					socket.leave(room.id);
+					room.student = room.student_id = null;
+					if (!room.instructor)
+						delete rooms[room.id];
+					break;
+				}
             }
         });
     });

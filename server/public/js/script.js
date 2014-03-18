@@ -6,8 +6,21 @@ root = this;
 		currentChat,
         refreshInterval,
         url = document.body.attributes['data-url'].value,
+		getClosestWindow = function (e) {
+			try {
+				while (1) {
+					if (e.parentNode.classList.contains('window_div'))
+						return e.parentNode;
+					e = e.parentNode;
+				}
+			} catch (e) {
+				return {id : ''};
+			}
+		},
         toTitleCase = function (str) {
-            return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+            return str.replace(/\w\S*/g, function (txt) {
+				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+			});
         },
         randomEffect = function () {
             return ['top', 'bottom', 'left', 'right'][parseInt(Math.random() * 4, 10)];
@@ -39,7 +52,8 @@ root = this;
         },
         records = function () {
             var active = document.getElementsByClassName('active_section')[0],
-                temp = document.getElementById('records_section_select');
+                temp = document.getElementById('records_section_select'),
+				i;
             temp.innerHTML = '';
             for (i = _this.classes.length; i--;) {
                 temp.innerHTML += '<option value="' + _this.classes[i] + '">' + _this.classes[i] + '</option>';
@@ -116,7 +130,11 @@ root = this;
             while (i--) {
                 dom.innerHTML += '  \
                     <div class="window_div ' + (students[i].status || "active") + '" id="'+ students[i]._id +'" data-ip="' + students[i].ip_address + '"> \
-                        <img src="http://'+ students[i].ip_address +':8286" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
+                        <img src="http://'+ students[i].ip_address +
+						':8286/?command=jpeg' +
+						'&hash=' + students[i].hash +
+						'&salt=' + students[i].salt +
+						'" alt="'+ toTitleCase(students[i].first_name) + '\'s Computer" title="' + students[i].ip_address + '" width="350" height="200" onerror="javascript : this.parentNode&&(this.parentNode.className=\'window_div not_connected\')&&(this.src=\'/img/not-connected.png\');"/>    \
                         '+ toTitleCase(students[i].first_name + ' ' + students[i].last_name) +' | '+ students[i]._id +' \
                         <button class="chat_button" title="Chat with '+ toTitleCase(students[i].first_name) + '" id="' + students[i]._id + '_chat_button"></button>   \
                         <div class="unit_mngr_div"> \
@@ -141,32 +159,31 @@ root = this;
             // console.log('Setting auto-refresh to ', interval);
             clearInterval(refreshInterval);
             refreshInterval = setInterval(function () {
-                var i = _this.class.students.length,
+                var students = _this.class.students,
+					i = students.length,
                     temp;
                 while (i--) {
-                    temp = document.getElementById(_this.class.students[i]._id);
+                    temp = document.getElementById(students[i]._id);
                     if (!temp.classList.contains('locked') &&
 						!temp.classList.contains('not_connected')
 						)
-                        temp.childNodes[1].setAttribute('src', 'http://' + _this.class.students[i].ip_address + ':8286');
+                        temp.childNodes[1].setAttribute('src', 'http://' + students[i].ip_address +
+						':8286/?command=jpeg' +
+						'&hash=' + students[i].hash +
+						'&salt=' + students[i].salt
+						);
                 }
             }, (+interval) * 1000);
         },
-        buildChatHistory = function (student_number) {
-            var dom = document.getElementById('chat_list'),
-                student = getStudentBySN(student_number),
-                j,
-                k;
-			currentChat = student_number;
+        buildChatHistory = function (history) {
+            var dom = document.getElementById('chat_list');
             dom.innerHTML = '';
-            student.messages || (student.messages = []);
-            cache = student.messages;
-            for (j = cache.length, k=0; k < j; k++) {
-                if (cache[k].incoming)
-                    dom.innerHTML += '<li class="incoming">' + cache[k].message + '</li>';
+			history.forEach(function (h) {
+                if (h.from_student)
+                    dom.innerHTML += '<li class="incoming">' + h.message + '</li>';
                 else
-                    dom.innerHTML += '<li>' + cache[k].message + '</li>';
-            }
+                    dom.innerHTML += '<li>' + h.message + '</li>';
+			});
             dom.scrollTop = dom.scrollHeight;
         },
         getStudentBySN = function (sn) {
@@ -302,32 +319,32 @@ Date: '+new Date(f.date)+'"/>	\
                 _this = response;
                 document.getElementById('user_greeting_b').innerHTML = ((response.sex === 'F') ? "Ma'am " : "Sir ") + response.last_name;
 
-
                 if (_this.class.students) {
                     socket = io.connect(url);
-                    socket.emit('create_rooms', {
-                        'access_token' : getCookie('focus'),
-                        'students' : _this.class.students.map(function(a){return a._id})
-                    });
+                    socket.emit('i_join_room', getCookie('focus'));
                     socket.on('warning', function (data) {
-                        alert(data);
+                        console.log('warning');
+						console.dir(data);
                     });
-					socket.on('online', function (sn) {
-						var temp = document.getElementById(sn);
-						console.log(sn, 'is now connected');
-						temp.className = temp.className.replace('not_connected', 'active');
-						console.log(temp.className);
+					socket.on('disconnect', function (sn) {
+						console.log('disconnect');
+						console.log(sn);
 					});
-                    socket.on('update_chat', function (message, student_number) {
-                        console.log('received chat update', message, student_number);
-                        var student = getStudentBySN(student_number);
-                        student.messages || (student.messages = []);
-                        student.messages.push({
-                            incoming : true,
-                            message : message
-                        });
-						if (currentChat) {
-							buildChatHistory(student_number);
+					socket.on('history', buildChatHistory);
+					socket.on('online', function (sn) {
+						var temp = document.getElementById(sn._id),
+							student = getStudentBySN(sn._id);
+						student.ip_address = sn.ip_address;
+						student.salt = sn.salt;
+						student.hash = sn.hash;
+						temp.className = temp.className.replace('not_connected', 'active');
+					});
+                    socket.on('update_chat', function (student_number, message) {
+                        var student = getStudentBySN(student_number),
+							dom = document.getElementById('chat_list');
+						if (currentChat === student_number) {
+							dom.innerHTML += '<li class="incoming">' + message + '</li>';
+							dom.scrollTop = dom.scrollHeight;
 						} else {
 							document.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
 						}
@@ -369,24 +386,25 @@ Date: '+new Date(f.date)+'"/>	\
 
     document.getElementById('feed_body_div').addEventListener('click', function (e) {
         var temp = e.target,
-            window,
-            ip;
+			window = getClosestWindow(temp),
+            student = getStudentBySN(window.id),
+			ip;
+		if (typeof student.ip_address === 'undefined') return;
+		ip = 'http://' + student.ip_address + ':8286';
         if (temp.nodeName === 'BUTTON') {
-            window = temp.parentNode.parentNode;
-            ip = 'http://' + window.dataset.ip + ':8286';
             switch(temp.className) {
-                case 'lock' :   xhr('POST', ip, {method : 'lock'}, function (data) {
+                case 'lock' :   xhr('POST', ip, {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
                                     if (data.status === 'Locking') {
                                         window.childNodes[1].setAttribute('src', '/img/click-to-unlock.png');
                                         window.className = window.className.replace(/off|active|idle/g, 'locked');
                                     }
                                 });
                                 break;
-                case 'shutdown' :   xhr('POST', ip, {method : 'shutdown'}, function (data) {
+                case 'shutdown' :   xhr('POST', ip, {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
                                     console.dir(data);
                                 });
                                 break;
-                case 'logout' :   xhr('POST', ip, {method : 'logout'}, function (data) {
+                case 'logout' :   xhr('POST', ip, {command : 'logout', hash : student.hash, salt : student.salt}, function (data) {
                                     console.dir(data);
                                 });
                                 break;
@@ -394,17 +412,16 @@ Date: '+new Date(f.date)+'"/>	\
                                     document.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
                                     document.getElementById('chat_div').style.display = 'block';
                                     temp.style.backgroundImage = 'url(../img/chat-icon.png)';
-                                    document.getElementById('chat_textarea').setAttribute('data-sn', temp.id.substr(0, 10));
+                                    document.getElementById('chat_textarea').setAttribute('data-sn', student._id);
                                     document.getElementById('chat_textarea').focus();
-                                    buildChatHistory(temp.id.substr(0, 10));
+									currentChat = student._id;
+									socket.emit('i_get_history', student._id);
                                 break;
             }
         }
         else if (temp.nodeName === 'IMG') {
-            window = temp.parentNode;
-            ip = 'http://' + window.dataset.ip + ':8286';
             if (window.classList.contains('locked')) {
-                xhr('POST', ip, {method : 'unlock'}, function (data) {
+                xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
                     if (data.status === 'Unlocking') {
                         window.childNodes[1].setAttribute('src', ip);
                         window.className = window.className.replace(/locked|off|active/g, 'active');
@@ -413,7 +430,7 @@ Date: '+new Date(f.date)+'"/>	\
             }
             else {
                 temp = document.getElementById('fs_shot');
-                temp.setAttribute('src', ip + '?type=png');
+                temp.setAttribute('src', ip + '?command=png&hash=' + student.hash + '&salt=' + student.salt);
                 temp.style.width = root.innerWidth + 'px';
                 temp.style.height = root.innerHeight + 'px';
             }
@@ -443,12 +460,7 @@ Date: '+new Date(f.date)+'"/>	\
             student = getStudentBySN(sn),
             list = document.getElementById('chat_list');
         if (e.ctrlKey && e.keyCode == 10) {
-            socket.emit('update_chat', {
-                student_number : sn,
-				username : _this._id,
-                message : e.target.value
-            });
-            student.messages.push({message : e.target.value});
+            socket.emit('i_update_chat', e.target.value, sn);
             list.innerHTML += '<li>' + e.target.value + '</li>';
             list.scrollTop = list.scrollHeight;
             e.target.value = '';
