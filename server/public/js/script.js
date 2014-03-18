@@ -87,6 +87,7 @@ root = this;
 			_this.classes.forEach(function (a) {
 				temp.innerHTML += '<option value="'+a+'">'+a+'</option>';
 			});
+			document.getElementById('students_submissions_select').innerHTML = '<option value="all">Everyone</option>';
 			getFiles();
         },
         logs = function () {
@@ -106,7 +107,7 @@ root = this;
 			});
 			document.getElementById('from_logs_input').value = (new Date().toJSON().substring(0, 9)) + '1';
 			document.getElementById('to_logs_input').value = new Date().toJSON().substring(0, 10);
-			getLogs();
+			setTimeout(getLogs, 500);
         },
         logout = function () {
 			clearInterval(refreshInterval);
@@ -230,7 +231,7 @@ root = this;
 							temp2.innerHTML += '	\
 						<div class="file_div">	\
 							<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-Name: '+f.name+'\r\n\
+File Name: '+f.name+'\r\n\
 Version: '+f.version+'\r\n\
 Size: '+f.size+' bytes\r\n\
 Date: '+new Date(f.date)+'"/>	\
@@ -262,10 +263,11 @@ Date: '+new Date(f.date)+'"/>	\
 					temp2.innerHTML = '<pre>';
 					res.logs.forEach(function (l) {
 						var date = new Date(l.date);
-						date = date.getMonth() + '/' + date.getDay() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+						date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 						temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
 					});
 					temp2.innerHTML += '</pre>';
+					temp2.scrollTop = temp2.scrollHeight;
 				} else {
 					logout();
 				}

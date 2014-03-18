@@ -29,33 +29,50 @@ exports.getStudentsWithFiles = function (req, res, next) {
             }
         },
         getStudents = function (err, collection) {
-			var where = {classes : {$in : [data.section_id]}},
-				projection = {
-					access_token : 0,
-					password : 0
-				};
-			if (!isNaN(data.exer_number)) {
-				projection = {
-					first_name : 1,
-					last_name : 1,
-					files : {
-						$elemMatch : {
-							name : new RegExp('exer' + data.exer_number, 'gi')
-						}
-					}
-				};
-			}
+			var where = {classes : {$in : [data.section_id]}};
+            if (err) return next(err);
 			if (util.isSN(data.student_number)) {
 				where._id = data.student_number;
 			}
-            if (err) return next(err);
+
             logger.log('verbose', 'section:getStudent getting students');
-            collection.find({
-					$query : where,
-					$orderby : {}
-				},
-				projection
-            ).toArray(sendResponse);
+
+			if (!isNaN(data.exer_number)) {
+				collection.aggregate([
+					{
+						$match : where
+					},
+					{
+						$unwind : '$files'
+					},
+					{
+						$match : {
+							'files.name' : new RegExp('exer' + data.exer_number, 'gi')
+						}
+					},
+					{
+						$group : {
+							_id : '$_id',
+							first_name : {
+								$first : '$first_name'
+							},
+							last_name : {
+								$first : '$last_name'
+							},
+							files : {
+								$push : '$files'
+							}
+						}
+					}
+				], sendResponse);
+			}
+			else {
+				collection.find(where, {
+					first_name : 1,
+					last_name : 1,
+					files : 1
+				}).toArray(sendResponse);
+			}
         },
         sendResponse = function (err, docs) {
             if (err) return next(err);

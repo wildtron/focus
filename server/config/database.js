@@ -104,4 +104,3 @@ exports.getChatHistory = function (student_number, cb) {
 	};
 	db.collection('chat_history', getHistory);
 };
-
