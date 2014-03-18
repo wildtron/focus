@@ -103,7 +103,7 @@ exports.handleSocket = function (io) {
 
 					// if instructor is online
 					if (rooms[_student._id + item._id].instructor) {
-						io.sockets.in((_student._id + item._id).emit('online', _student);
+						io.sockets.in(_student._id + item._id).emit('online', _student);
 					}
 
 					// generate hash and salt

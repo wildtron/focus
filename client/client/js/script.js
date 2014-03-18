@@ -200,10 +200,10 @@
 			li.appendChild(doc.createTextNode(e.target.value));
 			chat_content.appendChild(li);
 
+			socket.emit('s_update_chat', e.target.value);
+
 			e.target.value = '';
 			chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
-
-			socket.emit('s_update_chat', e.target.value);
 		}
 	}, true);
 
