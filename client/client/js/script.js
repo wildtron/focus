@@ -48,8 +48,11 @@
 					console.dir('warning');
 					console.dir(message);
 				});
+				socket.on('online', function () {
+					doc.getElementById('name_div').className = 'online';
+				});
 				socket.on('disconnect', function () {
-					console.log('disconnect');
+					doc.getElementById('name_div').className = '';
 				});
 			});
 		},
@@ -81,12 +84,10 @@
 			request = new XMLHttpRequest(),
 			loginSuccess = function () {
 				cookies.set('FOCUSSESSID', response.access_token, 10800);
-				cookies.set('name', toTitleCase(response.first_name + ' ' + response.last_name), 10800);
-				cookies.set('student_number', response._id, 10800);
 
 				connectSocket();
 
-				doc.getElementById('name_div').innerHTML = cookies.get('name');
+				doc.getElementById('name_div').innerHTML = 'Chat with ' + toTitleCase(response.instructor);
 				self.innerHTML = 'Login Success!';
 				self.className = 'sign_in_success';
 
@@ -135,7 +136,6 @@
 				front.style['-webkit-filter'] = '';
 				progress.style['display'] = 'none';
 
-
 				// if application, must connect to localServer
 				if (typeof require !== 'undefined') {
 					// Send the FOCUSSESSID to local server. Do this until local server sets the session
@@ -183,11 +183,8 @@
 		// destroy session in localServer
 		logoutRequest(localServer, {destroy : cookies.get('FOCUSSESSID')});
 
-		// clear cookies
+		// clear cookie
 		cookies.remove('FOCUSSESSID');
-		cookies.remove('first_name');
-		cookies.remove('last_name');
-		cookies.remove('student_number')
 
 		chat_content.innerHTML = '<li class="incoming"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>';
 		doc.getElementById('front_section').className = 'left-to-current';
@@ -255,10 +252,7 @@
 						self.disabled = false;
 						self.className = self.value = '';
 						chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
-						socket.emit('update_chat', {
-							message : JSON.parse(xhr.responseText).message,
-							student_number : cookies.get('student_number')
-						});
+						socket.emit('s_update_chat', JSON.parse(xhr.responseText).message);
 						chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
 					}, 500);
 				}, 1000);

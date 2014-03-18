@@ -12,6 +12,7 @@ exports.login = function (req, res, next) {
     var item,
 		student,
 		section,
+		instructor,
         collection,
         data = util.chk_rqd(['student_number', 'username', 'password', 'access_token'], req.body, next),
         getStudent = function(err, _collection) {
@@ -126,15 +127,27 @@ exports.login = function (req, res, next) {
 		getCurrentSubject = function (err) {
 			if (err) return next(err);
 			logger.log('verbose', 'student:login getting current subject');
-			exports._getCurrentSubject(student._id, getAttendanceCollection);
+			exports._getCurrentSubject(student._id, getSectionInstructor);
 		},
-		getAttendanceCollection = function (err, item) {
+		getSectionInstructor = function (err, item) {
+			if (err) return next(err);
 			if (item) {
 				section = item;
-				db.get().collection('attendance', recordAttendance);
+				exports._getSectionInstructor(section._id, getAttendanceCollection);
 			}
 			else {
 				logger.log('info', 'student:login no current subject found');
+				return res.send(401, {message : 'No current subject'});
+			}
+		},
+		getAttendanceCollection = function (err, item) {
+			if (err) return next(err);
+			if (item) {
+				instructor = item;
+				db.get().collection('attendance', recordAttendance);
+			}
+			else {
+				logger.log('info', 'student:login instructor is missing');
 				return res.send(401, {message : 'No current subject'});
 			}
 		},
@@ -149,12 +162,10 @@ exports.login = function (req, res, next) {
 		sendResponse = function (err) {
 			if (err) return next(err);
 			exports._log(student._id, 'logged in', student.first_name + ' ' + student.last_name);
-
 			return res.send({
 				_id : student._id,
 				access_token : student.access_token,
-				first_name : student.first_name,
-				last_name : student.last_name
+				instructor : (instructor.sex === 'F' ? 'Ms. ' : 'Mr. ') + instructor.first_name + ' ' + instructor.last_name
 			});
 		};
     logger.log('info', 'student:login student trying to login');
@@ -409,3 +420,14 @@ exports._log = function (student_number, log, name, next, cb) {
 		db.get().collection(collectionName, getStudent);
 	}
 };
+
+exports._getSectionInstructor = function (section_id, cb, next) {
+	var getInstructor = function (err, collection) {
+			collection.findOne({
+				classes : {
+					$in : [section_id]
+				}
+			}, {password : 0}, cb);
+		};
+	db.get().collection('instructors', getInstructor);
+}

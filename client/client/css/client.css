@@ -304,13 +304,28 @@ section{
     width: 100%;
     background: #3e3d47;
     color: #FFF;
-    line-height: 40px;
+	text-indent: 65px;
+	text-align: left;
+    line-height: 45px;
     font-family: Nexa;
-    font-size: 16px;
-    text-align: center;
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+	position: relative;
+}
+#name_div:before{
+	content: '.';
+	position: absolute;
+	top: 18px;
+	left: 48px;
+	width: 8px;
+	height: 8px;
+	border-radius: 4px;
+	background: #CCC;
+}
+#name_div.online:before{
+	background: #63a924;
 }
 #logout_button{
     position: absolute;

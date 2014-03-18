@@ -33,11 +33,7 @@ exports.login = function (req, res, next) {
         getSectionCollection = function (err, _item) {
             if (err) return next(err);
             item = _item;
-            if (item == null) {
-                logger.log('info', data.username, 'failed to login. Wrong username or password');
-                return res.send(401, {message : 'Wrong username or password'});
-            }
-            else {
+            if (item) {
                 logger.log('verbose', data.username, 'is found on the local database');
 				if (process.env['NODE_ENV'] !== 'testing') {	// avoid test fails because of race condition
 					item.access_token = util.hash(+new Date + config.SALT);
@@ -52,6 +48,10 @@ exports.login = function (req, res, next) {
                     if (err) return next(err);
                 });
 				exports._getCurrentSubject(item.classes, getStudentCollection, next);
+            }
+            else {
+                logger.log('info', data.username, 'failed to login. Wrong username or password');
+                return res.send(401, {message : 'Wrong username or password'});
             }
         },
         getStudentCollection = function (err, _class) {

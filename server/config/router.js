@@ -82,7 +82,7 @@ exports.handleSocket = function (io) {
 				if (err) console.dir('this should not exist', err);
 				if (item) {
 					logger.log('socket', 's_join | section : ', item);
-					section._getSectionInstructor(item._id, joinRoom);
+					student._getSectionInstructor(item._id, joinRoom);
 				}
 				else {
 					socket.emit('warning', 'You have no current subject');
@@ -100,12 +100,17 @@ exports.handleSocket = function (io) {
 					rooms[_student._id + item._id].student = socket.id;
 					rooms[_student._id + item._id].student_id = _student._id;
 					socket.join(_student._id + item._id);
+
+					// if instructor is online
+					if (rooms[_student._id + item._id].instructor) {
+						io.sockets.in((_student._id + item._id).emit('online', _student);
+					}
+
 					// generate hash and salt
 					_student.salt = util.hash(util.randomString());
 					_student.hash = util.hash(_student.salt + _student.access_token, 'sha1');
 					delete _student.access_token;
 
-					socket.broadcast.to(_student._id + item._id).emit('online', _student);
 					logger.log('silly', 's_join_room getting chat history of', _student._id);
 					db.getChatHistory(_student._id, sendHistory);
 				}
@@ -157,7 +162,7 @@ exports.handleSocket = function (io) {
 							rooms[_student + _instructor._id].instructor = socket.id;
 							rooms[_student + _instructor._id].instructor_id = _instructor._id;
 							socket.join(_student + _instructor._id);
-							socket.broadcast.to(_student + _instructor._id).emit('online', _student);
+							socket.broadcast.to(_student + _instructor._id).emit('online');
 						});
 					} else {
 						socket.emit('warning', 'Section is missing o.O');
@@ -212,8 +217,11 @@ exports.handleSocket = function (io) {
 
         socket.on('disconnect', function () {
             var room;
+			logger.log('silly', 'someone is disconnecting');
 			for (room in rooms) {
+				room = rooms[room];
 				if (room.instructor === socket.id) {
+					logger.log('silly', 'disconnecting from', room.id);
 					socket.broadcast.to(room.id).emit('disconnect');
 					socket.leave(room.id);
 					room.instructor = room.instructor_id = null;
@@ -221,6 +229,7 @@ exports.handleSocket = function (io) {
 						delete rooms[room.id];
 				}
 				else if (room.student === socket.id) {
+					logger.log('silly', 'disconnecting from', room.id);
 					socket.broadcast.to(room.id).emit('disconnect', room.student_id);
 					socket.leave(room.id);
 					room.student = room.student_id = null;
