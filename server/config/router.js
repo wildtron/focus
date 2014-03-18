@@ -2,8 +2,6 @@ var db = require(__dirname + '/database'),
     logger = require(__dirname + '/../lib/logger'),
     config = require(__dirname + '/config').config,
     util = require(__dirname + '/../helpers/util'),
-	utils = require("express/node_modules/connect/lib/utils"),
-    TolerableError = require(__dirname + '/../lib/tolerable_error'),
     section = require(__dirname + '/../controllers/section'),
     student = require(__dirname + '/../controllers/student'),
     instructor = require(__dirname + '/../controllers/instructor');
@@ -71,7 +69,7 @@ exports.handleSocket = function (io) {
 				if (err) console.dir('this should not exist', err);
 				if (item) {
 					_student = item;
-					logger.log('socket', 's_join | student : ', item);
+					logger.log('silly', 's_join | student : ', item);
 					student._getCurrentSubject(item._id, getInstructor);
 				}
 				else {
@@ -81,7 +79,7 @@ exports.handleSocket = function (io) {
 			getInstructor = function (err, item) {
 				if (err) console.dir('this should not exist', err);
 				if (item) {
-					logger.log('socket', 's_join | section : ', item);
+					logger.log('silly', 's_join | section : ', item);
 					student._getSectionInstructor(item._id, joinRoom);
 				}
 				else {
@@ -136,7 +134,7 @@ exports.handleSocket = function (io) {
 					if (err) console.dir('this should not exist', err);
 					if (item) {
 						_instructor = item;
-						logger.log('socket', 'i_join | instructor : ', item);
+						logger.log('silly', 'i_join | instructor : ', item);
 						instructor._getCurrentSubject(item.classes, joinRooms);
 					}
 					else {

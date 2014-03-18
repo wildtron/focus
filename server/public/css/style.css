@@ -576,6 +576,19 @@ section{
     font-size: 12px;
     display: inline-block;
 }
+.window_div:before{
+	content: ' ';
+	position: absolute;
+	bottom: 7px;
+	left: 10px;
+	width: 8px;
+	height: 8px;
+	border-radius: 4px;
+	background: #63a924;
+}
+.window_div.locked:before, .window_div.not_connected:before{
+	background: #CCC;
+}
 .window_div.off{
     background: #FF6666;
     border: 2px solid #C0392B;

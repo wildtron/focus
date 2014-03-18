@@ -72,9 +72,13 @@
 				student_number.value = password.value = username.value = student_number.disabled = password.disabled = username.disabled = '';
 				username.focus();
 			}, 2000);
+		},
+		resetChatArea = function (e) {
+			e && e.preventDefault();
+			chat_area.className = chat_area.value = '';
+			chat_area.disabled = false;
+			chat_area.focus();
 		};
-
-	root.ondrop = root.ondragover = function(e) { e.preventDefault(); return false; };
 
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
@@ -84,6 +88,8 @@
 			request = new XMLHttpRequest(),
 			loginSuccess = function () {
 				cookies.set('FOCUSSESSID', response.access_token, 10800);
+
+				chat_content.innerHTML = '<li class="incoming"><b>Welcome! Your attendance is now recorded.</b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below. Thank you.</li>';
 
 				connectSocket();
 
@@ -186,7 +192,6 @@
 		// clear cookie
 		cookies.remove('FOCUSSESSID');
 
-		chat_content.innerHTML = '<li class="incoming"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>';
 		doc.getElementById('front_section').className = 'left-to-current';
 		doc.getElementById('main_section').className = 'current-to-right';
 		resetLoginForm();
@@ -207,34 +212,33 @@
 		}
 	}, true);
 
-	chat_area.addEventListener('dragend', function (e) {
-		var self = e.target;
-		self.disabled = false;
-		self.className = '';
-		self.value = '';
+
+	root.addEventListener('dragover' , function (e) {
+		chat_area.value = 'Drag file here to upload';
+		chat_area.className = 'hover';
+		e.preventDefault();
 	}, true);
 
-	chat_area.addEventListener('dragstart' , function () {
-		var self = e.target;
-		self.value = 'Drag file here to upload';
-		self.className = 'hover';
-	}, true);
+	root.addEventListener('dragleave', resetChatArea, true);
+	root.addEventListener('drop' , resetChatArea, true);
 
 	chat_area.addEventListener('drop', function (e) {
 		var formData = new FormData(),
 			xhr = new XMLHttpRequest(),
 			self = e.target,
-			files_count = e.dataTransfer.files.length;
+			files_count = e.dataTransfer.files.length,
+			i = files_count;
 
 		e.preventDefault();
 
 		if (!confirm('Are you sure you want to submit this file(s)?')) {
+			resetChatArea();
 			return false;
 		}
 
-		e.dataTransfer.files.forEach(function (f) {
-			formData.append('file', f);
-		});
+		while (i--) {
+			formData.append('file', e.dataTransfer.files[i]);
+		};
 
 		formData.append('access_token', cookies.get('FOCUSSESSID'));
 
@@ -249,8 +253,7 @@
 					self.value = 'Success!';
 					self.className += ' success';
 					setTimeout(function () {
-						self.disabled = false;
-						self.className = self.value = '';
+						resetChatArea();
 						chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
 						socket.emit('s_update_chat', JSON.parse(xhr.responseText).message);
 						chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
@@ -261,8 +264,7 @@
 					self.value = 'Failed!';
 					self.className += ' failed';
 					setTimeout(function () {
-						self.disabled = false;
-						self.className = self.value = '';
+						resetChatArea();
 						chat_content.innerHTML += '<li class="incoming">Failed to submit ' + files_count + ' file' + (files_count > 1 ? 's' : '') + '. Please try again.</li>';
 					}, 500);
 				}, 500);

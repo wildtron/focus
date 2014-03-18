@@ -27,18 +27,18 @@
             <div id="name_div"></div>
             <button id="logout_button"></button>
             <div id="chat_div">
-                <ul id="chat_content">
-                    <li class="incoming"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>
-                </ul>
+                <ul id="chat_content"></ul>
             </div>
             <textarea id="chat_area"></textarea>
         </section>
         <script type="text/javascript">
-			var gui = require('nw.gui'),
-				win = gui.Window.get();
-			win.on('close', function () {
-				this.minimize();
-			});
+			if (typeof require !== 'undefined') {
+				var gui = require('nw.gui'),
+					win = gui.Window.get();
+				win.on('close', function () {
+					this.minimize();
+				});
+			}
         </script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript" src="js/script.js"></script>

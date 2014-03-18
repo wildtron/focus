@@ -315,7 +315,7 @@ section{
 	position: relative;
 }
 #name_div:before{
-	content: '.';
+	content: ' ';
 	position: absolute;
 	top: 18px;
 	left: 48px;
