@@ -13,11 +13,11 @@ exports.login = function (req, res, next) {
 		student,
 		section,
         collection,
-        data = util.chk_rqd(['student_number', 'username', 'password'], req.body, next),
+        data = util.chk_rqd(['student_number', 'username', 'password', 'access_token'], req.body, next),
         getStudent = function(err, _collection) {
             if (err) return next(err);
             collection = _collection;
-            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number, req.cookies.FOCUSSESSID);
+            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number, data.access_token);
             collection.findOne({
                 $or : [
                     {
@@ -26,7 +26,7 @@ exports.login = function (req, res, next) {
                         'password'  : util.hash(util.hash(data.password) + config.SALT)
                     },
                     {
-                        'access_token' : (req.cookies.FOCUSSESSID || '#')
+                        'access_token' : data.access_token || '#'
                     }
                 ]
             }, trySystemOne);
@@ -151,10 +151,10 @@ exports.login = function (req, res, next) {
 			exports._log(student._id, 'logged in', student.first_name + ' ' + student.last_name);
 
 			return res.send({
+				_id : student._id,
 				access_token : student.access_token,
 				first_name : student.first_name,
-				last_name : student.last_name,
-				ip_address : student.ip_address
+				last_name : student.last_name
 			});
 		};
     logger.log('info', 'student:login student trying to login');

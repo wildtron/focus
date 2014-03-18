@@ -4,7 +4,6 @@
 		localServer = 'http://localhost:10610',
 		url = 'http://' + motherServer + ':' + port + '/',
 		socket,
-		setSessionTimer,
 
 		/**
 			Cached DOM elements
@@ -57,14 +56,18 @@
 			script.onload = callback;
 			script.onreadystatechange = callback;
 			doc.getElementsByTagName('head')[0].appendChild(script);
+		},
+		resetLoginForm = function () {
+			var button = doc.getElementById('sign_in_button');
+			setTimeout(function () {
+				button.className = '';
+				button.innerHTML = 'Login via SystemOne';
+				student_number.value = password.value = username.value = student_number.disabled = password.disabled = username.disabled = '';
+				username.focus();
+			}, 2000);
 		};
 
-
 	root.ondrop = root.ondragover = function(e) { e.preventDefault(); return false; };
-
-	if (typeof require !== 'undefined') {
-		require('nw.gui').Window.get().on('close', root.minimize);
-	}
 
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
@@ -75,7 +78,7 @@
 			loginSuccess = function () {
 				cookies.set('FOCUSSESSID', response.access_token, 10800);
 				cookies.set('name', toTitleCase(response.first_name + ' ' + response.last_name), 10800);
-				cookies.set('student_number', student_number.value, 10800);
+				cookies.set('student_number', response._id, 10800);
 
 				connectSocket();
 
@@ -86,9 +89,7 @@
 				setTimeout(function () {
 					doc.getElementById('front_section').className = 'current-to-left';
 					doc.getElementById('main_section').className = 'right-to-current';
-					self.className = '';
-					self.innerHTML = 'Login via SystemOne';
-					student_number.disabled = student_number.value = password.value = username.value = password.disabled = username.disabled = '';
+					resetLoginForm();
 					chat_area.focus();
 				}, 250);
 			};
@@ -97,35 +98,31 @@
 		progress.style['display'] = 'block';
 		student_number.disabled = password.disabled = username.disabled = 'disabled';
 		request.open('POST', url + 'student/login', true);
-		request.setRequestHeader('Cookie', document.cookie);
-		request.setRequestHeader('Access-Control-Allow-Credentials', true);
 		request.setRequestHeader('Content-Type', 'application/json');
 		request.send(JSON.stringify({
 			username : username.value,
 			student_number : student_number.value,
-			password : password.value
+			password : password.value,
+			access_token : cookies.get('FOCUSSESSID') || '#'
 		}));
 
 		request.onreadystatechange = function(event) {
 			var xhr = event.target;
 
 			if (xhr.status == 401 && xhr.readyState == 4) {
-				self.innerHTML = 'Error!';
 				front.style['-webkit-filter'] = '';
 				progress.style.display = 'none';
+				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
-				setTimeout(function () {
-					self.className = '';
-					self.innerHTML = 'Login via SystemOne';
-					student_number.disabled = password.disabled = username.disabled = '';
-					username.focus();
-				}, 2000);
+				resetLoginForm();
 			}
 			else if (xhr.status == 0 && xhr.readyState == 4) {
 				front.style['-webkit-filter'] = '';
 				progress.style['display'] = 'none';
 				alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
-				student_number.disabled = password.disabled = username.disabled = '';
+				self.innerHTML = 'Error!';
+				self.className = 'sign_in_error';
+				resetLoginForm();
 			}
 			else if (xhr.status == 200 && xhr.readyState == 4) {
 				response = JSON.parse(xhr.responseText);
@@ -148,6 +145,8 @@
 						var xhr = event.target;
 
 						if (xhr.status == 200 && xhr.readyState == 4) {
+							self.innerHTML = 'Login Success!';
+							self.className = 'sign_in_success';
 							loginSuccess();
 						}
 						else if (xhr.status == 401 && xhr.readyState == 4) {
@@ -159,6 +158,8 @@
 
 				// browser-based client
 				else {
+					self.innerHTML = 'Login Success!';
+					self.className = 'sign_in_success';
 					loginSuccess();
 				}
 			}
@@ -187,7 +188,8 @@
 		chat_content.innerHTML = '<li class="incoming"><b>Welcome! </b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below.</li>';
 		doc.getElementById('front_section').className = 'left-to-current';
 		doc.getElementById('main_section').className = 'current-to-right';
-		username.focus();
+		resetLoginForm();
+		student_number.focus();
 	}, true);
 
 	chat_area.addEventListener('keypress', function (e) {
@@ -274,17 +276,10 @@
 		return false;
 	}, true);
 
-
-
-	if(cookies.has('FOCUSSESSID')){
-	/*
-	 * This is not yet complete. When FOCUSSESSID exists, the client should check from the motherServer
-	 * if it is a valid session. If it is not, the session is destroyed and the client is logged out
-	 * But if it exists, the server renews the session so that it is updated
-	 */
-		password.value = ' ';
+	if (cookies.has('FOCUSSESSID')) {
+		student_number.value = username.value = password.value = ' ';
 		doc.getElementById('sign_in_button').click();
 	}
 
-	username.focus();
+	student_number.focus();
 }(this));

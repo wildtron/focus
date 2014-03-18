@@ -11,9 +11,9 @@
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Student Number" id="student_number_input" required="required" value="2010-41794" autofocus="true" pattern="(19|20)[0-9]{2}-[0-9]{5}" maxlength="10"/><br />
-                <input type="text" placeholder="Username" id="username_input" required="required" value="wildtron" autofocus="true"/><br />
-                <input type="password" placeholder="Password" id="password_input" required="required" value=""/>
+                <input type="text" placeholder="Student Number" id="student_number_input" required="required" autofocus="true" pattern="(19|20)[0-9]{2}-[0-9]{5}" maxlength="10"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required" autofocus="true"/><br />
+                <input type="password" placeholder="Password" id="password_input" required="required"/>
                 <button id="sign_in_button">Login via SystemOne</button>
             </form>
         </section>
@@ -32,6 +32,11 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
+		<script type="text/javascript">
+			if (typeof require !== 'undefined') {
+				require('nw.gui').Window.get().on('close', root.minimize);
+			}
+		</script>
 		<script type="text/javascript" src="js/cookies.js"></script>
 		<script type="text/javascript" src="js/script.js"></script>
     </body>
