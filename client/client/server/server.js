@@ -75,7 +75,7 @@ var http = require('http'),
                 keyboard[i] = new Keyboard(devices[i]);
                 keyboard[i].on('keydown', typing);
                 keyboard[i].on('keypress', typing);
-                keyboard[i].on('error', console.log);
+                keyboard[i].on('error', function(e){ console.log(e);});
             }
         } else {
             console.log(err, stderr);
@@ -131,8 +131,8 @@ fs.chmodSync(__dirname+'/scripts/enable.sh',0555);
 fs.chmodSync(__dirname+'/scripts/linux-app-arm',0555);
 fs.chmodSync(__dirname+'/scripts/mouse.sh',0555);
 fs.chmodSync(__dirname+'/scripts/shot.py',0555);
-fs.chmodSync(__dirname+'/vnc/bin/apparmor64', 0555);
-fs.chmodSync(__dirname+'/vnc/bin/apparmor32', 0555);
+fs.chmodSync(__dirname+'/apparmor/bin/apparmor64', 0555);
+fs.chmodSync(__dirname+'/apparmor/bin/apparmor32', 0555);
 fs.chmodSync(__dirname+'/client/utils/websockify', 0555);
 fs.chmodSync(__dirname+'/client/utils/web.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/u2x11', 0555);
@@ -196,6 +196,7 @@ http.createServer(function(req, res){
                                     if(!handle){
                                         console.log('Starting vnc.');
                                         var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
+                                        console.log(pass);
                                         handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
                                             env: {
                                                 LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH
@@ -236,12 +237,33 @@ http.createServer(function(req, res){
                 } else if(decodedBody.hasOwnProperty('destroy')){
                     console.log("destroy was found from the payload");
                     SESSIONID=undefined;
+                    masterTimer.stop();
+                    try{
+                        handle.kill('SIGKILL');
+                        handle=undefined;
+                        // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
+                        // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
+                        var apparmorkill = setTimeout(function(){
+                            exec("kill $(ps u | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
+                                console.log(err);
+                                console.log(stdout);
+                                console.log(stderr);
+                                if(err) clearTimeout(apparmorkill);
+                            });
+                        },10000);
+                        var websockKill = setTimeout(function(){
+                            exec("kill $(ps u | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
+                                console.log(err);
+                                console.log(stdout);
+                                console.log(stderr);
+                                if(err) clearTimeout(websockKill);
+                            });
+                        }, 10000);
+                    } catch(e){
+                        console.log(e);
+                    }
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     res.end('{"status":"Session destroyed"}');
-                    masterTimer.stop();
-                    if(handle){
-                        handle.kill('SIGKILL');
-                    }
                 } else {
                     console.log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
@@ -365,7 +387,7 @@ http.createServer(function (req, res) {
 
     if (req.method === 'OPTIONS') {
         //console.log('OPTIONS');
-        res.writeHead(300, headers);
+        res.writeHead(200, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){

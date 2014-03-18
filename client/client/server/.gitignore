@@ -2,4 +2,4 @@ nodejs*
 node_modules/*
 *.sw*
 lib*/
-vnc/*
+apparmor/*
