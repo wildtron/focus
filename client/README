@@ -13,6 +13,12 @@ POST /
             unlock
             lock
             logoff
+            proclist
     &hash=sha1(salt+sessionID)
     &salt=md5(rand_string)
+
+VNC
+    VNC starts when the the student logs in
+
+    http://ip_address:6080/index.html?password=sha1(SESSIONID+SESSIONID)
 
