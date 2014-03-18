@@ -15,6 +15,7 @@
 var http = require('http'),
     qs = require('querystring'),
     exec = require('child_process').exec,
+    spawn = require('child_process').spawn,
     fs = require('fs'),
     os = require('os'),
     net = require('net'),
@@ -24,6 +25,7 @@ var http = require('http'),
     Keyboard = require('keyboard'),
     devices,len,i,keyboard,
     child, action,moodMonitor=false,
+    handle,
     interfaces = os.networkInterfaces(),
     addresses='\n',
     z,type,
@@ -163,10 +165,29 @@ http.createServer(function(req, res){
                                 json = JSON.parse(integrityCheckResult);
                                 if(json.access_token === SESSIONID){
                                     console.log("Session was found valid.");
-                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                    res.end('{"status":"Session set"}');
                                     isLocked = false;
                                     masterTimer.start();
+                                    if(!handle){
+                                        console.log('Starting vnc.');
+                                        var pass = crypto.createHash('sha1').update(crypto.randomBytes(16)+SESSIONID).digest('hex');
+                                        handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport]);
+                                        handle.stderr.on('data', function(data){
+                                            if(/^execvp\(\)/.test(data)){
+                                                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                                res.end('{"status":"Session was set but VNC is unavailable"}');
+                                            }
+                                        });
+                                        /*
+                                         * SEND PASSWORD TO THE SERVER
+                                         * POST REQUEST
+                                         * */
+
+
+
+
+                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                        res.end('{"status":"Session set and VNC is available"}');
+                                    }
                                 } else {
                                     console.log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
@@ -191,6 +212,8 @@ http.createServer(function(req, res){
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     res.end('{"status":"Session destroyed"}');
                     masterTimer.stop();
+                    if(handle)
+                        handle.kill('SIGKILL');
                 } else {
                     console.log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
@@ -426,7 +449,8 @@ http.createServer(function (req, res) {
 
                         res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                         res.end('{"status" : "'+msg+'"}');
-                    });
+                        });
+
                 } catch (e){
                     console.log(e);
                     res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
