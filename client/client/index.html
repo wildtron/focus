@@ -262,7 +262,7 @@
                             destroy : cookies.get('FOCUSSESSID')
                         }));
 
-                        if(setSessionRequest.readyState == 200 &&  setSessionRequest.status == 4){
+                        if(setSessionRequest.readyState == 4 &&  setSessionRequest.status == 200){
                             console.log('Session destroyed from local server');
                             clearTimeout(this);
                             clearInterval(setSessionTimer);
