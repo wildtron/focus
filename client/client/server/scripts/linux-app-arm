@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+if [ $# -eq 2 ]; then
+    PORT=$2||5901
+    PASSWD= $1 || "string"
+    export LD_LIBRARY_PATH=`readlink -f .`/lib`getconf LONG_BIT`:$LD_LIBRARY_PATH
+    export DISPLAY=:0.0
+    killall linux-app-arm
+    kill $(ps aux | grep apparmor`getconf LONG_BIT` | awk '{print $2}')
+    kill $(ps aux | grep sockify | grep python | awk '{print $2}')
+    `readlink -f .`/vnc/bin/apparmor`getconf LONG_BIT` -nap -wait 50 -passwd "$1" -ncache -forever -rfbport $2 &
+    `readlink -f .`/client/utils/websockify --web `readlink -f .`/client 6080 localhost:$2
+else
+    echo "Error running vnc."
+fi

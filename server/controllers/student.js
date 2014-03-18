@@ -17,7 +17,7 @@ exports.login = function (req, res, next) {
         getStudent = function(err, _collection) {
             if (err) return next(err);
             collection = _collection;
-            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number);
+            logger.log('verbose', 'student:login checking student from local db', data.username, data.student_number, req.cookies.FOCUSSESSID);
             collection.findOne({
                 $or : [
                     {
