@@ -83,3 +83,29 @@ exports.getStudentsWithFiles = function (req, res, next) {
 	if (!data) return;
     db.get().collection('instructors', getInstructor);
 };
+
+exports.getAttendance = function (req, res, next) {
+	var data = util.chk_rqd(['section_id'], req.query, next),
+        getInstructor = function (err, _collection) {
+            if (err) return next(err);
+            collection = _collection;
+            logger.log('verbose', 'section:getStudent access_token : ', (req.cookies['focus'] || '#'));
+            collection.count({
+				access_token : (req.cookies['focus'] || '#'),
+				classes : {$in : [data.section_id]}
+			}, {limit : 1}, getAttendanceCollection);
+        },
+		getAttendanceCollection = function (err, item) {
+            if (err) return next(err);
+            if (item) {
+				db.get().collection('attendance', getStudents);
+            }
+            else {
+                logger.log('warn', 'section:getStudent unrecognized token', (req.cookies['focus'] || '#'));
+                return res.send(401, {message : "Invalid access_token"});
+            }
+		};
+    logger.log('info', 'section:getStudent someone is trying to get the students of', data.section_id);
+	if (!data) return;
+    db.get().collection('instructors', getInstructor);
+};

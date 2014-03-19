@@ -26,6 +26,7 @@ exports.setup = function (app) {
     app.get('/instructor/getLogs', instructor.getLogs);
 
     app.get('/section/getStudentsWithFiles', section.getStudentsWithFiles);
+    app.get('/section/getAttendance', section.getAttendance);
 
     app.get('*', function (req, res) {
         res.redirect('/index.html');

@@ -680,6 +680,7 @@ section{
     margin: 0 auto;
     width: 80%;
     text-align: center;
+	font-family: OpenSans;
 }
 .file_div{
     width: 128px;

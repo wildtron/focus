@@ -143,21 +143,17 @@
 
 		request.onreadystatechange = function(event) {
 			var xhr = event.target,
-				response = JSON.parse(xhr.responseText);
+				response;
 
 			if ((xhr.status == 400 ||xhr.status == 401) && xhr.readyState == 4) {
+				response = JSON.parse(xhr.responseText);
 				alert(response.message);
 				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
 				resetLoginForm();
 			}
-			else if (xhr.status == 0 && xhr.readyState == 4) {
-				alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
-				self.innerHTML = 'Error!';
-				self.className = 'sign_in_error';
-				resetLoginForm();
-			}
 			else if (xhr.status == 200 && xhr.readyState == 4) {
+				response = JSON.parse(xhr.responseText);
 
 				// if application, must connect to localServer
 				if (typeof require !== 'undefined') {
@@ -188,6 +184,12 @@
 					self.className = 'sign_in_success';
 					loginSuccess(response.access_token, response.instructor);
 				}
+			}
+			else if (xhr.readyState == 4) {
+				alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
+				self.innerHTML = 'Error!';
+				self.className = 'sign_in_error';
+				resetLoginForm();
 			}
 		}
 	}, true);

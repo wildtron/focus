@@ -152,12 +152,14 @@ exports.login = function (req, res, next) {
 			}
 		},
 		recordAttendance = function (err, collection) {
+			var date = new Date(),
+				data = {
+					date : (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear(),
+					student_number : student._id,
+					section_id : section._id
+				};
 			if (err) return next(err);
-			collection.update({}, {
-				date : new Date().toJSON().substring(0, 10),
-				student_number : student._id,
-				section_id : section._id
-			}, {upsert : true}, sendResponse);
+			collection.update(data, data, {upsert : true}, sendResponse);
 		},
 		sendResponse = function (err) {
 			if (err) return next(err);

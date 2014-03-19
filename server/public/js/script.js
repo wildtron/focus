@@ -30,7 +30,6 @@
             var active = doc.getElementsByClassName('active_section')[0],
                 temp = doc.getElementById('records_section_select');
 
-			// setup record sections select
             temp.innerHTML = '';
 			_this.classes.forEach(function (c) {
 				var option = doc.createElement('option');
@@ -213,7 +212,7 @@
 				+ 'section_id=' + doc.getElementById('section_submissions_select').value
 				+ '&exer_number=' + doc.getElementById('exer_number_submissions_select').value
 				+ '&student_number=' + doc.getElementById('students_submissions_select').value
-				+ '&order=date'	// + doc.getElementById('order_submissions_select').value
+				+ '&order=date'
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_submissions_select'),
 					temp2 = doc.getElementById('files_div');
@@ -223,7 +222,7 @@
 					}
 					temp2.innerHTML = '';
 					if (res.length === 0) {
-						temp2.innerHTML = '<span class="twilight">No files found :(</span>';
+						temp2.innerHTML = 'No file found :(';
 					}
 					else {
 						res.forEach(function (s) {
@@ -234,10 +233,10 @@
 								temp2.innerHTML += '	\
 							<div class="file_div">	\
 								<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-	File Name: '+f.name+'\r\n\
-	Version: '+f.version+'\r\n\
-	Size: '+f.size+' bytes\r\n\
-	Date: '+new Date(f.date)+'"/>	\
+File Name: '+f.name+'\r\n\
+Version: '+f.version+'\r\n\
+Size: '+f.size+' bytes\r\n\
+Date: '+new Date(f.date)+'"/>	\
 								<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
 							</div>';
 							});
@@ -262,7 +261,10 @@
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 						res.students.forEach(function (s) {
-							temp1.innerHTML += '<option value="'+s+'">'+s+'</option>';
+							var option = doc.createElement('option');
+							option.setAttribute('value', s);
+							option.appendChild(doc.createTextNode(s));
+							temp1.appendChild(option);
 						});
 					}
 					temp2.innerHTML = '<pre>';
