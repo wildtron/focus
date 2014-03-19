@@ -21,7 +21,6 @@ var http = require('http'),
     net = require('net'),
     url = require('url'),
     crypto = require('crypto'),
-    _ = require('underscore'),
     config = require('./config'),
     Keyboard = require('keyboard'),
     devices,len,i,keyboard,
@@ -41,7 +40,6 @@ var http = require('http'),
             backspaceCount++;
         }
     },
-
     moodStatus='OTHER',
     keyboard=[],
     Timer = function(time, callback){
@@ -145,6 +143,9 @@ fs.chmodSync(__dirname+'/client/utils/nova-novncproxy', 0555);
 fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
+if(config.mode === 'production'){
+    console.log=function(e){};
+}
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -334,8 +335,7 @@ http.createServer(function (req, res) {
             console.log(JSON.stringify(get));
 
             try {
-                //console.log('Parsing parameters...');
-
+                console.log('Parsing parameters...');
 
                 if(get !== ""){
                     for(key in get){
@@ -349,18 +349,18 @@ http.createServer(function (req, res) {
                     }
                 }
 
-                //console.log(JSON.stringify(parameters));
+                console.log(JSON.stringify(parameters));
 
                 if(!parameters.command){
-                    //console.log('No command');
+                    console.log('No command');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing command."}');
                 } else if(!parameters.salt){
-                    //console.log('No salt');
+                    console.log('No salt');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing salt."}');
                 } else if(!parameters.hash){
-                    //console.log('No hash');
+                    console.log('No hash');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing hash."}');
                 }
@@ -370,7 +370,7 @@ http.createServer(function (req, res) {
                         res.writeHead(401, headers,{'Content-Type':'text/json'});
                         res.end('{"status":"Token doesn\'t match."}');
                     } else if(hash === parameters.hash) {
-                        //console.log(SESSIONID);
+                        console.log(SESSIONID);
                         callback();
                     }
                 } catch(e) {
@@ -384,7 +384,7 @@ http.createServer(function (req, res) {
         };
 
         if(req.method === 'GET'){
-            //console.log("GET was used. :D");
+            console.log("GET was used. :D");
             parse();
         }
 
@@ -393,12 +393,12 @@ http.createServer(function (req, res) {
     };
 
     if (req.method === 'OPTIONS') {
-        //console.log('OPTIONS');
+        console.log('OPTIONS');
         res.writeHead(200, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){
-            //console.log('Received GET Request.');
+            console.log('Received GET Request.');
             type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
                 cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
