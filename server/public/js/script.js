@@ -523,10 +523,12 @@ Date: '+new Date(f.date)+'"/>	\
     doc.getElementById('chat_textarea').addEventListener('keypress', function (e) {
         var sn = e.target.getAttribute('data-sn'),
             student = getStudentBySN(sn),
-            list = doc.getElementById('chat_list');
+            list = doc.getElementById('chat_list'),
+			li = doc.createElement('li');
         if (e.ctrlKey && e.keyCode == 10) {
             socket.emit('i_update_chat', e.target.value, sn);
-            list.innerHTML += '<li>' + e.target.value + '</li>';
+            li.appendChild(doc.createTextNode(util.wbr(e.target.value)));
+			list.append(li);
             list.scrollTop = list.scrollHeight;
             e.target.value = '';
         }

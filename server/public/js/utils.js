@@ -55,6 +55,11 @@
 		window.document.getElementsByTagName('head')[0].appendChild(script);
 	};
 
+	root.wbr = function (str) {
+		return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
+			return text + " " + char;
+		});
+	};
 
 	Date.prototype.toJSONLocal = (function() {
 		function addZ(n) {

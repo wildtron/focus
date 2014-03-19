@@ -82,9 +82,14 @@ exports.addImport = function (collectionName) {
 
 exports.saveChatHistory = function (message, instructor, student_number, from_student) {
 	var save = function (err, collection) {
+		var wbr = function (str) {
+			return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
+				return text + " " + char;
+			});
+		};
 		if (err) return console.dir(err);
 		collection.insert({
-			message : message,
+			message : wbr(message),
 			instructor : instructor,
 			student_number : student_number,
 			from_student : !!from_student

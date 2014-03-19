@@ -23,6 +23,12 @@
 			Helper functions
 		*/
 
+
+		wbr = function (str) {
+			return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
+				return text + " " + char;
+			});
+		},
 		toTitleCase = function (str) {
 			return str.replace(/\w\S*/g, function (txt) {
 				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -221,7 +227,7 @@
 		if (e.ctrlKey && e.keyCode == 10) {
 			var li = doc.createElement('li');
 
-			li.appendChild(doc.createTextNode(e.target.value));
+			li.appendChild(doc.createTextNode(wbr(e.target.value)));
 			chat_content.appendChild(li);
 
 			socket.emit('s_update_chat', e.target.value);
