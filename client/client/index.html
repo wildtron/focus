@@ -32,13 +32,13 @@
             <textarea id="chat_area"></textarea>
         </section>
         <script type="text/javascript">
-			if (typeof require !== 'undefined') {
-				var gui = require('nw.gui'),
-					win = gui.Window.get();
-				win.on('close', function () {
-					this.minimize();
-				});
-			}
+            if (typeof require !== 'undefined') {
+                var gui = require('nw.gui'),
+                    win = gui.Window.get();
+                win.on('close', function () {
+                    this.minimize();
+                });
+            }
         </script>
         <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript" src="js/script.js"></script>

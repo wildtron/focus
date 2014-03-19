@@ -21,7 +21,6 @@ var http = require('http'),
     net = require('net'),
     url = require('url'),
     crypto = require('crypto'),
-    _ = require('underscore'),
     config = require('./config'),
     Keyboard = require('keyboard'),
     devices,len,i,keyboard,
@@ -41,7 +40,6 @@ var http = require('http'),
             backspaceCount++;
         }
     },
-
     moodStatus='OTHER',
     keyboard=[],
     Timer = function(time, callback){
@@ -131,8 +129,12 @@ fs.chmodSync(__dirname+'/scripts/enable.sh',0555);
 fs.chmodSync(__dirname+'/scripts/linux-app-arm',0555);
 fs.chmodSync(__dirname+'/scripts/mouse.sh',0555);
 fs.chmodSync(__dirname+'/scripts/shot.py',0555);
-fs.chmodSync(__dirname+'/apparmor/bin/apparmor64', 0555);
-fs.chmodSync(__dirname+'/apparmor/bin/apparmor32', 0555);
+if(process.arch.slice(-2) === '64'){
+    fs.chmodSync(__dirname+'/apparmor/bin/apparmor64', 0555);
+}
+else {
+    fs.chmodSync(__dirname+'/apparmor/bin/apparmor32', 0555);
+}
 fs.chmodSync(__dirname+'/client/utils/websockify', 0555);
 fs.chmodSync(__dirname+'/client/utils/web.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/u2x11', 0555);
@@ -141,6 +143,9 @@ fs.chmodSync(__dirname+'/client/utils/nova-novncproxy', 0555);
 fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
+if(config.mode === 'production'){
+    console.log=function(e){};
+}
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -238,27 +243,30 @@ http.createServer(function(req, res){
                     console.log("destroy was found from the payload");
                     SESSIONID=undefined;
                     masterTimer.stop();
+                    var killTimesApparmor=0, killTimesWebsock=0;
                     try{
                         handle.kill('SIGKILL');
                         handle=undefined;
                         // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
                         // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
                         var apparmorkill = setTimeout(function(){
-                            exec("kill $(ps u | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
+                            exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
                                 console.log(err);
                                 console.log(stdout);
                                 console.log(stderr);
-                                if(err) clearTimeout(apparmorkill);
+                                if(killTimesApparmor === 5) clearTimeout(apparmorkill);
+                                killTimesApparmor++;
                             });
-                        },10000);
+                        },5000);
                         var websockKill = setTimeout(function(){
-                            exec("kill $(ps u | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
+                            exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
                                 console.log(err);
                                 console.log(stdout);
                                 console.log(stderr);
-                                if(err) clearTimeout(websockKill);
+                                if(killTimesWebsock === 5) clearTimeout(websockKill);
+                                killTimesWebsock++;
                             });
-                        }, 10000);
+                        }, 5000);
                     } catch(e){
                         console.log(e);
                     }
@@ -327,8 +335,7 @@ http.createServer(function (req, res) {
             console.log(JSON.stringify(get));
 
             try {
-                //console.log('Parsing parameters...');
-
+                console.log('Parsing parameters...');
 
                 if(get !== ""){
                     for(key in get){
@@ -342,18 +349,18 @@ http.createServer(function (req, res) {
                     }
                 }
 
-                //console.log(JSON.stringify(parameters));
+                console.log(JSON.stringify(parameters));
 
                 if(!parameters.command){
-                    //console.log('No command');
+                    console.log('No command');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing command."}');
                 } else if(!parameters.salt){
-                    //console.log('No salt');
+                    console.log('No salt');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing salt."}');
                 } else if(!parameters.hash){
-                    //console.log('No hash');
+                    console.log('No hash');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end('{"status":"Missing hash."}');
                 }
@@ -363,7 +370,7 @@ http.createServer(function (req, res) {
                         res.writeHead(401, headers,{'Content-Type':'text/json'});
                         res.end('{"status":"Token doesn\'t match."}');
                     } else if(hash === parameters.hash) {
-                        //console.log(SESSIONID);
+                        console.log(SESSIONID);
                         callback();
                     }
                 } catch(e) {
@@ -377,7 +384,7 @@ http.createServer(function (req, res) {
         };
 
         if(req.method === 'GET'){
-            //console.log("GET was used. :D");
+            console.log("GET was used. :D");
             parse();
         }
 
@@ -386,12 +393,12 @@ http.createServer(function (req, res) {
     };
 
     if (req.method === 'OPTIONS') {
-        //console.log('OPTIONS');
+        console.log('OPTIONS');
         res.writeHead(200, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){
-            //console.log('Received GET Request.');
+            console.log('Received GET Request.');
             type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
                 cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
@@ -440,7 +447,7 @@ http.createServer(function (req, res) {
                     // logoff
                     case 'logoff':
                         console.log('Logoff command initiated.');
-                        action = '';
+                        action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
                         msg = 'Logging off';
                         break;
                     // lock
