@@ -242,27 +242,30 @@ http.createServer(function(req, res){
                     console.log("destroy was found from the payload");
                     SESSIONID=undefined;
                     masterTimer.stop();
+                    var killTimesApparmor=0, killTimesWebsock=0;
                     try{
                         handle.kill('SIGKILL');
                         handle=undefined;
                         // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
                         // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
                         var apparmorkill = setTimeout(function(){
-                            exec("kill $(ps u | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
+                            exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
                                 console.log(err);
                                 console.log(stdout);
                                 console.log(stderr);
-                                if(err) clearTimeout(apparmorkill);
+                                if(killTimesApparmor === 5) clearTimeout(apparmorkill);
+                                killTimesApparmor++;
                             });
-                        },10000);
+                        },5000);
                         var websockKill = setTimeout(function(){
-                            exec("kill $(ps u | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
+                            exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
                                 console.log(err);
                                 console.log(stdout);
                                 console.log(stderr);
-                                if(err) clearTimeout(websockKill);
+                                if(killTimesWebsock === 5) clearTimeout(websockKill);
+                                killTimesWebsock++;
                             });
-                        }, 10000);
+                        }, 5000);
                     } catch(e){
                         console.log(e);
                     }

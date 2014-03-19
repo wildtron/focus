@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 cd client/
+rm app.nw
 ./repack
 cd ..
 cat client/node_modules/nodewebkit/nodewebkit`getconf LONG_BIT`/nw client/app.nw > out/app.run
