@@ -754,9 +754,9 @@ section{
     border: 1px solid #CCC;
 	overflow: auto;
 }
-.off_span, .bored{color: #C0392B;}
-.active_span, .other{color: #27AE60;}
-.idle_span, .confused{color: #F39C12;}
+.off_span, .off{color: #C0392B;}
+.active_span, .active{color: #27AE60;}
+.idle_span, .idle{color: #F39C12;}
 
 #chat_div{
     width: 206px;
