@@ -108,6 +108,8 @@ exports.handleSocket = function (io) {
 					// generate hash and salt
 					_student.salt = util.hash(util.randomString());
 					_student.hash = util.hash(_student.salt + _student.access_token, 'sha1');
+					_student.vnc = 'http://' + _student.ip_address + ':6080/index.html?password=' + util.hash(_student.access_token + _student.access_token, 'sha1');
+
 					delete _student.access_token;
 
 					logger.log('silly', 's_join_room getting chat history of', _student._id);

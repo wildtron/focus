@@ -202,6 +202,8 @@
 			request.send(JSON.stringify(payload));
 		};
 
+		socket.disconnect();
+
 		// destroy session in motherServer
 		logoutRequest(url + 'student/logout', {access_token : cookies.get('FOCUSSESSID')});
 		// destroy session in localServer
