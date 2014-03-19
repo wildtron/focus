@@ -447,7 +447,7 @@ http.createServer(function (req, res) {
                     // logoff
                     case 'logoff':
                         console.log('Logoff command initiated.');
-                        action = '';
+                        action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
                         msg = 'Logging off';
                         break;
                     // lock
