@@ -1,0 +1,23 @@
+{
+    "name": "focus",
+    "main": "index.html",
+    "window" : {
+        "toolbar" : true,
+        "min_height" : 600,
+        "min_width" : 1024,
+        "max_height" : 600,
+        "max_width" : 1024,
+        "resizable" : false,
+        "always-on-top" : false,
+        "show_in_taskbar" : true,
+        "position" : "center",
+        "icon" : "img/logo-full.png",
+        "single-instance" : "true"
+    },
+    "webkit" : {
+        "plugin" : true
+    },
+    "single-instance" : true,
+    "node-main" : "server/server.js"
+}
+
