@@ -131,8 +131,12 @@ fs.chmodSync(__dirname+'/scripts/enable.sh',0555);
 fs.chmodSync(__dirname+'/scripts/linux-app-arm',0555);
 fs.chmodSync(__dirname+'/scripts/mouse.sh',0555);
 fs.chmodSync(__dirname+'/scripts/shot.py',0555);
-fs.chmodSync(__dirname+'/apparmor/bin/apparmor64', 0555);
-fs.chmodSync(__dirname+'/apparmor/bin/apparmor32', 0555);
+if(proces.arch.slice(-2) === '64'){
+    fs.chmodSync(__dirname+'/apparmor/bin/apparmor64', 0555);
+}
+else {
+    fs.chmodSync(__dirname+'/apparmor/bin/apparmor32', 0555);
+}
 fs.chmodSync(__dirname+'/client/utils/websockify', 0555);
 fs.chmodSync(__dirname+'/client/utils/web.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/u2x11', 0555);
