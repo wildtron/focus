@@ -1,8 +1,10 @@
-(function (root) {
+// (function (root) {
+	root = this;
     var _this,
         socket,
 		currentChat,
         refreshInterval,
+		new_messages = {},
 		util = root.util,
 		doc = root.document,
         url = 'http://192.168.1.52:3000/',
@@ -126,7 +128,7 @@
 				img.setAttribute('onerror', 'javascript:this.src="/img/not-connected.png";this.parentNode&&(this.parentNode.className="window_div not_connected")');
 
 				button.className = 'chat_button';
-				button.setAttribute('id', s._id);
+				button.setAttribute('id', s._id + '_chat_button');
 				button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
 
 				window_div.appendChild(img);
@@ -140,8 +142,6 @@
                         </div>';
 
 				dom.appendChild(window_div);
-
-				s.window = window_div;
             });
             dom.innerHTML += '<br class="clearfix" />';
 
@@ -181,10 +181,11 @@
             var dom = doc.getElementById('chat_list');
             dom.innerHTML = '';
 			history.forEach(function (h) {
+				var li = doc.createElement('li');
+				li.appendChild(doc.createTextNode(h.message));
                 if (h.from_student)
-                    dom.innerHTML += '<li class="incoming">' + h.message + '</li>';
-                else
-                    dom.innerHTML += '<li>' + h.message + '</li>';
+                    li.className = "incoming";
+				dom.appendChild(li);
 			});
             dom.scrollTop = dom.scrollHeight;
         },
@@ -194,21 +195,6 @@
             while (i--)
                 if (cache[i]._id === sn)
                     return cache[i];
-        },
-        blinkTitle = function () {
-            var timer = "",
-                isBlurred = false;
-            root.onblur = function() {
-                isBlurred = true;
-                timer = root.setInterval(function() {
-                    doc.title = doc.title == "Company" ? "Company - flash text" : "Company";
-                }, 1000);
-            }
-            root.onfocus = function() {
-                isBlurred = false;
-                doc.title = "Company";
-                clearInterval(timer);
-            }
         },
 		getFiles = function (e) {
 			util.xhr('GET', url + 'section/getStudentsWithFiles?'
@@ -253,7 +239,8 @@ Date: '+new Date(f.date)+'"/>	\
 		getRecords = function (e) {
 			util.xhr('GET', url + 'section/getAttendance?section_id=' + doc.getElementById('records_section_select').value,
 			{}, function (res, req) {
-				var table = doc.getElementById('attendance_table'),
+				var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+					table = doc.getElementById('attendance_table'),
 					tableString = '',
 					maxDays = 0,
 					maxHolder,
@@ -275,20 +262,22 @@ Date: '+new Date(f.date)+'"/>	\
 						return s;
 					});
 				}
-				tableString = '<tr><th></th>';
+
+				tableString = '<tr><th colspan="2">Students</th>';
 				maxHolder.datesAttended.forEach(function (d) {
-					tableString += '<th id="' + d + '">' + d + '</th>';
+					var a = d.split('/');
+					tableString += '<th>' + months[(+a[0])-1] + ' ' + a[1] + '</th>';
 				});
-				tableString += '</tr>';
+				tableString += '<th>Total Number of Absences</th></tr>';
 
 				res.students.forEach(function (s) {
 					var i,
 						j = maxHolder.datesAttended.length;
-					tableString += '<tr><td>' + util.toTitleCase(s.name) + '</td>'
+					tableString += '<tr><td>' + s._id + '</td><td>' + util.toTitleCase(s.name) + '</td>';
 					for (i=0; i < j; i++) {
-						tableString += '<td>' + ((~s.datesAttended.indexOf(maxHolder.datesAttended[i])) ? 'P' : 'A') +'</td>';
+						tableString += '<td>' + ((~s.datesAttended.indexOf(maxHolder.datesAttended[i])) ? 'P' : '<span class="blood">A</span>') +'</td>';
 					}
-					tableString += '</tr>'
+					tableString += '<td>' + (maxDays - s.datesAttended.length)  + '</td></tr>'
 				});
 
 				table.innerHTML = tableString;
@@ -336,7 +325,9 @@ Date: '+new Date(f.date)+'"/>	\
 					console.dir(data);
 				});
 				socket.on('disconnect', function (sn) {
-					getStudentBySN(sn).window.className = 'window_div not_connected';
+					var window = doc.getElementById(sn);
+					if (window)
+						window.className = 'window_div not_connected';
 				});
 				socket.on('history', buildChatHistory);
 				socket.on('online', function (sn) {
@@ -349,13 +340,26 @@ Date: '+new Date(f.date)+'"/>	\
 				});
 				socket.on('update_chat', function (student_number, message) {
 					var student = getStudentBySN(student_number),
-						dom = doc.getElementById('chat_list');
+						dom = doc.getElementById('chat_list'),
+						li = doc.createElement('li');
+
 					if (currentChat === student_number) {
-						dom.innerHTML += '<li class="incoming">' + message + '</li>';
+						li.className = 'incoming';
+						li.appendChild(doc.createTextNode(message));
+						dom.appendChild(li);
 						dom.scrollTop = dom.scrollHeight;
-					} else {
+					}
+					else {
 						doc.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
 					}
+
+					new_messages[student_number] = util.toTitleCase(student.first_name);
+					root.onfocus();
+				});
+				socket.on('status', function (sn, status) {
+					var window = doc.getElementById(sn);
+					if (window)
+						window.className = 'window_div ' + status;
 				});
 			});
 		};
@@ -363,6 +367,26 @@ Date: '+new Date(f.date)+'"/>	\
 	/**
 		Attach Events
 	*/
+
+
+	root.onfocus = function () {
+		var blinkTimer,
+			names = '',
+			i;
+		clearInterval(blinkTimer);
+		if (Object.keys(new_messages).length) {
+			for (i in new_messages) {
+				names += new_messages[i] + ', ';
+			}
+
+			blinkTimer = setInterval(function (title) {
+				doc.title = doc.title == ":FOCUS" ? title : ":FOCUS";
+			}, 1000,  names.replace(/,\s$/, '') + ' messaged you');
+		}
+		else {
+			doc.title = ':FOCUS';
+		}
+	};
 
     root.onresize = function () {
         var temp1 = doc.getElementsByClassName('section_div'),
@@ -491,15 +515,6 @@ Date: '+new Date(f.date)+'"/>	\
         }
     }, true);
 
-    doc.body.addEventListener('keyup', function (e) {
-        var temp;
-        if (e.keyCode === 27) {
-            temp = doc.getElementById('fs_shot');
-            temp.setAttribute('src', '//:0');
-            temp.style.height = temp.style.width = '0px';
-        }
-    }, true);
-
     doc.getElementById('chat_name_div').addEventListener('click', function (e) {
 		currentChat = null;
         e.target.parentNode.style.display = 'none';
@@ -515,7 +530,19 @@ Date: '+new Date(f.date)+'"/>	\
             list.scrollTop = list.scrollHeight;
             e.target.value = '';
         }
+		if (new_messages[sn]) {
+			delete new_messages[sn];
+			root.onfocus();
+		}
     }, true);
+
+    doc.getElementById('chat_textarea').addEventListener('focus', function (e) {
+		var sn = e.target.getAttribute('data-sn');
+		if (new_messages[sn]) {
+			delete new_messages[sn];
+			root.onfocus();
+		}
+	});
 
 	doc.getElementById('section_submissions_select').addEventListener('change', getFiles, true);
 	doc.getElementById('exer_number_submissions_select').addEventListener('change', getFiles, true);
@@ -552,4 +579,4 @@ Date: '+new Date(f.date)+'"/>	\
 		doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
 		doc.getElementById('sign_in_button').click();
 	}
-}(this));
+// }(this));

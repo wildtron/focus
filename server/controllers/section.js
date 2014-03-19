@@ -125,7 +125,7 @@ exports.getAttendance = function (req, res, next) {
 				classes : {
 					$in : [data.section_id]
 				}
-			}).toArray(sendResponse);
+			}).sort({last_name : 1}).toArray(sendResponse);
 		},
 		sendResponse = function (err, docs) {
             if (err) return next(err);
@@ -134,7 +134,7 @@ exports.getAttendance = function (req, res, next) {
 				students :	docs.map(function (s) {
 								return {
 									_id : s._id,
-									name : s.first_name + ' ' + s.last_name
+									name : s.last_name + ', ' + s.first_name
 								};
 							})
 			});

@@ -589,15 +589,15 @@ section{
 .window_div.locked:before, .window_div.not_connected:before{
 	background: #CCC;
 }
-.window_div.off{
+.window_div.off, .window_div.bored{
     background: #FF6666;
     border: 2px solid #C0392B;
 }
-.window_div.idle{
+.window_div.idle, .window_div.confused{
     background: #FFCC00;
     border: 2px solid #D35400;
 }
-.window_div.active{
+.window_div.active, .window_div.other{
     background: #33CC66;
     border: 2px solid #27AE60;
 }
@@ -665,8 +665,19 @@ section{
     cursor: pointer;
 }
 #attendance_table {
+	margin: 0 auto;
 	width: 90%;
 	font-family: OpenSans;
+}
+#attendance_table th{
+	padding: 10px 0;
+	background: #CCC;
+}
+#attendance_table td{
+	padding: 5px 0;
+}
+#attendance_table tr:nth-child(odd) td{
+	background: #EEE;
 }
 
 .section_header_div{
@@ -743,9 +754,9 @@ section{
     border: 1px solid #CCC;
 	overflow: auto;
 }
-.off_span{color: #C0392B;}
-.active_span{color: #27AE60;}
-.idle_span{color: #F39C12;}
+.off_span, .bored{color: #C0392B;}
+.active_span, .other{color: #27AE60;}
+.idle_span, .confused{color: #F39C12;}
 
 #chat_div{
     width: 206px;
@@ -793,4 +804,8 @@ section{
     height: 60px;
     color: #FFF;
     background: #463D8A;
+}
+
+.blood{
+	color: red;
 }

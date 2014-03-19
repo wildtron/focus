@@ -409,8 +409,13 @@ exports._log = function (student_number, log, name, next, cb) {
 				if (next) return next(err);
 				throw err;
 			}
-			name = item.first_name + ' ' + item.last_name;
-			db.get().collection('logs', insertLog);
+			if (item) {
+				name = item.first_name + ' ' + item.last_name;
+				db.get().collection('logs', insertLog);
+			}
+			else {
+				logger.log('warn', 'student:_log missing student', student_number);
+			}
 		};
 	logger.log('verbose', 'student:_log will insert a log');
 	if (name) {

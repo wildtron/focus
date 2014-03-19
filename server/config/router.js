@@ -1,4 +1,5 @@
-var db = require(__dirname + '/database'),
+var http = require('http'),
+	db = require(__dirname + '/database'),
     logger = require(__dirname + '/../lib/logger'),
     config = require(__dirname + '/config').config,
     util = require(__dirname + '/../helpers/util'),
@@ -98,6 +99,7 @@ exports.handleSocket = function (io) {
 					}
 					rooms[_student._id + item._id].student = socket.id;
 					rooms[_student._id + item._id].student_id = _student._id;
+					rooms[_student._id + item._id].student_ip = _student.ip_address;
 					socket.join(_student._id + item._id);
 
 					// if instructor is online
@@ -241,6 +243,48 @@ exports.handleSocket = function (io) {
             }
         });
     });
+
+
+	// check student's activity every 20 seconds
+	logger.log('silly', 'starting setinterval for rooms');
+	setInterval(function () {
+		var room,
+			req;
+		for (room in rooms) {
+			room = rooms[room];
+			if (room.student && room.instructor) {
+				logger.log('silly', 'sending http request');
+				(function (room) {
+					req = http.request({
+						host: room.student_ip,
+						port: 8412,
+						path: '/',
+						method: 'PUT'
+					}, function(response) {
+						var data = '';
+						response.setEncoding('utf8');
+						response.on('data', function (chunk) {
+							data += chunk;
+						});
+						response.on('end', function () {
+							var translation = {
+									'other' : 'active',
+									'bored' : 'idle',
+									'confused' : 'off'
+								},
+								status = translation[JSON.parse(data).status.toLowerCase()];
+							student._log(room.student_id, '<span class="' + status + '">is now ' + status + "</span>");
+							io.sockets.in(room._id).emit('status', room.student_id, status);
+						});
+					});
+					req.on('error', function(err) {
+						logger.log('warn', 'setInterval getting status', JSON.stringify(err));
+					});
+					req.end();
+				}(room));
+			}
+		}
+	}, 20 * 1000);
 
     logger.log('verbose', 'done handling socket');
 };

@@ -26,7 +26,7 @@
 
 	root.getClosestWindow = function (e) {
 		try {
-			while (1) {
+			while (true) {
 				if (e.parentNode.classList.contains('window_div'))
 					return e.parentNode;
 				e = e.parentNode;
