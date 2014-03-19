@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 cd client/
 rm app.nw
-./repack
+./repack 32
 cd ..
-cat client/node_modules/nodewebkit/nodewebkit`getconf LONG_BIT`/nw client/app.nw > out/app.run
-cp client/node_modules/nodewebkit/nodewebkit`getconf LONG_BIT`/* out/
-chmod +x out/app.run
-rm out/nw
+rm -rf out32
+rm -rf out64
+mkdir out64
+mkdir out32
+cat client/node_modules/nodewebkit/nodewebkit32/nw client/app.nw > out32/app.run
+cp client/node_modules/nodewebkit/nodewebkit32/* out32/
+chmod +x out32/app.run
+rm out32/nw
+cd client/
+rm app.nw
+./repack 64
+cd ..
+cat client/node_modules/nodewebkit/nodewebkit64/nw client/app.nw > out64/app.run
+cp client/node_modules/nodewebkit/nodewebkit64/* out64/
+chmod +x out64/app.run
+rm out64/nw
