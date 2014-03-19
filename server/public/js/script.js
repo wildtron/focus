@@ -44,6 +44,8 @@
             doc.getElementsByClassName('active_nav')[0] && (doc.getElementsByClassName('active_nav')[0].className = '');
             doc.getElementById('records_a').className = 'active_nav';
             doc.getElementById('header_title_div').innerHTML = 'RECORDS';
+
+			getRecords();
         },
         submissions = function () {
             var active = doc.getElementsByClassName('active_section')[0],
@@ -165,12 +167,13 @@
                     temp = doc.getElementById(students[i]._id);
                     if (!temp.classList.contains('locked') &&
 						!temp.classList.contains('not_connected')
-						)
-                        temp.childNodes[1].setAttribute('src', 'http://' + students[i].ip_address +
+						) {
+                        temp.childNodes[0].setAttribute('src', 'http://' + students[i].ip_address +
 						':8286/?command=jpeg' +
 						'&hash=' + students[i].hash +
 						'&salt=' + students[i].salt
 						);
+					}
                 }
             }, (+interval) * 1000);
         },
@@ -216,7 +219,7 @@
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_submissions_select'),
 					temp2 = doc.getElementById('files_div');
-				if (req.status === 200) {
+				if (req.readyState === 4 && req.status === 200) {
 					if (!e || e.target.id === 'section_submissions_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 					}
@@ -247,8 +250,51 @@ Date: '+new Date(f.date)+'"/>	\
 				}
 			});
 		},
+		getRecords = function (e) {
+			util.xhr('GET', url + 'section/getAttendance?section_id=' + doc.getElementById('records_section_select').value,
+			{}, function (res, req) {
+				var table = doc.getElementById('attendance_table'),
+					tableString = '',
+					maxDays = 0,
+					maxHolder,
+					curDays;
+				if (req.readyState === 4 && req.status === 200) {
+					res.students.map(function (s) {
+						curDays = 0;
+						s.datesAttended = []
+						res.records.forEach(function (r) {
+							if (r.student_number === s._id) {
+								curDays++;
+								s.datesAttended.push(r.date);
+							}
+						});
+						if (curDays > maxDays) {
+							maxDays = curDays;
+							maxHolder = s;
+						}
+						return s;
+					});
+				}
+				tableString = '<tr><th></th>';
+				maxHolder.datesAttended.forEach(function (d) {
+					tableString += '<th id="' + d + '">' + d + '</th>';
+				});
+				tableString += '</tr>';
+
+				res.students.forEach(function (s) {
+					var i,
+						j = maxHolder.datesAttended.length;
+					tableString += '<tr><td>' + util.toTitleCase(s.name) + '</td>'
+					for (i=0; i < j; i++) {
+						tableString += '<td>' + ((~s.datesAttended.indexOf(maxHolder.datesAttended[i])) ? 'P' : 'A') +'</td>';
+					}
+					tableString += '</tr>'
+				});
+
+				table.innerHTML = tableString;
+			});
+		},
 		getLogs = function (e) {
-			console.log(doc.getElementById('to_logs_input').value);
 			util.xhr('GET', url + 'instructor/getLogs?'
 				+ 'section_id=' + doc.getElementById('section_logs_select').value
 				+ '&from=' + +new Date(doc.getElementById('from_logs_input').value)
@@ -257,7 +303,7 @@ Date: '+new Date(f.date)+'"/>	\
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_logs_select'),
 					temp2 = doc.getElementById('log_div');
-				if (req.status === 200) {
+				if (req.readyState === 4 && req.status === 200) {
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 						res.students.forEach(function (s) {
@@ -290,8 +336,7 @@ Date: '+new Date(f.date)+'"/>	\
 					console.dir(data);
 				});
 				socket.on('disconnect', function (sn) {
-					console.log('disconnect');
-					console.log(sn);
+					getStudentBySN(sn).window.className = 'window_div not_connected';
 				});
 				socket.on('history', buildChatHistory);
 				socket.on('online', function (sn) {
@@ -407,7 +452,7 @@ Date: '+new Date(f.date)+'"/>	\
             switch(temp.className) {
                 case 'lock' :   util.xhr('POST', ip, {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
                                     if (data.status === 'Locking') {
-                                        window.childNodes[1].setAttribute('src', '/img/click-to-unlock.png');
+                                        window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
                                         window.className = window.className.replace(/off|active|idle/g, 'locked');
                                     }
                                 });
@@ -435,7 +480,7 @@ Date: '+new Date(f.date)+'"/>	\
             if (window.classList.contains('locked')) {
                 util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
                     if (data.status === 'Unlocking') {
-                        window.childNodes[1].setAttribute('src', ip);
+                        window.childNodes[0].setAttribute('src', ip);
                         window.className = window.className.replace(/locked|off|active/g, 'active');
                     }
                 });
@@ -475,6 +520,8 @@ Date: '+new Date(f.date)+'"/>	\
 	doc.getElementById('section_submissions_select').addEventListener('change', getFiles, true);
 	doc.getElementById('exer_number_submissions_select').addEventListener('change', getFiles, true);
 	doc.getElementById('students_submissions_select').addEventListener('change', getFiles, true);
+
+	doc.getElementById('records_section_select').addEventListener('change', getRecords, true);
 
 	doc.getElementById('section_logs_select').addEventListener('change', getLogs, true);
 	doc.getElementById('students_logs_select').addEventListener('change', getLogs, true);

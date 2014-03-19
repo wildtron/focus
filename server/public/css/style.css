@@ -664,6 +664,10 @@ section{
     border: 0;
     cursor: pointer;
 }
+#attendance_table {
+	width: 90%;
+	font-family: OpenSans;
+}
 
 .section_header_div{
     margin: 30px auto;
