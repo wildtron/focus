@@ -9,10 +9,10 @@ var http = require('http'),
 
 // imports
 if (process.env['NODE_ENV'] === 'testing') {
-	db.addImport(student.collectionName);
-	db.addImport(instructor.collectionName);
 }
+db.addImport(student.collectionName);
 db.addImport(section.collectionName);
+db.addImport(instructor.collectionName);
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);

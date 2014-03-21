@@ -14,10 +14,10 @@
 
 		doc = root.document;
 		chat_area = doc.getElementById('chat_area'),
-		chat_content = doc.getElementById('chat_content'),
-		username = doc.getElementById('username_input'),
-		student_number = doc.getElementById('student_number_input'),
 		password = doc.getElementById('password_input'),
+		username = doc.getElementById('username_input'),
+		chat_content = doc.getElementById('chat_content'),
+		student_number = doc.getElementById('student_number_input'),
 
 		/**
 			Helper functions
@@ -60,7 +60,7 @@
 				});
 
 				socket.on('warning', function (message) {
-					alert(message);
+					console.dir(message);
 				});
 
 				socket.on('online', function () {
@@ -87,9 +87,9 @@
 			setTimeout(function () {
 				button.className = '';
 				button.innerHTML = 'Login via SystemOne';
-				student_number.value = password.value = username.value = student_number.disabled = password.disabled = username.disabled = '';
-				username.focus();
-			}, 2000);
+				student_number.disabled = password.disabled = username.disabled = '';
+				student_number.focus();
+			}, 1500);
 		},
 		resetChatArea = function (e) {
 			e && e.preventDefault();
@@ -109,7 +109,7 @@
 
 				cookies.set('FOCUSSESSID', access_token, 10800);
 
-				chat_content.innerHTML = '<li class="incoming"><b>Welcome! Your attendance is now recorded.</b><br />To send a message press Ctrl+Enter.<br />To send a file, drag and drop it on the text area below. Thank you.</li>';
+				chat_content.innerHTML = '<li class="incoming"><button class="x" title="Close" onclick="this.parentNode.remove()">&#x2716;</button><h2>Welcome to :FOCUS Desktop App </h2><br /> Your attendance is now recorded. <br /> Here are the things that you can do: <br /><br />1. Chat with your instructor and ask for help when he/she is away. (press Ctrl + Enter to send a message)<br />2. Submit a file by dragging and dropping it on the text area below.<br /><br />Thank you.<br /><br />P.S. Please do not logout until instructed to. <br />P.S.S. Your computer is also being monitored. Better stay focused on the exercise. ;) </li>';
 
 				connectSocket();
 
@@ -122,6 +122,7 @@
 					doc.getElementById('main_section').className = 'right-to-current';
 					resetLoginForm();
 					chat_area.focus();
+					student_number.value = username.value = password.value = '';
 				}, 250);
 			};
 
@@ -147,18 +148,34 @@
 			access_token : cookies.get('FOCUSSESSID') || '#'
 		}));
 
+		cookies.remove('FOCUSSESSID');
+
 		request.onreadystatechange = function(event) {
 			var xhr = event.target,
 				response;
 
-			if ((xhr.status == 400 ||xhr.status == 401) && xhr.readyState == 4) {
+			// something is missing
+			if (xhr.status === 400 && xhr.readyState === 4) {
 				response = JSON.parse(xhr.responseText);
 				alert(response.message);
 				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
 				resetLoginForm();
 			}
-			else if (xhr.status == 200 && xhr.readyState == 4) {
+
+			// wrong username or password
+			else if (xhr.status === 401 && xhr.readyState === 4) {
+				response = JSON.parse(xhr.responseText);
+				self.innerHTML = 'Error!';
+				self.className = 'sign_in_error';
+				resetLoginForm();
+				if (username.value === ' ') {
+					student_number.value = username.value = password.value = '';
+				}
+			}
+
+			//success
+			else if (xhr.status === 200 && xhr.readyState === 4) {
 				response = JSON.parse(xhr.responseText);
 
 				// if application, must connect to localServer
@@ -191,7 +208,9 @@
 					loginSuccess(response.access_token, response.instructor);
 				}
 			}
-			else if (xhr.readyState == 4) {
+
+			// unknown problem
+			else if (xhr.readyState === 4) {
 				alert('It looks like the server is unreacheable in the moment.\n Please consult the instructor.');
 				self.innerHTML = 'Error!';
 				self.className = 'sign_in_error';
@@ -220,6 +239,7 @@
 
 		doc.getElementById('front_section').className = 'left-to-current';
 		doc.getElementById('main_section').className = 'current-to-right';
+		student_number.value = password.value = username.value = '';
 		resetLoginForm();
 	}, true);
 

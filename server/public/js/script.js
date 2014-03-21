@@ -7,7 +7,7 @@
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        url = 'http://192.168.1.52:3000/',
+        url = 'http://10.0.5.49:3000/',
 
 		/**
 			Page Actions
@@ -528,7 +528,7 @@ Date: '+new Date(f.date)+'"/>	\
         if (e.ctrlKey && e.keyCode == 10) {
             socket.emit('i_update_chat', e.target.value, sn);
             li.appendChild(doc.createTextNode(util.wbr(e.target.value)));
-			list.append(li);
+			list.appendChild(li);
             list.scrollTop = list.scrollHeight;
             e.target.value = '';
         }
