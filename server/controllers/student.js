@@ -78,9 +78,14 @@ exports.login = function (req, res, next) {
                         "Content-Length" : payload.length
                     }
                 }, function(response) {
+					var s = '';
                     response.setEncoding('utf8');
                     response.on('data', function (chunk) {
-                        saveInDb(JSON.parse(chunk));
+						s+=chunk;
+                    });
+
+                    response.on('end', function () {
+                        saveInDb(JSON.parse(s));
                     });
                 });
             req.on('error', function(err) {
@@ -115,12 +120,32 @@ exports.login = function (req, res, next) {
                     }
                 }
 
+
+				// EDIT THIS FOR EVERY TEST
+				var test_section_id = "CMSC 11 S-5L";
+
+				if (!~temp.classes.indexOf(test_section_id))
+					temp.classes.push(test_section_id);
+
 				student = temp;
 
-                collection.remove({'_id': data.student_number}, function (err) {
-                    if (err) return next(err);
-					collection.insert(temp, getCurrentSubject);
-                });
+				var a = function (err, _collection) {
+					// AND THIS
+					_collection.update({_id : test_section_id},
+					{
+						$push : {
+							students : data.student_number
+						}
+					}, function () {
+						collection.remove({'_id': data.student_number}, function (err) {
+							if (err) return next(err);
+							collection.insert(temp, getCurrentSubject);
+						});
+					});
+				}
+				db.get().collection('sections', a);
+
+
                 logger.log('info', 'student:login logged in via systemone', data.username, data.student_number);
             }
         },
@@ -172,7 +197,7 @@ exports.login = function (req, res, next) {
     logger.log('info', 'student:login student trying to login');
 	if (!data) return;
     data.ip_address = req.connection.remoteAddress;
-    db.get().collection(collectionName, getStudent);
+	db.get().collection(collectionName, getStudent)
 };
 
 exports.logout = function (req, res, next) {
@@ -361,8 +386,9 @@ exports._getCurrentSubject = function (student_number, cb, next) {
 				day = "UMTWHFS"[date.getDay()];
 			if (err) return next(err);
 			date = [util.pad(date.getHours(), 2), util.pad(date.getMinutes(), 2), util.pad(date.getSeconds(), 2)].join(':');
+			logger.log('info', 'student:_getCurrentSubject system time', date, day);
 			collection.findOne({
-				days : new RegExp(day),
+ 				days : new RegExp(day),
 				from : { $lt : date},
 				to : { $gte : date},
 				students : {
@@ -370,6 +396,7 @@ exports._getCurrentSubject = function (student_number, cb, next) {
 				}
 			}, cb);
 		};
+	logger.log('verbose', 'student:_getCurrentSubject getting cur subj of', student_number);
 	db.get().collection('sections', getSection);
 };
 
@@ -409,8 +436,13 @@ exports._log = function (student_number, log, name, next, cb) {
 				if (next) return next(err);
 				throw err;
 			}
-			name = item.first_name + ' ' + item.last_name;
-			db.get().collection('logs', insertLog);
+			if (item) {
+				name = item.first_name + ' ' + item.last_name;
+				db.get().collection('logs', insertLog);
+			}
+			else {
+				logger.log('warn', 'student:_log missing student', student_number);
+			}
 		};
 	logger.log('verbose', 'student:_log will insert a log');
 	if (name) {

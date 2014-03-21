@@ -1,11 +1,13 @@
-(function (root) {
+// (function (root) {
+	root = this;
     var _this,
         socket,
 		currentChat,
         refreshInterval,
+		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        url = 'http://192.168.1.52:3000/',
+        url = 'http://10.0.5.49:3000/',
 
 		/**
 			Page Actions
@@ -44,6 +46,8 @@
             doc.getElementsByClassName('active_nav')[0] && (doc.getElementsByClassName('active_nav')[0].className = '');
             doc.getElementById('records_a').className = 'active_nav';
             doc.getElementById('header_title_div').innerHTML = 'RECORDS';
+
+			getRecords();
         },
         submissions = function () {
             var active = doc.getElementsByClassName('active_section')[0],
@@ -124,7 +128,7 @@
 				img.setAttribute('onerror', 'javascript:this.src="/img/not-connected.png";this.parentNode&&(this.parentNode.className="window_div not_connected")');
 
 				button.className = 'chat_button';
-				button.setAttribute('id', s._id);
+				button.setAttribute('id', s._id + '_chat_button');
 				button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
 
 				window_div.appendChild(img);
@@ -138,8 +142,6 @@
                         </div>';
 
 				dom.appendChild(window_div);
-
-				s.window = window_div;
             });
             dom.innerHTML += '<br class="clearfix" />';
 
@@ -165,12 +167,13 @@
                     temp = doc.getElementById(students[i]._id);
                     if (!temp.classList.contains('locked') &&
 						!temp.classList.contains('not_connected')
-						)
-                        temp.childNodes[1].setAttribute('src', 'http://' + students[i].ip_address +
+						) {
+                        temp.childNodes[0].setAttribute('src', 'http://' + students[i].ip_address +
 						':8286/?command=jpeg' +
 						'&hash=' + students[i].hash +
 						'&salt=' + students[i].salt
 						);
+					}
                 }
             }, (+interval) * 1000);
         },
@@ -178,10 +181,11 @@
             var dom = doc.getElementById('chat_list');
             dom.innerHTML = '';
 			history.forEach(function (h) {
+				var li = doc.createElement('li');
+				li.appendChild(doc.createTextNode(h.message));
                 if (h.from_student)
-                    dom.innerHTML += '<li class="incoming">' + h.message + '</li>';
-                else
-                    dom.innerHTML += '<li>' + h.message + '</li>';
+                    li.className = "incoming";
+				dom.appendChild(li);
 			});
             dom.scrollTop = dom.scrollHeight;
         },
@@ -192,21 +196,6 @@
                 if (cache[i]._id === sn)
                     return cache[i];
         },
-        blinkTitle = function () {
-            var timer = "",
-                isBlurred = false;
-            root.onblur = function() {
-                isBlurred = true;
-                timer = root.setInterval(function() {
-                    doc.title = doc.title == "Company" ? "Company - flash text" : "Company";
-                }, 1000);
-            }
-            root.onfocus = function() {
-                isBlurred = false;
-                doc.title = "Company";
-                clearInterval(timer);
-            }
-        },
 		getFiles = function (e) {
 			util.xhr('GET', url + 'section/getStudentsWithFiles?'
 				+ 'section_id=' + doc.getElementById('section_submissions_select').value
@@ -216,7 +205,7 @@
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_submissions_select'),
 					temp2 = doc.getElementById('files_div');
-				if (req.status === 200) {
+				if (req.readyState === 4 && req.status === 200) {
 					if (!e || e.target.id === 'section_submissions_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 					}
@@ -247,8 +236,54 @@ Date: '+new Date(f.date)+'"/>	\
 				}
 			});
 		},
+		getRecords = function (e) {
+			util.xhr('GET', url + 'section/getAttendance?section_id=' + doc.getElementById('records_section_select').value,
+			{}, function (res, req) {
+				var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+					table = doc.getElementById('attendance_table'),
+					tableString = '',
+					maxDays = 0,
+					maxHolder,
+					curDays;
+				if (req.readyState === 4 && req.status === 200) {
+					res.students.map(function (s) {
+						curDays = 0;
+						s.datesAttended = []
+						res.records.forEach(function (r) {
+							if (r.student_number === s._id) {
+								curDays++;
+								s.datesAttended.push(r.date);
+							}
+						});
+						if (curDays > maxDays) {
+							maxDays = curDays;
+							maxHolder = s;
+						}
+						return s;
+					});
+				}
+
+				tableString = '<tr><th colspan="2">Students</th>';
+				maxHolder.datesAttended.forEach(function (d) {
+					var a = d.split('/');
+					tableString += '<th>' + months[(+a[0])-1] + ' ' + a[1] + '</th>';
+				});
+				tableString += '<th>Total Number of Absences</th></tr>';
+
+				res.students.forEach(function (s) {
+					var i,
+						j = maxHolder.datesAttended.length;
+					tableString += '<tr><td>' + s._id + '</td><td>' + util.toTitleCase(s.name) + '</td>';
+					for (i=0; i < j; i++) {
+						tableString += '<td>' + ((~s.datesAttended.indexOf(maxHolder.datesAttended[i])) ? 'P' : '<span class="blood">A</span>') +'</td>';
+					}
+					tableString += '<td>' + (maxDays - s.datesAttended.length)  + '</td></tr>'
+				});
+
+				table.innerHTML = tableString;
+			});
+		},
 		getLogs = function (e) {
-			console.log(doc.getElementById('to_logs_input').value);
 			util.xhr('GET', url + 'instructor/getLogs?'
 				+ 'section_id=' + doc.getElementById('section_logs_select').value
 				+ '&from=' + +new Date(doc.getElementById('from_logs_input').value)
@@ -257,7 +292,7 @@ Date: '+new Date(f.date)+'"/>	\
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_logs_select'),
 					temp2 = doc.getElementById('log_div');
-				if (req.status === 200) {
+				if (req.readyState === 4 && req.status === 200) {
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 						res.students.forEach(function (s) {
@@ -290,8 +325,9 @@ Date: '+new Date(f.date)+'"/>	\
 					console.dir(data);
 				});
 				socket.on('disconnect', function (sn) {
-					console.log('disconnect');
-					console.log(sn);
+					var window = doc.getElementById(sn);
+					if (window)
+						window.className = 'window_div not_connected';
 				});
 				socket.on('history', buildChatHistory);
 				socket.on('online', function (sn) {
@@ -304,13 +340,26 @@ Date: '+new Date(f.date)+'"/>	\
 				});
 				socket.on('update_chat', function (student_number, message) {
 					var student = getStudentBySN(student_number),
-						dom = doc.getElementById('chat_list');
+						dom = doc.getElementById('chat_list'),
+						li = doc.createElement('li');
+
 					if (currentChat === student_number) {
-						dom.innerHTML += '<li class="incoming">' + message + '</li>';
+						li.className = 'incoming';
+						li.appendChild(doc.createTextNode(message));
+						dom.appendChild(li);
 						dom.scrollTop = dom.scrollHeight;
-					} else {
+					}
+					else {
 						doc.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
 					}
+
+					new_messages[student_number] = util.toTitleCase(student.first_name);
+					root.onfocus();
+				});
+				socket.on('status', function (sn, status) {
+					var window = doc.getElementById(sn);
+					if (window)
+						window.className = 'window_div ' + status;
 				});
 			});
 		};
@@ -318,6 +367,26 @@ Date: '+new Date(f.date)+'"/>	\
 	/**
 		Attach Events
 	*/
+
+
+	root.onfocus = function () {
+		var blinkTimer,
+			names = '',
+			i;
+		clearInterval(blinkTimer);
+		if (Object.keys(new_messages).length) {
+			for (i in new_messages) {
+				names += new_messages[i] + ', ';
+			}
+
+			blinkTimer = setInterval(function (title) {
+				doc.title = doc.title == ":FOCUS" ? title : ":FOCUS";
+			}, 1000,  names.replace(/,\s$/, '') + ' messaged you');
+		}
+		else {
+			doc.title = ':FOCUS';
+		}
+	};
 
     root.onresize = function () {
         var temp1 = doc.getElementsByClassName('section_div'),
@@ -407,7 +476,7 @@ Date: '+new Date(f.date)+'"/>	\
             switch(temp.className) {
                 case 'lock' :   util.xhr('POST', ip, {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
                                     if (data.status === 'Locking') {
-                                        window.childNodes[1].setAttribute('src', '/img/click-to-unlock.png');
+                                        window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
                                         window.className = window.className.replace(/off|active|idle/g, 'locked');
                                     }
                                 });
@@ -435,7 +504,7 @@ Date: '+new Date(f.date)+'"/>	\
             if (window.classList.contains('locked')) {
                 util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
                     if (data.status === 'Unlocking') {
-                        window.childNodes[1].setAttribute('src', ip);
+                        window.childNodes[0].setAttribute('src', ip);
                         window.className = window.className.replace(/locked|off|active/g, 'active');
                     }
                 });
@@ -443,15 +512,6 @@ Date: '+new Date(f.date)+'"/>	\
             else {
                 root.open(student.vnc);
             }
-        }
-    }, true);
-
-    doc.body.addEventListener('keyup', function (e) {
-        var temp;
-        if (e.keyCode === 27) {
-            temp = doc.getElementById('fs_shot');
-            temp.setAttribute('src', '//:0');
-            temp.style.height = temp.style.width = '0px';
         }
     }, true);
 
@@ -463,18 +523,34 @@ Date: '+new Date(f.date)+'"/>	\
     doc.getElementById('chat_textarea').addEventListener('keypress', function (e) {
         var sn = e.target.getAttribute('data-sn'),
             student = getStudentBySN(sn),
-            list = doc.getElementById('chat_list');
+            list = doc.getElementById('chat_list'),
+			li = doc.createElement('li');
         if (e.ctrlKey && e.keyCode == 10) {
             socket.emit('i_update_chat', e.target.value, sn);
-            list.innerHTML += '<li>' + e.target.value + '</li>';
+            li.appendChild(doc.createTextNode(util.wbr(e.target.value)));
+			list.appendChild(li);
             list.scrollTop = list.scrollHeight;
             e.target.value = '';
         }
+		if (new_messages[sn]) {
+			delete new_messages[sn];
+			root.onfocus();
+		}
     }, true);
+
+    doc.getElementById('chat_textarea').addEventListener('focus', function (e) {
+		var sn = e.target.getAttribute('data-sn');
+		if (new_messages[sn]) {
+			delete new_messages[sn];
+			root.onfocus();
+		}
+	});
 
 	doc.getElementById('section_submissions_select').addEventListener('change', getFiles, true);
 	doc.getElementById('exer_number_submissions_select').addEventListener('change', getFiles, true);
 	doc.getElementById('students_submissions_select').addEventListener('change', getFiles, true);
+
+	doc.getElementById('records_section_select').addEventListener('change', getRecords, true);
 
 	doc.getElementById('section_logs_select').addEventListener('change', getLogs, true);
 	doc.getElementById('students_logs_select').addEventListener('change', getLogs, true);
@@ -505,4 +581,4 @@ Date: '+new Date(f.date)+'"/>	\
 		doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
 		doc.getElementById('sign_in_button').click();
 	}
-}(this));
+// }(this));

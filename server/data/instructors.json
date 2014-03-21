@@ -10,5 +10,29 @@
         "classes" : [
             "CMSC 161 UV-2L"
         ]
+    },
+    {
+        "_id" : "mamivy",
+		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
+        "first_name" : "Ivy Joy",
+        "middle_name"  : "H",
+        "last_name" : "Aguila",
+        "sex" : "F",
+        "password" : "12345",
+        "classes" : [
+            "CMSC 132 T-4L"
+        ]
+    },
+    {
+        "_id" : "mam_ina",
+		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
+        "first_name" : "Gianina Renee",
+        "middle_name"  : "H",
+        "last_name" : "Vergara",
+        "sex" : "F",
+        "password" : "12345",
+        "classes" : [
+            "CMSC 11 S-5L"
+        ]
     }
 ]

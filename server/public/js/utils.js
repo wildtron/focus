@@ -26,7 +26,7 @@
 
 	root.getClosestWindow = function (e) {
 		try {
-			while (1) {
+			while (true) {
 				if (e.parentNode.classList.contains('window_div'))
 					return e.parentNode;
 				e = e.parentNode;
@@ -55,6 +55,11 @@
 		window.document.getElementsByTagName('head')[0].appendChild(script);
 	};
 
+	root.wbr = function (str) {
+		return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
+			return text + " " + char;
+		});
+	};
 
 	Date.prototype.toJSONLocal = (function() {
 		function addZ(n) {

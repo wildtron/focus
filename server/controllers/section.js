@@ -85,7 +85,8 @@ exports.getStudentsWithFiles = function (req, res, next) {
 };
 
 exports.getAttendance = function (req, res, next) {
-	var data = util.chk_rqd(['section_id'], req.query, next),
+	var records,
+		data = util.chk_rqd(['section_id'], req.query, next),
         getInstructor = function (err, _collection) {
             if (err) return next(err);
             collection = _collection;
@@ -98,12 +99,45 @@ exports.getAttendance = function (req, res, next) {
 		getAttendanceCollection = function (err, item) {
             if (err) return next(err);
             if (item) {
-				db.get().collection('attendance', getStudents);
+				db.get().collection('attendance', getRecords);
             }
             else {
-                logger.log('warn', 'section:getStudent unrecognized token', (req.cookies['focus'] || '#'));
+                logger.log('warn', 'section:getAttendance unrecognized token', (req.cookies['focus'] || '#'));
                 return res.send(401, {message : "Invalid access_token"});
             }
+		},
+		getRecords = function (err, collection) {
+            if (err) return next(err);
+			logger.log('verbose', 'section:getAttendance getting records');
+			collection.find({
+				section_id : data.section_id
+			}).sort({date : 1}).toArray(getStudentCollection);
+		},
+		getStudentCollection = function (err, docs) {
+            if (err) return next(err);
+			records = docs;
+			db.get().collection('students', getStudents);
+		},
+		getStudents = function (err, collection) {
+            if (err) return next(err);
+			logger.log('verbose', 'section:getAttendance getting student');
+			collection.find({
+				classes : {
+					$in : [data.section_id]
+				}
+			}).sort({last_name : 1}).toArray(sendResponse);
+		},
+		sendResponse = function (err, docs) {
+            if (err) return next(err);
+			res.send({
+				records : records,
+				students :	docs.map(function (s) {
+								return {
+									_id : s._id,
+									name : s.last_name + ', ' + s.first_name
+								};
+							})
+			});
 		};
     logger.log('info', 'section:getStudent someone is trying to get the students of', data.section_id);
 	if (!data) return;

@@ -14,8 +14,8 @@
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Username" id="username_input" required="required" value="mamka" autofocus="true"/><br />
-                <input type="password" placeholder="Password" id="password_input" required="required" value="12345"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required" autofocus="true"/><br />
+                <input type="password" placeholder="Password" id="password_input" required="required" autocomplete="off"/><br />
                 <button id="sign_in_button">SIGN IN</button>
             </form>
         </section>
@@ -59,12 +59,10 @@
         <section id="records_section" data-position="bottom" data-order="2" >
             <div class="section_div">
                 <div class="section_header_div">
-                    Show records in
+                    Show attendance record in
                     <select id="records_section_select"></select>
-                    <button>Edit on Google Drive</button>
-                    Publicly available on <a href="http://bit.ly/hi_po" class="twilight" target="_blank">http://bit.ly/rVn7061</a>
                 </div>
-                <img src="img/sample-sprdsht.png" alt="Sample spreadsheet" width="1142" height="552" />
+				<table id="attendance_table"></table>
             </div>
         </section>
 
