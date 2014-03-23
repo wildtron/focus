@@ -589,17 +589,18 @@ section{
 .window_div.locked:before, .window_div.not_connected:before{
 	background: #CCC;
 }
-.window_div.off, .window_div.bored{
+.window_div.off{
     background: #FF6666;
     border: 2px solid #C0392B;
 }
-.window_div.idle, .window_div.confused{
+.window_div.idle{
     background: #FFCC00;
     border: 2px solid #D35400;
 }
-.window_div.active, .window_div.other{
+.window_div.active{
     background: #33CC66;
     border: 2px solid #27AE60;
+	color: #FFF;
 }
 .window_div.not_connected,
 .window_div.locked{

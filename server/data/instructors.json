@@ -34,5 +34,18 @@
         "classes" : [
             "CMSC 11 S-5L"
         ]
+    },
+    {
+        "_id" : "mamdrio",
+		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
+        "first_name" : "Donnalyn",
+        "middle_name"  : "L",
+        "last_name" : "Drio",
+        "sex" : "F",
+        "password" : "12345",
+        "classes" : [
+            "IT 1(MST) YZ-6L",
+            "IT 1(MST) YZ-7L"
+        ]
     }
 ]

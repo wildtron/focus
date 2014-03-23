@@ -7,7 +7,9 @@
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        url = 'http://10.0.5.49:3000/',
+        // url = 'http://10.0.5.49:3000/',
+        // url = 'http://192.168.1.55:3000/',
+        url = 'http://ricolindo.uplb.edu.ph:5000/',
 
 		/**
 			Page Actions
@@ -109,42 +111,50 @@
 			Helpers functions
 		*/
 
-        setupScreenshots = function () {
+        buildWindow = function (s) {
+            var window_div = doc.createElement('div'),
+				img = doc.createElement('img'),
+				button = doc.createElement('button'),
+				dom = doc.getElementById('feed_body_div'),
+				temp;
+
+			window_div.setAttribute('id', s._id);
+			window_div.className = 'window_div off';
+
+			img.setAttribute('src', 'http://' + s.ip_address + ':8286/?command=jpeg' + '&hash=' + s.hash + '&salt=' + s.salt);
+			img.setAttribute('alt', util.toTitleCase(s.first_name) + '\'s Computer');
+			img.setAttribute('title', 'Click to open VNC');
+			img.setAttribute('width', 350);
+			img.setAttribute('height', 200);
+			img.setAttribute('data-sn', s._id);
+			img.setAttribute('onerror', 'javascript:this.src="/img/not-connected.png";this.parentNode&&(this.parentNode.className="window_div not_connected")');
+
+			button.className = 'chat_button';
+			button.setAttribute('id', s._id + '_chat_button');
+			button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
+
+			window_div.appendChild(img);
+			window_div.appendChild(doc.createTextNode(util.toTitleCase(s.first_name + ' ' + s.last_name) +' | '+ s._id));
+			window_div.appendChild(button);
+
+			window_div.innerHTML += '<div class="unit_mngr_div"> \
+						<button title="Shutdown" class="shutdown"></button>  \
+						<button title="Lock" class="lock"></button>  \
+						<button title="Logout" class="logout"></button> \
+					</div>';
+
+			if (temp = doc.getElementById(s._id)) {
+				temp.parentNode.replaceChild(window_div, temp);
+			}
+			else {
+				dom.appendChild(window_div);
+			}
+		},
+		setupScreenshots = function () {
             var dom = doc.getElementById('feed_body_div');
             dom.innerHTML = '';
-            _this.class.students.forEach(function (s){
-				var window_div = doc.createElement('div'),
-					img = doc.createElement('img'),
-					button = doc.createElement('button');
-				window_div.setAttribute('id', s._id);
-				window_div.className = 'window_div off';
-
-				img.setAttribute('src', 'http://' + s.ip_address + ':8286/?command=jpeg' + '&hash=' + s.hash + '&salt=' + s.salt);
-				img.setAttribute('alt', util.toTitleCase(s.first_name) + '\'s Computer');
-				img.setAttribute('title', 'Click to open VNC');
-				img.setAttribute('width', 350);
-				img.setAttribute('height', 200);
-				img.setAttribute('data-sn', s._id);
-				img.setAttribute('onerror', 'javascript:this.src="/img/not-connected.png";this.parentNode&&(this.parentNode.className="window_div not_connected")');
-
-				button.className = 'chat_button';
-				button.setAttribute('id', s._id + '_chat_button');
-				button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
-
-				window_div.appendChild(img);
-				window_div.appendChild(doc.createTextNode(util.toTitleCase(s.first_name + ' ' + s.last_name) +' | '+ s._id));
-				window_div.appendChild(button);
-
-                window_div.innerHTML += '<div class="unit_mngr_div"> \
-                            <button title="Shutdown" class="shutdown"></button>  \
-                            <button title="Lock" class="lock"></button>  \
-                            <button title="Logout" class="logout"></button> \
-                        </div>';
-
-				dom.appendChild(window_div);
-            });
+            _this.class.students.forEach(buildWindow);
             dom.innerHTML += '<br class="clearfix" />';
-
             doc.getElementById('scrnsht_interval_input').value = cookies.get('interval') || 10;
             startAutoRefresh();
         },
@@ -284,10 +294,12 @@ Date: '+new Date(f.date)+'"/>	\
 			});
 		},
 		getLogs = function (e) {
+			var _from = new Date(doc.getElementById('to_logs_input').value),
+				_fromPlusOne = new Date(_from.getTime() + (24 * 60 * 60 * 1000));;
 			util.xhr('GET', url + 'instructor/getLogs?'
 				+ 'section_id=' + doc.getElementById('section_logs_select').value
 				+ '&from=' + +new Date(doc.getElementById('from_logs_input').value)
-				+ '&to=' +  +new Date(doc.getElementById('to_logs_input').value)
+				+ '&to=' +  +_fromPlusOne
 				+ '&student_number=' + doc.getElementById('students_logs_select').value
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_logs_select'),
@@ -330,13 +342,18 @@ Date: '+new Date(f.date)+'"/>	\
 						window.className = 'window_div not_connected';
 				});
 				socket.on('history', buildChatHistory);
-				socket.on('online', function (sn) {
-					var temp = doc.getElementById(sn._id),
-						student = getStudentBySN(sn._id);
-					student.ip_address = sn.ip_address;
-					student.salt = sn.salt;
-					student.hash = sn.hash;
-					temp.className = temp.className.replace('not_connected', 'active');
+				socket.on('online', function (s) {
+					var student = getStudentBySN(s._id);
+					if (student) {
+						student.ip_address = s.ip_address;
+						student.salt = s.salt;
+						student.hash = s.hash;
+						student.vnc = s.vnc;
+					}
+					else {
+						_this.class.students.push(s);
+					}
+					buildWindow(s);
 				});
 				socket.on('update_chat', function (student_number, message) {
 					var student = getStudentBySN(student_number),
@@ -378,7 +395,6 @@ Date: '+new Date(f.date)+'"/>	\
 			for (i in new_messages) {
 				names += new_messages[i] + ', ';
 			}
-
 			blinkTimer = setInterval(function (title) {
 				doc.title = doc.title == ":FOCUS" ? title : ":FOCUS";
 			}, 1000,  names.replace(/,\s$/, '') + ' messaged you');

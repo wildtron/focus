@@ -3,7 +3,7 @@ var path = require('path'),
     "mode" : "development",
     "development": {
         mode : "development",
-        port : 3000,
+        port : 5000,
         SALT : '59ba258bb47205f01752ea6115a1d999',
         ACCESS_TOKEN : 'cd5dc408443efd58d059eb336e904005',
         COOKIE_SECRET : 'c5a8911d55aec8f883c5a595072569b09c75eb4b',

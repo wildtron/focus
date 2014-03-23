@@ -122,7 +122,7 @@ exports.login = function (req, res, next) {
 
 
 				// EDIT THIS FOR EVERY TEST
-				var test_section_id = "CMSC 11 S-5L";
+				var test_section_id = "IT 1(MST) YZ-7L";
 
 				if (!~temp.classes.indexOf(test_section_id))
 					temp.classes.push(test_section_id);
@@ -347,19 +347,6 @@ exports.getFile = function (req, res, next) {
 	var file = config.upload_dir + req.query.path;
 	console.log("student:getFile someone wants to download file");
 	res.download(file);
-};
-
-exports.log = function (req, res, next) {
-	var data = util.chk_rqd(['access_token', 'log'], req.body, next),
-		logActivity = function (err, item) {
-			if (err) return next(err);
-			exports._log(item._id, data.log, data.first_name + ' ' + data.last_name, next, sendResponse);
-		},
-		sendResponse = function () {
-			res.send({message : 'Log successful'});
-		};
-	logger.log('info', 'student:log someone is trying to log');
-    exports._findByAccessToken(data.access_token, logActivity, next);
 };
 
 

@@ -38,7 +38,7 @@ exports.login = function (req, res, next) {
 				if (process.env['NODE_ENV'] !== 'testing') {	// avoid test fails because of race condition
 					item.access_token = util.hash(+new Date + config.SALT);
 				}
-                item.class = { message : "You have no class at this time"};
+                item.class = { message : "Sorry but you have no class as this moment"};
                 logger.log('verbose', data.username, ': updating properties');
                 collection.update({'_id' : item._id}, {$set : {
                     access_token : item.access_token,
