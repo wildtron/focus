@@ -73,7 +73,8 @@ var http = require('http'),
                 keyboard[i] = new Keyboard(devices[i]);
                 keyboard[i].on('keydown', typing);
                 keyboard[i].on('keypress', typing);
-                keyboard[i].on('error', function(e){ console.log(e);});
+                keyboard[i].on('error', function(e){ console.log(e);
+                });
             }
         } else {
             console.log(err, stderr);
@@ -143,9 +144,6 @@ fs.chmodSync(__dirname+'/client/utils/nova-novncproxy', 0555);
 fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
-if(config.mode === 'production'){
-    console.log=function(e){};
-}
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -204,7 +202,8 @@ http.createServer(function(req, res){
                                         console.log(pass);
                                         handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
                                             env: {
-                                                LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH
+                                                LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH,
+                                               DISPLAY:':0.0'
                                             }
                                         });
                                         console.log('Spawned it! :D');

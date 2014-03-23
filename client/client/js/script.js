@@ -1,6 +1,6 @@
-/**
-	script.js
-	- Contains full client app logic
+/*
+ *  script.js
+ *  - Contains full client app logic
 */
 
 (function (root) {
@@ -332,4 +332,5 @@
 	}
 
 	student_number.focus();
+>>>>>>> 75e7fdd3e3598b0c7e05c4a2a70297bc0eb61780
 } (this) );
