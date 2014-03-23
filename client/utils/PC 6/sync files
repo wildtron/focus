@@ -1,0 +1,29 @@
+#rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.159:/home/user/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.138:/home/user/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.39:/home/user/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.107:/home/user/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.112:/home/user/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.103:/home/user/Desktop/focus
+
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.212:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.236:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.182:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.166:/home/user/Desktop/focus 
+
+
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.143:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.22:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.95:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.168:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.154:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.226:/home/user/Desktop/focus 
+
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.90:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.153:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.5.68:/home/user/Desktop/focus  
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.78:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.111:/home/user/Desktop/focus 
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.135:/home/user/Desktop/focus 
+
+
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out64 10.0.4.150:/home/user/Desktop/focus 

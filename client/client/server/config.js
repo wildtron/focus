@@ -1,5 +1,5 @@
-exports.motherHost = '10.0.5.49';
-exports.motherPort = 3000;
+exports.motherHost = 'ricolindo.uplb.edu.ph';
+exports.motherPort = 5000;
 
 exports.activityPort = 8286;
 exports.sessionPort = 10610;

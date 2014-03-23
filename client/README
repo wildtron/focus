@@ -22,3 +22,9 @@ VNC
 
     http://ip_address:6080/index.html?password=sha1(SESSIONID+SESSIONID)
 
+BUILD:
+    before creating the binary file, make sure that you changed the
+    correct ip address and ports in the following files
+
+    js/script.js
+    server/config.js
