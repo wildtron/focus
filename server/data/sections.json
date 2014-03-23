@@ -7,5 +7,24 @@
         "room": "PC Lab 6",
         "students" : [
 		]
+    },
+    {
+        "_id": "IT 1(MST) YZ-7L",
+        "days": "F",
+        "from": "19:00:00",
+        "to" : "24:00:00",
+        "room": "C-100",
+        "students" : [
+		]
+    },
+    {
+        "_id": "CMSC 161 UV-2L",
+        "days": "UMTWHFS",
+        "from": "00:00:00",
+        "to" : "24:00:00",
+        "room": "C-100",
+        "students" : [
+			"2010-43168"
+		]
     }
 ]

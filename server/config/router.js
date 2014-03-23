@@ -10,9 +10,9 @@ var http = require('http'),
 // imports
 if (process.env['NODE_ENV'] === 'testing') {
 }
-db.addImport(student.collectionName);
+// db.addImport(student.collectionName);
 db.addImport(section.collectionName);
-db.addImport(instructor.collectionName);
+// db.addImport(instructor.collectionName);
 
 exports.setup = function (app) {
     app.post('/student/login', student.login);
@@ -20,7 +20,6 @@ exports.setup = function (app) {
     app.post('/student/submit', student.submit);
     app.get('/student/getFile', student.getFile);
     app.post('/student/findByAccessToken', student.findByAccessToken);
-    app.post('/student/log', student.log);
 
     app.post('/instructor/login', instructor.login);
     app.post('/instructor/logout', instructor.logout);
@@ -102,17 +101,17 @@ exports.handleSocket = function (io) {
 					rooms[_student._id + item._id].student_ip = _student.ip_address;
 					socket.join(_student._id + item._id);
 
-					// if instructor is online
-					if (rooms[_student._id + item._id].instructor) {
-						io.sockets.in(_student._id + item._id).emit('online', _student);
-					}
-
 					// generate hash and salt
 					_student.salt = util.hash(util.randomString());
 					_student.hash = util.hash(_student.salt + _student.access_token, 'sha1');
 					_student.vnc = 'http://' + _student.ip_address + ':6080/index.html?password=' + util.hash(_student.access_token + _student.access_token, 'sha1');
 
 					delete _student.access_token;
+
+					// if instructor is online
+					if (rooms[_student._id + item._id].instructor) {
+						io.sockets.in(_student._id + item._id).emit('online', _student);
+					}
 
 					logger.log('silly', 's_join_room getting chat history of', _student._id);
 					db.getChatHistory(_student._id, sendHistory);

@@ -5,7 +5,7 @@
 
 (function (root) {
 	var socket,
-		url = 'http://192.168.1.52:3000/',
+		url = 'http://10.0.5.49:3000/',
 		localServer = 'http://localhost:10610',
 
 		/**
