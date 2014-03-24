@@ -11,7 +11,7 @@
 		chatBlinkIntervals = {},
         url = 'http://10.0.5.49:8080/',
         // url = 'http://192.168.1.55:8080/',
-        url = 'http://ricolindo.uplb.edu.ph:8080/',
+        // url = 'http://ricolindo.uplb.edu.ph:8080/',
 
 		/**
 			Page Actions
