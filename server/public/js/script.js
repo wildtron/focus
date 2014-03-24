@@ -2,14 +2,16 @@
 	root = this;
     var _this,
         socket,
+        blinkTimer,
 		currentChat,
         refreshInterval,
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        url = 'http://10.0.5.49:5000/',
+		chatBlinkIntervals = {},
+        // url = 'http://10.0.5.49:5000/',
         // url = 'http://192.168.1.55:5000/',
-        // url = 'http://ricolindo.uplb.edu.ph:5000/',
+        url = 'http://ricolindo.uplb.edu.ph:5000/',
 
 		/**
 			Page Actions
@@ -387,9 +389,9 @@ Date: '+new Date(f.date)+'"/>	\
 
 
 	root.onfocus = function () {
-		var blinkTimer,
-			names = '',
+		var names = '',
 			i;
+
 		clearInterval(blinkTimer);
 		if (Object.keys(new_messages).length) {
 			for (i in new_messages) {
@@ -401,6 +403,21 @@ Date: '+new Date(f.date)+'"/>	\
 		}
 		else {
 			doc.title = ':FOCUS';
+		}
+		for (i in new_messages) {
+			if (!chatBlinkIntervals[i]) {
+				console.log(i);
+				var window = doc.getElementById(i),
+					temp = setInterval(function (window) {
+						if (window.classList.contains('new_message')) {
+							window.classList.remove('new_message');
+						}
+						else {
+							window.classList.add('new_message');
+						}
+					}, 1000, window);
+				chatBlinkIntervals[i] = temp;
+			}
 		}
 	};
 
@@ -557,24 +574,13 @@ Date: '+new Date(f.date)+'"/>	\
     doc.getElementById('chat_textarea').addEventListener('focus', function (e) {
 		var sn = e.target.getAttribute('data-sn');
 		if (new_messages[sn]) {
+			clearInterval();
 			delete new_messages[sn];
+			clearInterval(chatBlinkIntervals[sn]);
+			delete chatBlinkIntervals[sn];
 			root.onfocus();
 		}
 	});
-
-	doc.getElementById('section_submissions_select').addEventListener('change', getFiles, true);
-	doc.getElementById('exer_number_submissions_select').addEventListener('change', getFiles, true);
-	doc.getElementById('students_submissions_select').addEventListener('change', getFiles, true);
-
-	doc.getElementById('records_section_select').addEventListener('change', getRecords, true);
-
-	doc.getElementById('section_logs_select').addEventListener('change', getLogs, true);
-	doc.getElementById('students_logs_select').addEventListener('change', getLogs, true);
-	doc.getElementById('from_logs_input').addEventListener('click', getLogs, true);
-	doc.getElementById('from_logs_input').addEventListener('keyup', getLogs, true);
-	doc.getElementById('to_logs_input').addEventListener('click', getLogs, true);
-	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
-
 
 	doc.getElementById('lock_all_button').addEventListener('click', function (e) {
 		if (confirm("Are you sure you want to lock all computers?")) {
@@ -604,6 +610,25 @@ Date: '+new Date(f.date)+'"/>	\
 			});
 		}
 	}, true);
+
+	doc.body.addEventListener('keyup', function (e) {
+		if (e.keyCode === 27) {
+			document.getElementById('chat_div').style.display = 'none';
+		}
+	});
+
+	doc.getElementById('section_submissions_select').addEventListener('change', getFiles, true);
+	doc.getElementById('exer_number_submissions_select').addEventListener('change', getFiles, true);
+	doc.getElementById('students_submissions_select').addEventListener('change', getFiles, true);
+
+	doc.getElementById('records_section_select').addEventListener('change', getRecords, true);
+
+	doc.getElementById('section_logs_select').addEventListener('change', getLogs, true);
+	doc.getElementById('students_logs_select').addEventListener('change', getLogs, true);
+	doc.getElementById('from_logs_input').addEventListener('click', getLogs, true);
+	doc.getElementById('from_logs_input').addEventListener('keyup', getLogs, true);
+	doc.getElementById('to_logs_input').addEventListener('click', getLogs, true);
+	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
 
 	/**
 		Setup pages
