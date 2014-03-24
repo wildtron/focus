@@ -196,6 +196,7 @@ exports.login = function (req, res, next) {
 		};
     logger.log('info', 'student:login student trying to login');
 	if (!data) return;
+	console.dir(req.connection.remoteAddress);
     data.ip_address = req.connection.remoteAddress;
 	db.get().collection(collectionName, getStudent)
 };

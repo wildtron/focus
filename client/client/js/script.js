@@ -5,8 +5,8 @@
 
 (function (root) {
 	var socket,
-		// url = 'http://10.0.5.49:8080/',
-		url = 'http://ricolindo.uplb.edu.ph:8080/',
+		url = 'http://10.0.5.49:8080/',
+		// url = 'http://ricolindo.uplb.edu.ph:8080/',
 		localServer = 'http://localhost:10610',
 
 		/**
