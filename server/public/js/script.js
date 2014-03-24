@@ -2,14 +2,16 @@
 	root = this;
     var _this,
         socket,
+        blinkTimer,
 		currentChat,
         refreshInterval,
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        // url = 'http://10.0.5.49:3000/',
-        // url = 'http://192.168.1.55:3000/',
-        url = 'http://ricolindo.uplb.edu.ph:5000/',
+		chatBlinkIntervals = {},
+        // url = 'http://10.0.5.49:8080/',
+        // url = 'http://192.168.1.55:8080/',
+        url = 'http://ricolindo.uplb.edu.ph:8080/',
 
 		/**
 			Page Actions
@@ -387,9 +389,9 @@ Date: '+new Date(f.date)+'"/>	\
 
 
 	root.onfocus = function () {
-		var blinkTimer,
-			names = '',
+		var names = '',
 			i;
+
 		clearInterval(blinkTimer);
 		if (Object.keys(new_messages).length) {
 			for (i in new_messages) {
@@ -401,6 +403,21 @@ Date: '+new Date(f.date)+'"/>	\
 		}
 		else {
 			doc.title = ':FOCUS';
+		}
+		for (i in new_messages) {
+			if (!chatBlinkIntervals[i]) {
+				console.log(i);
+				var window = doc.getElementById(i),
+					temp = setInterval(function (window) {
+						if (window.classList.contains('new_message')) {
+							window.classList.remove('new_message');
+						}
+						else {
+							window.classList.add('new_message');
+						}
+					}, 1000, window);
+				chatBlinkIntervals[i] = temp;
+			}
 		}
 	};
 
@@ -557,8 +574,46 @@ Date: '+new Date(f.date)+'"/>	\
     doc.getElementById('chat_textarea').addEventListener('focus', function (e) {
 		var sn = e.target.getAttribute('data-sn');
 		if (new_messages[sn]) {
+			clearInterval();
 			delete new_messages[sn];
+			clearInterval(chatBlinkIntervals[sn]);
+			delete chatBlinkIntervals[sn];
 			root.onfocus();
+		}
+	});
+
+	doc.getElementById('lock_all_button').addEventListener('click', function (e) {
+		if (confirm("Are you sure you want to lock all computers?")) {
+			_this.class.students.forEach(function (student) {
+				var window = doc.getElementById(student._id);
+				(function (window, student) {
+					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
+						if (data.status === 'Locking') {
+							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+							window.className = window.className.replace(/off|active|idle/g, 'locked');
+						}
+					});
+				})(window, student);
+			});
+		}
+	}, true);
+
+	doc.getElementById('shutdown_all_button').addEventListener('click', function (e) {
+		if (confirm("Are you sure you want to shutdown all computers?")) {
+			_this.class.students.forEach(function (student) {
+				var window = doc.getElementById(student._id);
+				(function (window, student) {
+					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
+						console.dir(data);
+					});
+				})(window, student);
+			});
+		}
+	}, true);
+
+	doc.body.addEventListener('keyup', function (e) {
+		if (e.keyCode === 27) {
+			document.getElementById('chat_div').style.display = 'none';
 		}
 	});
 

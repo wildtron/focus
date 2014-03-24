@@ -607,6 +607,9 @@ section{
     background: #333333;
     border: 2px solid #000000;
 }
+.window_div.new_message{
+	background: #463D8A;
+}
 .window_div img{
     width: 350px;
     height: 200px;
@@ -658,7 +661,7 @@ section{
     cursor: pointer;
 }
 
-#records_section button{
+#lock_all_button, #shutdown_all_button{
     background: #463D8A;
     padding: 13px;
     color: #FFF;
