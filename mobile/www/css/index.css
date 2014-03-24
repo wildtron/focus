@@ -148,7 +148,7 @@ section{
 #list_ul li.active{
     color: #2ECC71;
 }
-#list_ul li button{
+#list_ul li button.arrow{
     position: absolute;
     top: 0px;
     right: 0px;
@@ -162,6 +162,19 @@ section{
     margin-right: 30px;
     cursor: pointer;
 }
+
+#all_buttons{
+	text-align: center !important;
+}
+
+#lock_all_button, #unlock_all_button, #shutdown_all_button{
+    background: #463D8A;
+    padding: 5px 13px;
+    color: #FFF;
+    border: 0;
+    cursor: pointer;
+}
+
 #list_ul li:hover{
     background: #F6F6F6;
 }
@@ -208,4 +221,7 @@ section{
 #logoff_button{
     background-image: url(../img/logoff.png);
     background-color: #B3B3B3;
+}
+.twilight{
+	color: #463D8A;
 }

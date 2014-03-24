@@ -1,9 +1,11 @@
-(function (root) {
+// (function (root) {
+	root = this;
     var temp,
 		_this,
 		current,
 		doc = root.document,
-		url = 'http://localhost:3000/',
+		// url = 'http://localhost:8080/',
+		url = 'http://10.0.5.49:8080/',
 
 
 		/** Helper Functions **/
@@ -28,9 +30,6 @@
 			};
 
 			request.send(JSON.stringify(data || {}));
-		},
-		pollUpdate = function ( ) {
-
 		},
         toTitleCase = function (str) {
             return str.replace(/\w\S*/g, function (txt) {
@@ -65,22 +64,56 @@
                     animate(doc.getElementById('details_section'), 0);
                     animate(doc.getElementById('students_section'), 0);
                     doc.getElementById('student_name_div').innerHTML = toTitleCase(s.first_name + ' ' + s.last_name);
-                    doc.getElementById('details_div').innerHTML = [s._id, 'Status : ' + 'absent', 'Applications :' ].concat(s.applications).join('<br />');
+					doc.getElementById('details_div').innerHTML = '';
+
+					xhr('POST', 'http://' + s.ip_address + ':8286', {command : 'a', hash : current.hash, salt : current.salt}, function (data, req) {
+						if (req.readyState === 4 && req.status === 200) {
+							doc.getElementById('details_div').innerHTML = s._id + '<br /> Active Process : <b class="twilight">' + data.status.replace('<:>', '-').replace(/"/gi, '') + '</b><br />';
+							xhr('POST', 'http://' + s.ip_address + ':8286', {command : 'proclist', hash : current.hash, salt : current.salt}, function (data, req) {
+								if (req.readyState === 4 && req.status === 200) {
+									doc.getElementById('details_div').innerHTML += ['Applications :' ].concat(data.status).join('<br />') + '<br />';
+								}
+								else {
+									doc.getElementById('details_div').innerHTML = 'Student is not logged in';
+								}
+							}, function () {
+								doc.getElementById('details_div').innerHTML = 'Student is not logged in';
+							});
+						}
+						else {
+							doc.getElementById('details_div').innerHTML = 'Student is not logged in';
+						}
+					}, function () {
+						doc.getElementById('details_div').innerHTML = 'Student is not logged in';
+					});
+
+					if (current.status === 'locked') {
+						doc.getElementById('lock_button').innerHTML = 'Unlock';
+						doc.getElementById('lock_button').className = 'unlock';
+					}
+					else {
+						doc.getElementById('lock_button').innerHTML = 'Lock';
+						doc.getElementById('lock_button').className = '';
+					}
                 };
-            list.innerHTML = '';
+            list.innerHTML = '<li id="all_buttons"><button id="lock_all_button">Lock All</button><button id="unlock_all_button">Unlock All</button><button id="shutdown_all_button">Shutdown All</button></li>';
 			_this.class.students.forEach(function (s) {
-				var li = doc.createElement('li');
+				var li = doc.createElement('li'),
+					b = doc.createElement('button');
 				li.appendChild(doc.createTextNode(toTitleCase(s.first_name + ' ' + s.last_name)));
 				li.setAttribute('id', s._id);
 				li.setAttribute('class', 'absent details_button');
-                list.appendChild(li);;
+				b.className = 'arrow';
+				li.appendChild(b);
+                list.appendChild(li);
             });
             temp = doc.getElementsByClassName('details_button');
             i = temp.length;
             while (i--) {
-                temp[i].addEventListener('click', transition, true);
+                // temp[i].addEventListener('click', transition, true);
                 temp[i].addEventListener('touchstart', transition, true);
             }
+			bindAllButtons();
         },
 		login = function () {
 			var username = doc.getElementById('username_input'),
@@ -106,6 +139,9 @@
 
 					this.innerHTML = 'Login Success!';
 					this.className = 'sign_in_success';
+
+					doc.getElementById('header_name_div').innerHTML = '';
+					doc.getElementById('header_name_div').appendChild(doc.createTextNode(toTitleCase(_this.first_name + ' ' + _this.last_name)));
 
 					setTimeout(function (self) {
 						doc.getElementById('front_section').className = 'current-to-left';
@@ -140,19 +176,66 @@
 		command = function (e) {
 			var id = e.target.id,
 				ip = 'http://' + current.ip_address + ':8286';
-			switch (id) {
-				case 'lock_button' :   xhr('POST', ip, {command : 'lock', hash : current.hash, salt : current.salt}, function (data) {
-											if (data.status === 'Locking') {
-												window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
-												window.className = window.className.replace(/off|active|idle/g, 'locked');
-											}
-										});
-										break;
-				case 'shutdown_button' :   xhr('POST', ip, {command : 'shutdown', hash : current.hash, salt : current.salt});
-										break;
-				case 'logout_button' : xhr('POST', ip, {command : 'logout', hash : current.hash, salt : current.salt});
-										break;
+			if (e.target.className === 'unlock') {
+				xhr('POST', ip, {command : 'unlock', hash : current.hash, salt : current.salt}, function (data) {
+					e.target.className = '';
+					e.target.innerHTML = 'Lock';
+					delete current.status;
+				});
 			}
+			else {
+				switch (id) {
+					case 'lock_button' :   xhr('POST', ip, {command : 'lock', hash : current.hash, salt : current.salt}, function (data) {
+												doc.getElementById('lock_button').innerHTML = 'Unlock';
+												doc.getElementById('lock_button').className = 'unlock';
+												current.status = 'locked';
+											});
+											break;
+					case 'shutdown_button' :   xhr('POST', ip, {command : 'shutdown', hash : current.hash, salt : current.salt});
+											break;
+					case 'logout_button' : xhr('POST', ip, {command : 'logoff', hash : current.hash, salt : current.salt});
+											break;
+				}
+			}
+		},
+		bindAllButtons = function () {
+			doc.getElementById('lock_all_button').addEventListener('touchstart', function (e) {
+				_this.class.students.forEach(function (student) {
+					var window = doc.getElementById(student._id);
+					(function (window, student) {
+						xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
+							if (data.status === 'Locking') {
+								student.status = 'locked';
+							}
+						});
+					})(window, student);
+				});
+			}, true);
+
+			doc.getElementById('unlock_all_button').addEventListener('touchstart', function (e) {
+				_this.class.students.forEach(function (student) {
+					var window = doc.getElementById(student._id);
+					(function (window, student) {
+						var ip = 'http://' + student.ip_address + ':8286';
+						xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
+							if (student.status) {
+								delete student.status;
+							}
+						});
+					})(window, student);
+				});
+			}, true);
+
+			doc.getElementById('shutdown_all_button').addEventListener('touchstart', function (e) {
+				_this.class.students.forEach(function (student) {
+					var window = doc.getElementById(student._id);
+					(function (window, student) {
+						xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
+							console.dir(data);
+						});
+					})(window, student);
+				});
+			}, true);
 		};
 
 	/** Attach Events **/
@@ -167,23 +250,21 @@
     })();
 
     temp = doc.getElementById('back_button');
-	temp.addEventListener('click', backTransition, true);
 	temp.addEventListener('touchstart', backTransition, true);
 
     temp = doc.getElementById('sign_in_button');
-	temp.addEventListener('click', login, true);
 	temp.addEventListener('touchstart', login, true);
 
-    temp = doc.getElementById('logout_button');
-	temp.addEventListener('click', logout, true);
+    temp = doc.getElementById('logoff_button');
 	temp.addEventListener('touchstart', logout, true);
 
-	['shutdown', 'lock', 'logoff'].forEach(function (button) {
+	['shutdown', 'lock', 'logout'].forEach(function (button) {
 		var temp = doc.getElementById(button + '_button');
-		temp.addEventListener('click', command, true);
 		temp.addEventListener('touchstart', command, true);
 	});
 
+
+
     doc.getElementById('username_input').focus();
 
-}(this));
+// }(this));

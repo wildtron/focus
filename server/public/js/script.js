@@ -260,14 +260,14 @@ Date: '+new Date(f.date)+'"/>	\
 				if (req.readyState === 4 && req.status === 200) {
 					res.students.map(function (s) {
 						curDays = 0;
-						s.datesAttended = []
+						s.datesAttended = [];
 						res.records.forEach(function (r) {
 							if (r.student_number === s._id) {
 								curDays++;
 								s.datesAttended.push(r.date);
 							}
 						});
-						if (curDays > maxDays) {
+						if (curDays >= maxDays) {
 							maxDays = curDays;
 							maxHolder = s;
 						}
@@ -305,7 +305,12 @@ Date: '+new Date(f.date)+'"/>	\
 				+ '&student_number=' + doc.getElementById('students_logs_select').value
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_logs_select'),
-					temp2 = doc.getElementById('log_div');
+					temp2 = doc.getElementById('log_div'),
+					pre = doc.createElement('pre'),
+					i, j;
+				pre.setAttribute('id', 'logs_pre');
+				temp2.innerHTML = '';
+				temp2.appendChild(pre);
 				if (req.readyState === 4 && req.status === 200) {
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
@@ -316,14 +321,14 @@ Date: '+new Date(f.date)+'"/>	\
 							temp1.appendChild(option);
 						});
 					}
-					temp2.innerHTML = '<pre>';
-					res.logs.forEach(function (l) {
-						var date = new Date(l.date);
-						date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
-						temp2.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
-					});
-					temp2.innerHTML += '</pre>';
-					temp2.scrollTop = temp2.scrollHeight;
+					for (i=0, j = res.logs.length; i < j; i++) {
+						setTimeout(function (l) {
+							var date = new Date(l.date);
+							date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+							pre.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
+							temp2.scrollTop = temp2.scrollHeight;
+						}, 1, res.logs[i]);
+					}
 				} else {
 					logout();
 				}
@@ -340,8 +345,10 @@ Date: '+new Date(f.date)+'"/>	\
 				});
 				socket.on('disconnect', function (sn) {
 					var window = doc.getElementById(sn);
-					if (window)
+					if (window) {
 						window.className = 'window_div not_connected';
+						window.childNodes[0].setAttribute('src', '/img/not-connected.png');
+					}
 				});
 				socket.on('history', buildChatHistory);
 				socket.on('online', function (s) {
@@ -518,7 +525,7 @@ Date: '+new Date(f.date)+'"/>	\
                                     console.dir(data);
                                 });
                                 break;
-                case 'logout' :   util.xhr('POST', ip, {command : 'logout', hash : student.hash, salt : student.salt}, function (data) {
+                case 'logout' :   util.xhr('POST', ip, {command : 'logoff', hash : student.hash, salt : student.salt}, function (data) {
                                     console.dir(data);
                                 });
                                 break;
@@ -592,6 +599,21 @@ Date: '+new Date(f.date)+'"/>	\
 							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
 							window.className = window.className.replace(/off|active|idle/g, 'locked');
 						}
+					});
+				})(window, student);
+			});
+		}
+	}, true);
+
+	doc.getElementById('unlock_all_button').addEventListener('click', function (e) {
+		if (confirm("Are you sure you want to unlock all computers?")) {
+			_this.class.students.forEach(function (student) {
+				var window = doc.getElementById(student._id);
+				(function (window, student) {
+					var ip = 'http://' + student.ip_address + ':8286';
+					util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
+                        window.childNodes[0].setAttribute('src', ip);
+                        window.className = window.className.replace(/locked|off|active/g, 'active');
 					});
 				})(window, student);
 			});

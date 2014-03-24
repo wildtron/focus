@@ -11,14 +11,14 @@
         <section id="front_section" data-position="current" data-order="0" >
             <form action="#" method="POST" id="login_form" onsubmit="return false;">
                 <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
-                <input type="text" placeholder="Username" id="username_input" required="required" value="mamkat"/><br />
-                <input type="password" placeholder="Password" id="password_input" required="required" value="12345"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required" value=""/><br />
+                <input type="password" placeholder="Password" id="password_input" required="required" value=""/><br />
                 <button id="sign_in_button">Sign In</button>
             </form>
         </section>
         <section id="students_section" data-position="right">
-            <div class="header_div">Ma'am Kat</div>
-            <button id="logout_button"></button>
+            <div class="header_div" id="header_name_div"></div>
+            <button id="logoff_button"></button>
             <div id="list_div">
                 <ul id="list_ul"></ul>
             </div>
@@ -30,7 +30,7 @@
             <div id="buttons_div">
                 <button id="shutdown_button">Shutdown</button>
                 <button id="lock_button">Lock</button>
-                <button id="logoff_button">Log Off</button>
+                <button id="logout_button">Log Off</button>
             </div>
         </section>
         <!--script type="text/javascript" src="phonegap.js"></script-->
