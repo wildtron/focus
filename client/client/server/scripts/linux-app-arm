@@ -7,7 +7,7 @@ if [ $# -eq 2 ]; then
     kill $(ps aux | grep apparmor`getconf LONG_BIT` | awk '{print $2}')
     kill $(ps aux | grep sockify | grep python | awk '{print $2}')
     `readlink -f .`/server/client/utils/websockify --web `readlink -f .`/server/client 6080 localhost:$2 &
-    `readlink -f .`/server/apparmor/bin/apparmor`getconf LONG_BIT` -nap -wait 50 -passwd "$1" -ncache -forever -rfbport $2 -auth guess -localhost&
+    `readlink -f .`/server/apparmor/bin/apparmor`getconf LONG_BIT` -nap -wait 50 -passwd "$1" -ncache -forever -rfbport $2 -auth $(ps wwwwax -o cmd | grep auth | grep X | awk -F '-auth' '{print $2}' | awk -F '-no' '{print $1}') -localhost&
 else
     echo "Error running vnc."
 fi
