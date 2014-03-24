@@ -3,7 +3,8 @@
  *  - Contains full client app logic
 */
 
-(function (root) {
+// (function (root) {
+	root = this;
 	var socket,
 		url = 'http://10.0.5.49:8080/',
 		// url = 'http://ricolindo.uplb.edu.ph:8080/',
@@ -324,6 +325,27 @@
 
 
 	/**
+		Fix UI if via browser
+	*/
+
+	if (typeof require === 'undefined') {
+		(root.onresize = function () {
+			var temp1 = doc.getElementsByTagName('section'),
+				i = temp1.length;
+			while (i--) {
+				temp1[i].style.height = root.innerHeight + 'px';
+				temp1[i].style.width = root.innerWidth + 'px';
+			}
+			temp1 = doc.getElementById('chat_div').style;
+			temp1.maxHeight = temp1.height = (root.innerHeight * 0.7) + 'px';
+			temp1 = doc.getElementById('chat_area').style;
+			temp1.width = (root.innerWidth - 20) + 'px';
+			temp1.height = (root.innerHeight * 0.22) + 'px';
+		})();
+	}
+
+
+	/**
 		Game!
 	*/
 
@@ -333,4 +355,4 @@
 	}
 
 	student_number.focus();
-} (this) );
+// } (this) );
