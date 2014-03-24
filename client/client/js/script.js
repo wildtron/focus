@@ -56,6 +56,7 @@
 
 				socket.on('update_chat', function (message) {
 					var li = doc.createElement('li');
+					li.className = 'incoming';
 					li.appendChild(doc.createTextNode(message));
 					chat_content.appendChild(li);
 					chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight;

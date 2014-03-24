@@ -272,8 +272,11 @@ exports.handleSocket = function (io) {
 									'confused' : 'off'
 								},
 								status = translation[JSON.parse(data).status.toLowerCase()];
-							student._log(room.student_id, '<span class="' + status + '">is now ' + status + "</span>");
-							io.sockets.in(room._id).emit('status', room.student_id, status);
+							if (room.student_status != status) {
+								room.student_status = status;
+								student._log(room.student_id, '<span class="' + status + '">is now ' + status + "</span>");
+								io.sockets.in(room._id).emit('status', room.student_id, status);
+							}
 						});
 					});
 					req.on('error', function(err) {
