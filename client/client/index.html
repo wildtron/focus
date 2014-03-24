@@ -31,6 +31,7 @@
             </div>
             <textarea id="chat_area"></textarea>
         </section>
+        <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript">
             if (typeof require !== 'undefined') {
                 var gui = require('nw.gui'),
@@ -38,9 +39,14 @@
                 win.on('close', function () {
                     this.minimize();
                 });
+                setInterval(function(){
+                    if(!cookies.get('FOCUSSESSID')){
+                        win.focus();
+                    }
+                }, 400);
+
             }
         </script>
-        <script type="text/javascript" src="js/cookies.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
     </body>
 </html>
