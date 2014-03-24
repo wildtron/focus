@@ -211,7 +211,10 @@ http.createServer(function(req, res){
                                             console.log(data.toString());
                                             if(/^execvp\(\)/.test(data)){
                                                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                                res.end('{"status":"Session was set but VNC is unavailable"}');
+                                                var _response = {
+                                                    status : "Session was set but VNC is unavailable"
+                                                };
+                                                res.end(JSON.stringify(_response));
                                             }
                                         });
                                         handle.stdout.on('data', function(data){
@@ -219,15 +222,25 @@ http.createServer(function(req, res){
                                         });
                                     }
                                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                    res.end('{"status":"Session set."}');
+                                    var _response = {
+                                        status : "Session set."
+                                    };
+                                    res.end(JSON.stringify(_response));
                                 } else {
                                     console.log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
-                                    res.end('{"status":"Session was invalid."}');
+                                    var _response = {
+                                        status : "Session was invalid."
+                                    };
+                                    res.end(JSON.stringify(_response));
                                 }
                             } catch (e){
                                 res.writeHead(400, headers, {'Content-Type' : 'text/json'});
-                                res.end('{"status":"Failed to set session. Server did not respond accordingly", "error": "'+e+'"}');
+                                var _response = {
+                                    status : "Failed to set session. Server did no respond accordingly",
+                                    error : e
+                                };
+                                res.end(JSON.stringify(_response));
                             }
                         });
                     });
@@ -235,7 +248,11 @@ http.createServer(function(req, res){
                     postRequest.write(postData);
                     postRequest.on('error', function(e){
                         res.writeHead(500, headers, {'Content-Type': 'text/json'});
-                        res.end('{"status":"Failed to set session", "error": "'+e+'"}');
+                        var _response = {
+                            status : "Failed to ser session",
+                            error : e
+                        };
+                        res.end(JSON.stringify(_response));
                     });
                     postRequest.end();
                 } else if(decodedBody.hasOwnProperty('destroy')){
@@ -270,22 +287,34 @@ http.createServer(function(req, res){
                         console.log(e);
                     }
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                    res.end('{"status":"Session destroyed"}');
+                    var _response = {
+                        status : "Session destroyed"
+                    };
+                    res.end(JSON.stringify(_response));
                 } else {
                     console.log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
-                    res.end('{"status":"Failed to do action"}');
+                    var _response = {
+                        status : "Faled to do action"
+                    };
+                    res.end(JSON.stringify(_response));
                 }
             } catch (e) {
                 console.log(e);
                 res.writeHead(500, headers, {'Content-Type':'text/json'});
-                res.end('{"status":"Problem with POST data"}');
+                var _response = {
+                    status : "Problem with POST data"
+                };
+                res.end(JSON.stringify(_response));
                 return;
             }
         });
     } else {
         res.writeHead(405, headers, {'Content-Type': 'text/json'});
-        res.end('{"status": "I did not use that."}');
+        var _response = {
+            status : "I did not use that."
+        };
+        res.end(JSON.stringify(_response));
     }
 }).listen(config.sessionPort,'localhost');
 console.log('listening to port '+config.sessionPort);
@@ -312,12 +341,18 @@ http.createServer(function (req, res) {
 
             if(!SESSIONID){
                 res.writeHead(401, headers,{'Content-Type':'text/json'});
-                res.end('{"status":"Token is not synchronized to localhost"}');
+                var _response = {
+                    status : "Token is not synchronized to localhost"
+                };
+                res.end(JSON.stringify(_response));
             }
 
             if(chunk === undefined && req.method === 'POST'){
                 res.writeHead(401, headers,{'Content-Type':'text/json'});
-                res.end('{"status":"Missing parameters."}');
+                var _response = {
+                    status : "Missing parameters"
+                };
+                res.end(JSON.stringify(_response));
             }
 
             payload = String(chunk);
@@ -353,32 +388,52 @@ http.createServer(function (req, res) {
                 if(!parameters.command){
                     console.log('No command');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"status":"Missing command."}');
+                    var _response = {
+                        status : "Missing command."
+                    };
+                    res.end(JSON.stringify(_response));
                 } else if(!parameters.salt){
                     console.log('No salt');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"status":"Missing salt."}');
+                    var _response = {
+                        status : "Missing salt."
+                    };
+                    res.end(JSON.stringify(_response));
                 } else if(!parameters.hash){
                     console.log('No hash');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"status":"Missing hash."}');
+                    var _response = {
+                        status : "Missing hash"
+                    };
+                    res.end(JSON.stringify(_response));
                 }
                 try {
                     hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
                     if(hash !== parameters.hash){
                         res.writeHead(401, headers,{'Content-Type':'text/json'});
-                        res.end('{"status":"Token doesn\'t match."}');
+                        var _response = {
+                            status : "Token doesn't match."
+                        };
+                        res.end(JSON.stringify(_response));
                     } else if(hash === parameters.hash) {
                         console.log(SESSIONID);
                         callback();
                     }
                 } catch(e) {
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    res.end('{"Status":"Something wicked happened inside the server", "error":"'+e+'"}');
+                    var _response = {
+                        status : "Something wicked happened inside the server",
+                        error : e
+                    };
+                    res.end(JSON.stringify(_response));
                 }
             } catch(e) {
                 res.writeHead(400, headers, {'Content-Type':'text/json'});
-                res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+                var _response = {
+                    status : "Problem with sent data",
+                    error : e
+                };
+                res.end(JSON.stringify(_response));
             }
         };
 
@@ -408,7 +463,11 @@ http.createServer(function (req, res) {
                     console.log(stderr);
                     if(err){
                         res.writeHead(500, headers, {'Content-Type':'text/json'});
-                        res.end('{"Status":"Problem with sent data", "error":'+err+'}');
+                        var _response = {
+                            status : "Problem with sent data",
+                            error : err
+                        };
+                        res.end(JSON.stringify(_response));
                     }
 
                     if(isLocked){
@@ -421,12 +480,19 @@ http.createServer(function (req, res) {
                         fs.createReadStream(dir).pipe(res);
                     } catch(e){
                         res.writeHead(500, headers, {'Content-Type':'text/json'});
-                        res.end('{"Status":"Problem with image creation"}');
+                        var _response = {
+                            status : "Problem with image creation"
+                        };
+                        res.end(JSON.stringify(_response));
                     }
                 });
             } catch (e){
                 res.writeHead(500, headers, {'Content-Type':'text/json'});
-                res.end('{"Status":"Problem with sent data", "error":"'+e+'"}');
+                var _response = {
+                    status : "Problem with sent data",
+                    error : e
+                };
+                res.end(JSON.stringify(_response));
             }
         });
     } else if(req.method === 'POST'){
@@ -491,37 +557,50 @@ http.createServer(function (req, res) {
                 // TRY
                 try {
                         exec(action, function (err, stdout, stderr) {
-                        console.log(err, stdout, stderr);
-                        if(err){
-                            res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
-                            res.end('{"status" : "Failed doing task."}');
-                        }
+                            console.log(action);
+                            console.log(err);
+                            console.log(stdout);
+                            console.log(stderr);
+                            if(err){
+                                res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
+                                var _response = {
+                                    status : "Failed doing task.",
+                                    error : err
+                                };
+                                res.end(JSON.stringify(_response));
+                            }
 
-                        if(parameters.command === 'lock'){
-                            isLocked = true;
-                        } else if(parameters.command === 'unlock'){
-                            isLocked = false;
-                        }
+                            if(parameters.command === 'lock'){
+                                isLocked = true;
+                            } else if(parameters.command === 'unlock'){
+                                isLocked = false;
+                            }
 
-                        if(parameters.command === ''){
-                            msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                            var t = msg.split("WM_CLASS(STRING) = ");
-                            msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                        } else if(parameters.command === 'proclist'){
-                            var out = stdout.split('\n');
-                            headers['Content-Type'] = 'text/json';
-                            res.writeHead(200, "OK", headers);
-                            res.end(JSON.stringify({status: out}));
-                        }
+                            if(parameters.command === ''){
+                                msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                                var t = msg.split("WM_CLASS(STRING) = ");
+                                msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                            } else if(parameters.command === 'proclist'){
+                                var out = stdout.split('\n');
+                                headers['Content-Type'] = 'text/json';
+                                res.writeHead(200, "OK", headers);
+                                res.end(JSON.stringify({status: out}));
+                            }
 
-                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                        res.end('{"status" : "'+msg+'"}');
+                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                            var _response = {
+                                status : msg
+                            };
+                            res.end(JSON.stringify(_response));
                         });
 
                 } catch (e){
                     console.log(e);
                     res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                    res.end('{"status" : "Something wicked happened."}');
+                    var _response = {
+                        status : "Something wicked happened"
+                    };
+                    res.end(JSON.stringify(_response));
                 }
                 // CATCH-end
 
@@ -530,7 +609,10 @@ http.createServer(function (req, res) {
     } else {
        checkSession(function(){
             res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
-            res.end('{"status" : "task unavailable"}');
+            var _response = {
+                status : "task unavailable"
+            };
+            res.end(JSON.stringify(_response));
        });
     }
 }).listen(config.activityPort);
@@ -548,10 +630,16 @@ http.createServer(function(req,res){
       res.end();
     } else if(req.method === 'PUT') {
         res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
-        res.end('{"status": "'+String(moodStatus)+'"}');
+        var _response = {
+            status : moodStatus
+        };
+        res.end(JSON.stringify(_response));
     } else {
         res.writeHead(405,headers, {'Content-Type': 'text/json'});
-        res.end('{"status":"Easter egg."}');
+        var _response = {
+            status : "Easter egg"
+        };
+        res.end(JSON.stringify(_response));
     }
 }).listen(config.keyPort);
 console.log('listening on port '+config.keyPort);

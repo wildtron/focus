@@ -1,4 +1,4 @@
-exports.motherHost = 'ricolindo.uplb.edu.ph';
+exports.motherHost = '10.0.5.49';
 exports.motherPort = 8080;
 
 exports.activityPort = 8286;

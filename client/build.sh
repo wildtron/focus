@@ -3,8 +3,8 @@ cd client/
 rm app.nw
 ./repack 32
 cd ..
-rm -rf out32/*
-rm -rf out64/*
+mkdir out32
+mkdir out64
 cat client/node_modules/nodewebkit/nodewebkit32/nw client/app.nw > out32/app.run
 cp client/node_modules/nodewebkit/nodewebkit32/* out32/
 chmod +x out32/app.run
