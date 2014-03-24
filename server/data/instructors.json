@@ -1,10 +1,10 @@
 [
     {
-        "_id" : "mamkat",
+        "_id" : "instructor1",
 		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
-        "first_name" : "Katrina Joy",
-        "middle_name"  : "H",
-        "last_name" : "Magno",
+        "first_name" : "Instructor Name",
+        "middle_name"  : "M",
+        "last_name" : "Last",
         "sex" : "F",
         "password" : "12345",
         "classes" : [
@@ -12,40 +12,15 @@
         ]
     },
     {
-        "_id" : "mamivy",
+        "_id" : "instructor2",
 		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
-        "first_name" : "Ivy Joy",
-        "middle_name"  : "H",
-        "last_name" : "Aguila",
-        "sex" : "F",
+        "first_name" : "Instructor Name2",
+        "middle_name"  : "M",
+        "last_name" : "Last2",
+        "sex" : "M",
         "password" : "12345",
         "classes" : [
-            "CMSC 132 T-4L"
-        ]
-    },
-    {
-        "_id" : "mam_ina",
-		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
-        "first_name" : "Gianina Renee",
-        "middle_name"  : "H",
-        "last_name" : "Vergara",
-        "sex" : "F",
-        "password" : "12345",
-        "classes" : [
-            "CMSC 11 S-5L"
-        ]
-    },
-    {
-        "_id" : "mamdrio",
-		"access_token" : "02d6e390eac180a82eebb3eac30c6928",
-        "first_name" : "Donnalyn",
-        "middle_name"  : "L",
-        "last_name" : "Drio",
-        "sex" : "F",
-        "password" : "12345",
-        "classes" : [
-            "IT 1(MST) YZ-6L",
-            "IT 1(MST) YZ-7L"
+            "CMSC 161 UV-3L"
         ]
     }
 ]

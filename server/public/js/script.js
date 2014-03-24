@@ -7,9 +7,9 @@
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
-        // url = 'http://10.0.5.49:3000/',
-        // url = 'http://192.168.1.55:3000/',
-        url = 'http://ricolindo.uplb.edu.ph:5000/',
+        url = 'http://10.0.5.49:5000/',
+        // url = 'http://192.168.1.55:5000/',
+        // url = 'http://ricolindo.uplb.edu.ph:5000/',
 
 		/**
 			Page Actions
@@ -574,6 +574,36 @@ Date: '+new Date(f.date)+'"/>	\
 	doc.getElementById('from_logs_input').addEventListener('keyup', getLogs, true);
 	doc.getElementById('to_logs_input').addEventListener('click', getLogs, true);
 	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
+
+
+	doc.getElementById('lock_all_button').addEventListener('click', function (e) {
+		if (confirm("Are you sure you want to lock all computers?")) {
+			_this.class.students.forEach(function (student) {
+				var window = doc.getElementById(student._id);
+				(function (window, student) {
+					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
+						if (data.status === 'Locking') {
+							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+							window.className = window.className.replace(/off|active|idle/g, 'locked');
+						}
+					});
+				})(window, student);
+			});
+		}
+	}, true);
+
+	doc.getElementById('shutdown_all_button').addEventListener('click', function (e) {
+		if (confirm("Are you sure you want to shutdown all computers?")) {
+			_this.class.students.forEach(function (student) {
+				var window = doc.getElementById(student._id);
+				(function (window, student) {
+					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
+						console.dir(data);
+					});
+				})(window, student);
+			});
+		}
+	}, true);
 
 	/**
 		Setup pages

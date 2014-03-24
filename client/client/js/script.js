@@ -5,7 +5,8 @@
 
 (function (root) {
 	var socket,
-		url = 'http://10.0.5.49:3000/',
+		url = 'http://10.0.5.49:5000/',
+		// url = 'http://ricolindo.uplb.edu.ph:5000/',
 		localServer = 'http://localhost:10610',
 
 		/**
@@ -332,5 +333,4 @@
 	}
 
 	student_number.focus();
->>>>>>> 75e7fdd3e3598b0c7e05c4a2a70297bc0eb61780
 } (this) );

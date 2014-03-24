@@ -658,7 +658,7 @@ section{
     cursor: pointer;
 }
 
-#records_section button{
+#lock_all_button, #shutdown_all_button{
     background: #463D8A;
     padding: 13px;
     color: #FFF;
