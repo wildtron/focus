@@ -386,6 +386,13 @@ Date: ' + new Date(f.date) + '"/>	\
 						window.className = 'window_div ' + status;
 				});
 			});
+		},
+		loginIfCookieExists = function () {
+			if (cookies.has('focus')) {
+				console.log(url);
+				doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
+				doc.getElementById('sign_in_button').click();
+			}
 		};
 
 
@@ -454,6 +461,7 @@ Date: ' + new Date(f.date) + '"/>	\
 
         password.disabled = username.disabled = 'disabled';
 
+		console.log(12);
         util.xhr('POST', url + 'instructor/login', {
             username : username.value,
             password : password.value
@@ -655,22 +663,6 @@ Date: ' + new Date(f.date) + '"/>	\
 	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
 
 	/**
-		Get configurations
-	*/
-	util.xhr(
-		'GET',
-		'http://ricolindo.uplb.edu.ph:8081/config.json',
-		{},
-		function (data) {
-			console.dir(data);
-			url = 'http://' + data.server + ':' + data.port;
-		},
-		function () {
-			console.dir('Unable to get config from ricolindo. Using default values.');
-		}
-	);
-
-	/**
 		Setup pages
 	*/
 
@@ -680,16 +672,23 @@ Date: ' + new Date(f.date) + '"/>	\
     page('logs', logs);
     page('logout', logout);
     page('*', login);
+    page.show('');
 
 
 	/**
-		Game!
+		Get configurations
 	*/
-
-    page.show('');
-
-    if (cookies.has('focus')) {
-		doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
-		doc.getElementById('sign_in_button').click();
-	}
+	util.xhr(
+		'GET',
+		'http://ricolindo.uplb.edu.ph:8081/config.json',
+		{},
+		function (data) {
+			url = 'http://' + data.server + ':' + data.port;
+			loginIfCookieExists();
+		},
+		function () {
+			console.dir('Unable to get config from ricolindo. Using default values.');
+			loginIfCookieExists();
+		}
+	);
 }(this));
