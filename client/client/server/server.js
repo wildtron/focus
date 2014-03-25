@@ -82,6 +82,7 @@ var http = require('http'),
                     log(e);
                 });
             }
+            log('binded to keyboard');
         } else {
             log(err, stderr);
             log('Monitor is impossible.');
@@ -131,16 +132,19 @@ var http = require('http'),
     }
 ;
 
-http.request(configOverload, function(){
-    req.on('data', function(data){
+http.request(configOverload, function(res){
+    res.on('data', function(data){
+        log('Setting new parameters');
         var p = JSON.parse(data);
         masterConfig.server = p.server;
         masterConfig.port = p.port;
-        master
+        masterConfig.env = p.env;
+        main();
     });
-    req.on('error', function(e){
+    res.on('error', function(e){
         console.log(e);
         console.log('Using default values for port, server and environment');
+        main();
     });
 }).end();
 
@@ -150,7 +154,6 @@ http.request(configOverload, function(){
  * SETUP THE ENVIRONMENT
  *
  * */
-
 
 headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
@@ -178,6 +181,7 @@ fs.chmodSync(__dirname+'/client/utils/nova-novncproxy', 0555);
 fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
+var main = function(){
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
@@ -209,8 +213,8 @@ http.createServer(function(req, res){
                     });
 
                     postRequest = http.request({
-                        host: config.motherHost,
-                        port: config.motherPort,
+                        host: masterConfig.server,
+                        port: masterConfig.port,
                         path: '/student/findByAccessToken',
                         method: 'POST',
                         headers : {
@@ -677,4 +681,4 @@ http.createServer(function(req,res){
     }
 }).listen(config.keyPort);
 log('listening on port '+config.keyPort);
-
+};

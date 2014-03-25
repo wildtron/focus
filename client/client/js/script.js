@@ -105,6 +105,20 @@
 		Attach Events
 	*/
 
+/*
+    (function(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8081/config.json', false);
+        xhr.send();
+
+        xhr.onreadyStateChange = function(){
+            if(xhr.readyState === 4 && xhr.){
+
+            }
+        };
+    })();
+
+*/
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
 			request = new XMLHttpRequest(),
