@@ -1,0 +1,33 @@
+{
+  "name": "focus-config",
+  "version": "0.0.0",
+  "description": "Config Server and Install script server",
+  "main": "server.js",
+  "dependencies": {
+    "connect": "~2.14.3"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wildtron/focus.git"
+  },
+  "keywords": [
+    "free",
+    "open",
+    "source",
+    "computer",
+    "unit",
+    "supervision",
+    "config",
+    "install",
+    "script"
+  ],
+  "author": "Sherwin Jet Ferrer, Raven John Lagrimas",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/wildtron/focus/issues"
+  },
+  "homepage": "https://github.com/wildtron/focus"
+}

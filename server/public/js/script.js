@@ -234,10 +234,11 @@
 								temp2.innerHTML += '	\
 							<div class="file_div">	\
 								<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-File Name: '+f.name+'\r\n\
-Version: '+f.version+'\r\n\
-Size: '+f.size+' bytes\r\n\
-Date: '+new Date(f.date)+'"/>	\
+Owner: ' + util.toTitleCase(s.first_name + ' ' + s.last_name) +'\r\n\
+File Name: ' + f.name + '\r\n\
+Version: ' + f.version + '\r\n\
+Size: ' + f.size + ' bytes\r\n\
+Date: ' + new Date(f.date) + '"/>	\
 								<div class="file_name_div">'+f.name+' v'+f.version+'</div>	\
 							</div>';
 							});
@@ -617,6 +618,9 @@ Date: '+new Date(f.date)+'"/>	\
 					});
 				})(window, student);
 			});
+			setTimeout(function() {
+				location.reload();
+			}, 3000);
 		}
 	}, true);
 
