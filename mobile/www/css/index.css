@@ -99,7 +99,7 @@ section{
     white-space: nowrap;
     overflow: hidden;
 }
-#logout_button, #back_button{
+#logoff_button, #back_button{
     position: absolute;
     width: 40px;
     height: 40px;
@@ -218,7 +218,7 @@ section{
     background-image: url(../img/lock.png);
     background-color: #808080;
 }
-#logoff_button{
+#logout_button{
     background-image: url(../img/logoff.png);
     background-color: #B3B3B3;
 }
