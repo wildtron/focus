@@ -6,4 +6,4 @@ exports.sessionPort = 10610;
 exports.keyPort = 8412;
 exports.vncport = 8924;
 
-exports.mode = 'production';
+exports.env = 'development';

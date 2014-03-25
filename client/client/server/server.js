@@ -22,6 +22,11 @@ var http = require('http'),
     url = require('url'),
     crypto = require('crypto'),
     config = require('./config'),
+    masterConfig = {
+        server : config.motherHost,
+        port : config.motherPort,
+        env : config.env
+    },
     Keyboard = require('keyboard'),
     devices,len,i,keyboard,
     child, action,moodMonitor=false,
@@ -34,25 +39,25 @@ var http = require('http'),
     headers = {},
     backspaceCount=0,idleTime=0,
     lastTimePress= ((+new Date())/1000).toFixed(0),
+    moodStatus='OTHER',
     typing = function(obj){
         lastTimePress = obj.timeS;
         if(obj.keyCode === 14) {
             backspaceCount++;
         }
     },
-    moodStatus='OTHER',
     keyboard=[],
     Timer = function(time, callback){
         var timer;
 
         this.start = function(){
             timer=setInterval(callback,time);
-            console.log('Timer started');
+            log('Timer started');
         };
 
         this.stop = function(){
             clearInterval(timer);
-            console.log('Timer stopped');
+            log('Timer stopped');
         };
 
         this.restart = function(){
@@ -73,12 +78,13 @@ var http = require('http'),
                 keyboard[i] = new Keyboard(devices[i]);
                 keyboard[i].on('keydown', typing);
                 keyboard[i].on('keypress', typing);
-                keyboard[i].on('error', function(e){ console.log(e);
+                keyboard[i].on('error', function(e){
+                    log(e);
                 });
             }
         } else {
-            console.log(err, stderr);
-            console.log('Monitor is impossible.');
+            log(err, stderr);
+            log('Monitor is impossible.');
         }
     }), masterTimer = new Timer(20000, function(){
         idleTime = ((+new Date())/1000).toFixed(0) - lastTimePress;
@@ -103,12 +109,40 @@ var http = require('http'),
         } else if ((backspaceCount < idleTime) || ((idleTime <= 11) && (backspaceCount === 0))) {
             moodStatus = 'OTHER';
         }
-        console.log(idleTime+','+backspaceCount);
+        log(idleTime+','+backspaceCount+','+moodStatus);
         backspaceCount = 0;
-        console.log('20 seconds passed');
-        console.log('Mood is: '+moodStatus);
-    });
+        log('20 seconds passed');
+        log('Mood is: '+moodStatus);
+    }),
+    log = function(){
+        var z=0, len = arguments.length;
+        // use arguments object
+        if(masterConfig.env === 'development'){
+            for(z=0;z<len;z++){
+                console.log(arguments[z]);
+            }
+        }
+    },
+    configOverload = {
+        host: 'ricolindo.uplb.edu.ph',
+        port: 8081,
+        path: '/config.json',
+        method: 'GET'
+    }
+;
 
+http.request(configOverload, function(){
+    req.on('data', function(data){
+        var p = JSON.parse(data);
+        masterConfig.server = p.server;
+        masterConfig.port = p.port;
+        master
+    });
+    req.on('error', function(e){
+        console.log(e);
+        console.log('Using default values for port, server and environment');
+    });
+}).end();
 
 
 
@@ -152,23 +186,23 @@ http.createServer(function(req, res){
       res.writeHead(300, headers);
       res.end();
     } else if(req.method==='POST'){
-        console.log('localhost attempts to set SESSIONID');
+        log('localhost attempts to set SESSIONID');
         req.on('data', function (chunk){
             postData += chunk;
         });
 
         req.on('end', function() {
-            console.log("Trying to set session to server");
+            log("Trying to set session to server");
             try{
                 decodedBody = JSON.parse(postData);
-                console.log("JSON parse was successful.");
+                log("JSON parse was successful.");
 
                 if(decodedBody.hasOwnProperty('session')){
-                    console.log("session was found from the payload");
+                    log("session was found from the payload");
                     /*
                     *  connect to motherServer and ensure the integrity of sent SESSIONID
                     * */
-                    console.log("verifying session from server");
+                    log("verifying session from server");
                     var integrityCheckResult;
                     postData = qs.stringify({
                         'access_token' : decodedBody.session
@@ -183,32 +217,32 @@ http.createServer(function(req, res){
                             'Content-Type': 'application/x-www-form-urlencoded'
                         }
                     }, function(response){
-                        console.log("Received response for verification from server");
+                        log("Received response for verification from server");
                         response.setEncoding('utf8');
                         response.on('data', function(chunk){
                             var json;
                             integrityCheckResult = chunk;
                             SESSIONID=decodedBody.session;
                             try{
-                                console.log("Received data from server. Parsing...");
+                                log("Received data from server. Parsing...");
                                 json = JSON.parse(integrityCheckResult);
                                 if(json.access_token === SESSIONID){
-                                    console.log("Session was found valid.");
+                                    log("Session was found valid.");
                                     isLocked = false;
                                     masterTimer.start();
                                     if(!handle){
-                                        console.log('Starting vnc.');
+                                        log('Starting vnc.');
                                         var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
-                                        console.log(pass);
+                                        log(pass);
                                         handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
                                             env: {
                                                 LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH,
                                                DISPLAY:':0.0'
                                             }
                                         });
-                                        console.log('Spawned it! :D');
+                                        log('Spawned it! :D');
                                         handle.stderr.on('data', function(data){
-                                            console.log(data.toString());
+                                            log(data.toString());
                                             if(/^execvp\(\)/.test(data)){
                                                 res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                                 var _response = {
@@ -218,7 +252,7 @@ http.createServer(function(req, res){
                                             }
                                         });
                                         handle.stdout.on('data', function(data){
-                                            console.log(data.toString());
+                                            log(data.toString());
                                         });
                                     }
                                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
@@ -227,7 +261,7 @@ http.createServer(function(req, res){
                                     };
                                     res.end(JSON.stringify(_response));
                                 } else {
-                                    console.log("Session was found invalid.", json.access_token, SESSIONID);
+                                    log("Session was found invalid.", json.access_token, SESSIONID);
                                     res.writeHead(401, headers, {'Content-Type' : 'text/json'});
                                     var _response = {
                                         status : "Session was invalid."
@@ -244,7 +278,7 @@ http.createServer(function(req, res){
                             }
                         });
                     });
-                    console.log('Waiting for response from server');
+                    log('Waiting for response from server');
                     postRequest.write(postData);
                     postRequest.on('error', function(e){
                         res.writeHead(500, headers, {'Content-Type': 'text/json'});
@@ -256,7 +290,7 @@ http.createServer(function(req, res){
                     });
                     postRequest.end();
                 } else if(decodedBody.hasOwnProperty('destroy')){
-                    console.log("destroy was found from the payload");
+                    log("destroy was found from the payload");
                     SESSIONID=undefined;
                     masterTimer.stop();
                     var killTimesApparmor=0, killTimesWebsock=0;
@@ -267,24 +301,24 @@ http.createServer(function(req, res){
                         // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
                         var apparmorkill = setTimeout(function(){
                             exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
-                                console.log(err);
-                                console.log(stdout);
-                                console.log(stderr);
+                                log(err);
+                                log(stdout);
+                                log(stderr);
                                 if(killTimesApparmor === 5) clearTimeout(apparmorkill);
                                 killTimesApparmor++;
                             });
                         },5000);
                         var websockKill = setTimeout(function(){
                             exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
-                                console.log(err);
-                                console.log(stdout);
-                                console.log(stderr);
+                                log(err);
+                                log(stdout);
+                                log(stderr);
                                 if(killTimesWebsock === 5) clearTimeout(websockKill);
                                 killTimesWebsock++;
                             });
                         }, 5000);
                     } catch(e){
-                        console.log(e);
+                        log(e);
                     }
                     res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                     var _response = {
@@ -292,7 +326,7 @@ http.createServer(function(req, res){
                     };
                     res.end(JSON.stringify(_response));
                 } else {
-                    console.log("No type was found from client request");
+                    log("No type was found from client request");
                     res.writeHead(404, headers, {'Content-Type' : 'text/json'});
                     var _response = {
                         status : "Faled to do action"
@@ -300,7 +334,7 @@ http.createServer(function(req, res){
                     res.end(JSON.stringify(_response));
                 }
             } catch (e) {
-                console.log(e);
+                log(e);
                 res.writeHead(500, headers, {'Content-Type':'text/json'});
                 var _response = {
                     status : "Problem with POST data"
@@ -317,7 +351,7 @@ http.createServer(function(req, res){
         res.end(JSON.stringify(_response));
     }
 }).listen(config.sessionPort,'localhost');
-console.log('listening to port '+config.sessionPort);
+log('listening to port '+config.sessionPort);
 
 
 /*
@@ -366,10 +400,10 @@ http.createServer(function (req, res) {
                     post = qs.parse(payload);
                 }
             }
-            console.log(JSON.stringify(get));
+            log(JSON.stringify(get));
 
             try {
-                console.log('Parsing parameters...');
+                log('Parsing parameters...');
 
                 if(get !== ""){
                     for(key in get){
@@ -383,24 +417,24 @@ http.createServer(function (req, res) {
                     }
                 }
 
-                console.log(JSON.stringify(parameters));
+                log(JSON.stringify(parameters));
 
                 if(!parameters.command){
-                    console.log('No command');
+                    log('No command');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Missing command."
                     };
                     res.end(JSON.stringify(_response));
                 } else if(!parameters.salt){
-                    console.log('No salt');
+                    log('No salt');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Missing salt."
                     };
                     res.end(JSON.stringify(_response));
                 } else if(!parameters.hash){
-                    console.log('No hash');
+                    log('No hash');
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Missing hash"
@@ -416,7 +450,7 @@ http.createServer(function (req, res) {
                         };
                         res.end(JSON.stringify(_response));
                     } else if(hash === parameters.hash) {
-                        console.log(SESSIONID);
+                        log(SESSIONID);
                         callback();
                     }
                 } catch(e) {
@@ -438,7 +472,7 @@ http.createServer(function (req, res) {
         };
 
         if(req.method === 'GET'){
-            console.log("GET was used. :D");
+            log("GET was used. :D");
             parse();
         }
 
@@ -447,20 +481,20 @@ http.createServer(function (req, res) {
     };
 
     if (req.method === 'OPTIONS') {
-        console.log('OPTIONS');
+        log('OPTIONS');
         res.writeHead(200, headers);
         res.end();
     } else if(req.method === 'GET') {
         checkSession(function(){
-            console.log('Received GET Request.');
+            log('Received GET Request.');
             type = (parameters.command === 'png')? 'png' : 'jpeg';
             var dir = "/tmp/"+SESSIONID+type,
                 cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
             try{
                 exec(cmd, function (err, stdout, stderr) {
-                    console.log(err);
-                    console.log(stdout);
-                    console.log(stderr);
+                    log(err);
+                    log(stdout);
+                    log(stderr);
                     if(err){
                         res.writeHead(500, headers, {'Content-Type':'text/json'});
                         var _response = {
@@ -497,27 +531,27 @@ http.createServer(function (req, res) {
         });
     } else if(req.method === 'POST'){
         checkSession(function(){
-            console.log('Received POST Request.');
+            log('Received POST Request.');
             req.on('end', function () {
                 var action = '',
                     msg = '';
-                console.log('end-part response.');
+                log('end-part response.');
                 switch(parameters.command){
                     // shutdown
                     case 'shutdown':
-                        console.log('Shutdown command initiated.');
+                        log('Shutdown command initiated.');
                         action = 'shutdown -h now';
                         msg = 'Shutting down';
                         break;
                     // logoff
                     case 'logoff':
-                        console.log('Logoff command initiated.');
+                        log('Logoff command initiated.');
                         action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
                         msg = 'Logging off';
                         break;
                     // lock
                     case 'lock':
-                        console.log('System Lock On');
+                        log('System Lock On');
                         /*
                         *  turn off screen and enable screensaver
                         *  xset dpms force off
@@ -527,7 +561,7 @@ http.createServer(function (req, res) {
                         break;
                     // unlock
                     case 'unlock':
-                        console.log('System Lock Off');
+                        log('System Lock Off');
                         /*
                         * turn on screen and disable screensaver
                         * xset dpms force on
@@ -557,10 +591,10 @@ http.createServer(function (req, res) {
                 // TRY
                 try {
                         exec(action, function (err, stdout, stderr) {
-                            console.log(action);
-                            console.log(err);
-                            console.log(stdout);
-                            console.log(stderr);
+                            log(action);
+                            log(err);
+                            log(stdout);
+                            log(stderr);
                             if(err){
                                 res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
                                 var _response = {
@@ -595,7 +629,7 @@ http.createServer(function (req, res) {
                         });
 
                 } catch (e){
-                    console.log(e);
+                    log(e);
                     res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                     var _response = {
                         status : "Something wicked happened"
@@ -616,7 +650,7 @@ http.createServer(function (req, res) {
        });
     }
 }).listen(config.activityPort);
-console.log("listening on port "+config.activityPort);
+log("listening on port "+config.activityPort);
 
 
 // this server is for the typed keys of the user
@@ -642,5 +676,5 @@ http.createServer(function(req,res){
         res.end(JSON.stringify(_response));
     }
 }).listen(config.keyPort);
-console.log('listening on port '+config.keyPort);
+log('listening on port '+config.keyPort);
 
