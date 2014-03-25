@@ -1,5 +1,4 @@
-// (function (root) {
-	root = this;
+(function (root) {
     var _this,
         socket,
         blinkTimer,
@@ -10,8 +9,6 @@
 		doc = root.document,
 		chatBlinkIntervals = {},
         url = 'http://10.0.5.49:8080/',
-        // url = 'http://192.168.1.55:8080/',
-        // url = 'http://ricolindo.uplb.edu.ph:8080/',
 
 		/**
 			Page Actions
@@ -391,6 +388,7 @@ Date: ' + new Date(f.date) + '"/>	\
 			});
 		};
 
+
 	/**
 		Attach Events
 	*/
@@ -657,6 +655,22 @@ Date: ' + new Date(f.date) + '"/>	\
 	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
 
 	/**
+		Get configurations
+	*/
+	util.xhr(
+		'GET',
+		'http://ricolindo.uplb.edu.ph:8081/config.json',
+		{},
+		function (data) {
+			console.dir(data);
+			url = 'http://' + data.server + ':' + data.port;
+		},
+		function () {
+			console.dir('Unable to get config from ricolindo. Using default values.');
+		}
+	);
+
+	/**
 		Setup pages
 	*/
 
@@ -678,4 +692,4 @@ Date: ' + new Date(f.date) + '"/>	\
 		doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
 		doc.getElementById('sign_in_button').click();
 	}
-// }(this));
+}(this));
