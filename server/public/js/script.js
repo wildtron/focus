@@ -583,6 +583,8 @@ Date: ' + new Date(f.date) + '"/>	\
 											console.dir(data);
 										}
 									}
+								);
+								break;
                 case 'chat_button' :
                                     doc.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
                                     doc.getElementById('chat_div').style.display = 'block';
@@ -736,7 +738,7 @@ Date: ' + new Date(f.date) + '"/>	\
 	*/
 	util.xhr(
 		'GET',
-		'http://ricolindo.uplb.edu.ph:8081/config.json',
+		'http://ricolindo.uplb.edu.ph:8080/config.json',
 		{},
 		function (data) {
 			url = 'http://' + data.server + ':' + data.port + '/';
