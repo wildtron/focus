@@ -1,5 +1,4 @@
-// (function (root) {
-	root = this;
+(function (root) {
     var temp,
 		_this,
 		current,
@@ -67,10 +66,10 @@
 					doc.getElementById('details_div').innerHTML = '';
 
 					xhr('POST', 'http://' + s.ip_address + ':8286', {command : 'a', hash : current.hash, salt : current.salt}, function (data, req) {
-						if (req.readyState === 4 && req.status === 200) {
+						if (req.status === 200) {
 							doc.getElementById('details_div').innerHTML = s._id + '<br /> Active Process : <b class="twilight">' + data.status.replace('<:>', '-').replace(/"/gi, '') + '</b><br />';
 							xhr('POST', 'http://' + s.ip_address + ':8286', {command : 'proclist', hash : current.hash, salt : current.salt}, function (data, req) {
-								if (req.readyState === 4 && req.status === 200) {
+								if (req.status === 200) {
 									doc.getElementById('details_div').innerHTML += ['Applications :' ].concat(data.status).join('<br />') + '<br />';
 								}
 								else {
@@ -127,7 +126,7 @@
 				password : password.value
 			}, function (response, req) {
 
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					_this = response;
 
 					if (!response.class.message) {
@@ -152,7 +151,7 @@
 						password.value = username.value = password.disabled = username.disabled = '';
 					}, 250, this);
 				}
-				else if (req.readyState === 4) {
+				else {
 					this.innerHTML = 'Error!';
 					this.className = 'sign_in_error';
 					setTimeout(function (self) {
@@ -267,4 +266,13 @@
 
     doc.getElementById('username_input').focus();
 
-// }(this));
+	xhr(
+		'GET',
+		'http://ricolindo.uplb.edu.ph:8081/config.json',
+		{},
+		function (data) {
+			url = 'http://' + data.server + ':' + data.port + '/';
+		}
+	);
+
+}(this));

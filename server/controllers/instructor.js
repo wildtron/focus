@@ -36,7 +36,7 @@ exports.login = function (req, res, next) {
             if (item) {
                 logger.log('verbose', data.username, 'is found on the local database');
 				if (process.env['NODE_ENV'] !== 'testing') {	// avoid test fails because of race condition
-					item.access_token = util.hash(+new Date + config.SALT);
+					// item.access_token = util.hash(+new Date + config.SALT);
 				}
                 item.class = { message : "Sorry but you have no class as this moment"};
                 logger.log('verbose', data.username, ': updating properties');
@@ -116,13 +116,13 @@ exports.logout = function (req, res, next) {
             if (err) return next(err);
 			logger.log('verbose', 'instructor:logout', item._id, 'clearing access_token');
 			res.clearCookie('focus');
-			collection.update(
+			/* collection.update(
 				{'_id' : item._id},
 				{$set : {access_token: null}},
 				function (err) {
 					if (err) return next(err);
 				}
-			);
+			); */
 			logger.log('info', item._id, 'instructor:logout logged out successful');
 			return res.send({message : "Logout successful"});
         };

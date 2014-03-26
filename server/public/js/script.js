@@ -140,6 +140,7 @@
 						<button title="Shutdown" class="shutdown"></button>  \
 						<button title="Lock" class="lock"></button>  \
 						<button title="Logout" class="logout"></button> \
+						<button title="Process List" class="proc_list"></button> \
 					</div>';
 
 			if (temp = doc.getElementById(s._id)) {
@@ -214,7 +215,7 @@
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_submissions_select'),
 					temp2 = doc.getElementById('files_div');
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					if (!e || e.target.id === 'section_submissions_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 					}
@@ -255,7 +256,7 @@ Date: ' + new Date(f.date) + '"/>	\
 					maxDays = 0,
 					maxHolder,
 					curDays;
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					res.students.map(function (s) {
 						curDays = 0;
 						s.datesAttended = [];
@@ -309,7 +310,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				pre.setAttribute('id', 'logs_pre');
 				temp2.innerHTML = '';
 				temp2.appendChild(pre);
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 						res.students.forEach(function (s) {
@@ -467,7 +468,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				password : password.value
 			},
 			function (response, req) {
-				if (req.readyState === 4 && req.status === 401) {
+				if (req.status === 401) {
 					self.innerHTML = 'ERROR!';
 					self.className = 'sign_in_error';
 					setTimeout(function () {
@@ -477,7 +478,7 @@ Date: ' + new Date(f.date) + '"/>	\
 						username.focus();
 					}, 1000);
 				}
-				else if (req.readyState === 4 && req.status === 200){
+				else if (req.status === 200){
 					_this = response;
 					doc.getElementById('user_greeting_b').innerHTML = (response.sex === 'F' ? 'Ma\'am ' : 'Sir ') + response.last_name;
 
@@ -526,7 +527,7 @@ Date: ' + new Date(f.date) + '"/>	\
 		if (typeof student === 'undefined') return;
 		ip = 'http://' + student.ip_address + ':8286';
         if (temp.nodeName === 'BUTTON') {
-            switch(temp.className) {
+            switch (temp.className) {
                 case 'lock' :   util.xhr(
 									'POST',
 									ip,
@@ -569,6 +570,19 @@ Date: ' + new Date(f.date) + '"/>	\
 									}
 								);
                                 break;
+				case 'proc_list' : util.xhr(
+									'POST',
+									ip,
+									{
+										command : 'a',
+										hash : student.hash,
+										salt : student.salt
+									},
+									function (data, req) {
+										if (req.status === 200) {
+											console.dir(data);
+										}
+									}
                 case 'chat_button' :
                                     doc.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
                                     doc.getElementById('chat_div').style.display = 'block';
