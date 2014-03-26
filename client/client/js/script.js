@@ -7,7 +7,6 @@
 	root = this;
 	var socket,
 		url = 'http://10.0.5.49:8080/',
-		// url = 'http://ricolindo.uplb.edu.ph:8080/',
 		localServer = 'http://localhost:10610',
 
 		/**
@@ -105,10 +104,10 @@
 		Attach Events
 	*/
 
-/*
+
     (function(){
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8081/config.json', false);
+        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8080/config.json', false);
         xhr.send();
 
         xhr.onreadyStateChange = function(){
@@ -118,7 +117,7 @@
         };
     })();
 
-*/
+
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
 			request = new XMLHttpRequest(),
