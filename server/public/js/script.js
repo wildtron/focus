@@ -27,7 +27,7 @@
             doc.getElementById('feed_a').className = 'active_nav';
             doc.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
-            setTimeout(setupScreenshots, 500);
+            root.setTimeout(setupScreenshots, 500);
         },
         records = function () {
             var active = doc.getElementsByClassName('active_section')[0],
@@ -91,7 +91,7 @@
 			temp.setDate(temp.getDate() - 7);
 			doc.getElementById('from_logs_input').value = temp.toJSONLocal().substring(0, 10);
 			doc.getElementById('to_logs_input').value = (new Date()).toJSONLocal().substring(0, 10);
-			setTimeout(getLogs, 500);
+			root.setTimeout(getLogs, 500);
         },
         logout = function () {
 			clearInterval(refreshInterval);
@@ -141,6 +141,7 @@
 						<button title="Lock" class="lock"></button>  \
 						<button title="Logout" class="logout"></button> \
 						<button title="Process List" class="proc_list"></button> \
+						<div class="proc_list_div"></div> \
 					</div>';
 
 			if (temp = doc.getElementById(s._id)) {
@@ -321,7 +322,7 @@ Date: ' + new Date(f.date) + '"/>	\
 						});
 					}
 					for (i=0, j = res.logs.length; i < j; i++) {
-						setTimeout(function (l) {
+						root.setTimeout(function (l) {
 							var date = new Date(l.date);
 							date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 							pre.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
@@ -471,7 +472,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				if (req.status === 401) {
 					self.innerHTML = 'ERROR!';
 					self.className = 'sign_in_error';
-					setTimeout(function () {
+					root.setTimeout(function () {
 						self.className = '';
 						self.innerHTML = 'SIGN IN!';
 						password.disabled = username.disabled = '';
@@ -484,7 +485,7 @@ Date: ' + new Date(f.date) + '"/>	\
 
 					self.innerHTML = 'SUCCESS!';
 					self.className = 'sign_in_success';
-					setTimeout(function () {
+					root.setTimeout(function () {
 						var temp;
 						doc.getElementById('front_section').className = 'active_section';
 						doc.getElementById('nav_section').className = 'left-to-current';
@@ -570,7 +571,17 @@ Date: ' + new Date(f.date) + '"/>	\
 									}
 								);
                                 break;
-				case 'proc_list' : util.xhr(
+				case 'proc_list' :
+								temp = window.childNodes[3].childNodes[9];
+								if (student.proc_list_opened) {
+									delete student.proc_list_opened;
+									temp.style.display = 'none';
+									return;
+								}
+								student.proc_list_opened = true;
+								temp.style.display = 'block';
+								temp.innerHTML = 'Process List :<br />';
+								util.xhr(
 									'POST',
 									ip,
 									{
@@ -579,9 +590,13 @@ Date: ' + new Date(f.date) + '"/>	\
 										salt : student.salt
 									},
 									function (data, req) {
+										var b = doc.createElement('b');
+										b.className = 'twilight';
 										if (req.status === 200) {
 											student.active_process = data.status;
-											console.log(data.status);
+											b.appendChild(doc.createTextNode('Active: ' + data.status.replace('<:>', '-').replace(/"/gi, '')));
+											temp.appendChild(b);
+											temp.appendChild(doc.createElement('br'));
 										}
 									}
 								);
@@ -596,7 +611,11 @@ Date: ' + new Date(f.date) + '"/>	\
 									function (data, req) {
 										if (req.status === 200) {
 											student.process_list = data.status;
-											console.log(data.status);
+											data.status.forEach(function (s, i) {
+												temp.appendChild(doc.createTextNode(s));
+												if (i != data.status.length - 1)
+													temp.appendChild(doc.createElement('br'));
+											});
 										}
 									}
 								);
@@ -631,7 +650,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				);
             }
             else {
-                root.open(student.vnc);
+                root.open(student.vnc, '_blank');
             }
         }
     }, true);
@@ -675,12 +694,21 @@ Date: ' + new Date(f.date) + '"/>	\
 			_this.class.students.forEach(function (student) {
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
-					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
-						if (data.status === 'Locking') {
-							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
-							window.className = window.className.replace(/off|active|idle/g, 'locked');
+					util.xhr(
+						'POST',
+						'http://' + student.ip_address + ':8286',
+						{
+							command : 'lock',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							if (data.status === 'Locking') {
+								window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+								window.className = window.className.replace(/off|active|idle/g, 'locked');
+							}
 						}
-					});
+					);
 				})(window, student);
 			});
 		}
@@ -692,13 +720,22 @@ Date: ' + new Date(f.date) + '"/>	\
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
 					var ip = 'http://' + student.ip_address + ':8286';
-					util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
-                        window.childNodes[0].setAttribute('src', ip);
-                        window.className = window.className.replace(/locked|off|active/g, 'active');
-					});
+					util.xhr(
+						'POST',
+						ip,
+						{
+							command : 'unlock',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							window.childNodes[0].setAttribute('src', ip);
+							window.className = window.className.replace(/locked|off|active/g, 'active');
+						}
+					);
 				})(window, student);
 			});
-			setTimeout(function() {
+			root.setTimeout(function() {
 				location.reload();
 			}, 3000);
 		}
@@ -709,9 +746,18 @@ Date: ' + new Date(f.date) + '"/>	\
 			_this.class.students.forEach(function (student) {
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
-					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
-						console.dir(data);
-					});
+					util.xhr(
+						'POST',
+						'http://' + student.ip_address + ':8286',
+						{
+							command : 'shutdown',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							console.dir(data);
+						}
+					);
 				})(window, student);
 			});
 		}

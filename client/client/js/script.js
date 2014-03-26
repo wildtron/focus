@@ -25,9 +25,7 @@
 
 
 		wbr = function (str) {
-			return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
-				return text + " " + char;
-			});
+			return str.match(/\S{1,30}/g).join(' ');
 		},
 		toTitleCase = function (str) {
 			return str.replace(/\w\S*/g, function (txt) {
