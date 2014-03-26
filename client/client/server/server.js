@@ -182,6 +182,7 @@ fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
 var main = function(){
+log(JSON.stringify(masterConfig));
 
 // create a server that listens to localServer port
 http.createServer(function(req, res){
