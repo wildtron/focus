@@ -374,7 +374,7 @@
 
     (function () {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8081/config.json', true);
+        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8080/config.json', true);
 
         xhr.onreadystatechange = function () {
 			var data;
