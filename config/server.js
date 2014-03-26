@@ -14,6 +14,6 @@ var http = require('http'),
 	})
 	.use(connect.static(__dirname + '/public'));
 
-http.createServer(app).listen(8081, function () {
-	console.log('Config server is now running at port 8081');
+http.createServer(app).listen(8080, function () {
+	console.log('Config server is now running at port 8080');
 });
