@@ -159,7 +159,8 @@ headers["Access-Control-Allow-Origin"] = "*";
 headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, DELETE, OPTIONS";
 headers["Access-Control-Allow-Credentials"] = false;
 headers["Access-Control-Max-Age"] = '86400'; // 24 hours
-headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept";
+headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, X-Client-Locked";
+headers["Access-Control-Expose-Headers"] = "X-Client-Locked";
 
 fs.chmodSync(__dirname+'/scripts/disable.sh', 0555);
 fs.chmodSync(__dirname+'/scripts/keyboard.sh',0555);
@@ -510,9 +511,9 @@ http.createServer(function (req, res) {
                     }
 
                     if(isLocked){
-                        headers['Client-Locked'] = true;
+                        headers['X-Client-Locked'] = true;
                     } else {
-                        headers['Client-Locked'] = false;
+                        headers['X-Client-Locked'] = false;
                     }
                     res.writeHead(200,headers, {'Content-Type' : 'image/png'});
                     try{
@@ -561,7 +562,7 @@ http.createServer(function (req, res) {
                         *  turn off screen and enable screensaver
                         *  xset dpms force off
                         * */
-                        action = 'sh '+__dirname+'/scripts/disable.sh';
+                        action = __dirname+'/scripts/disable.sh';
                         msg ='Locking';
                         break;
                     // unlock
@@ -602,8 +603,40 @@ http.createServer(function (req, res) {
 
                 // TRY
                 try {
-                        spawn(action, function (err, stdout, stderr) {
-                            log(action);
+                    if(parameters.command === 'lock'){
+                        isLocked = true;
+                    } else if(parameters.command === 'unlock'){
+                        isLocked = false;
+                    }
+                    if(parameters.command === 'lock'){
+                        log(action);
+                        var child = spawn(action,[], {}, function(){
+                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                            var _response = {
+                                status : msg
+                            };
+                            res.end(JSON.stringify(_response));
+                        });
+                        child.stderr.on('data', function(data){
+                            log(data.toString());
+                            if(/^execvp\(\)/.test(data)){
+                                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                var _response = {
+                                    status : "Session was set but VNC is unavailable"
+                                };
+                                res.end(JSON.stringify(_response));
+                            }
+                        });
+                        child.stdout.on('data', function(data){
+                            log(data.toString());
+                        });
+                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                        var _response = {
+                            status : msg
+                        };
+                        res.end(JSON.stringify(_response));
+                    } else {
+                        exec(action, function (err, stdout, stderr) {
                             log(err);
                             log(stdout);
                             log(stderr);
@@ -614,12 +647,6 @@ http.createServer(function (req, res) {
                                     error : err
                                 };
                                 res.end(JSON.stringify(_response));
-                            }
-
-                            if(parameters.command === 'lock'){
-                                isLocked = true;
-                            } else if(parameters.command === 'unlock'){
-                                isLocked = false;
                             }
 
                             if(parameters.command === ''){
@@ -639,7 +666,7 @@ http.createServer(function (req, res) {
                             };
                             res.end(JSON.stringify(_response));
                         });
-
+                    }
                 } catch (e){
                     log(e);
                     res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
