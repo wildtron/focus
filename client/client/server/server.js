@@ -126,7 +126,7 @@ var http = require('http'),
     },
     configOverload = {
         host: 'ricolindo.uplb.edu.ph',
-        port: 8081,
+        port: 8080,
         path: '/config.json',
         method: 'GET'
     }
