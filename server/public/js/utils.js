@@ -14,7 +14,11 @@
 
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
-                success_cb && success_cb(JSON.parse(request.responseText), request);
+				try {
+					success_cb && success_cb(JSON.parse(request.responseText), request);
+				} catch (e) {
+					success_cb({response : request.responseText}, request);
+				}
             }
         };
 
