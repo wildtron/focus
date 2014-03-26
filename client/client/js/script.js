@@ -111,13 +111,14 @@
 
 
     (function(){
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8080/config.json', false);
-        xhr.send();
+        var req = new XMLHttpRequest();
+        req.open('GET', 'http://ricolindo.uplb.edu.ph:8080/config.json', false);
+        req.send();
 
-        xhr.onreadyStateChange = function(){
-            if(xhr.readyState === 4 && xhr.){
-
+        req.onreadyStateChange = function(){
+            var xhr = event.target;
+            if(xhr.readyState === 4 && xhr.status === 200){
+                var parse = JSON.parse(xhr.responseText);
             }
         };
     })();
@@ -135,7 +136,7 @@
 				connectSocket();
 
 				doc.getElementById('name_div').innerHTML = 'Chat with ' + toTitleCase(instructor);
-				self.innerHTML = 'Login Success!';
+				self.innerHTML = 'Login success!';
 				self.className = 'sign_in_success';
 
 				setTimeout(function () {
