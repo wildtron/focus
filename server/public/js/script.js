@@ -140,6 +140,7 @@
 						<button title="Shutdown" class="shutdown"></button>  \
 						<button title="Lock" class="lock"></button>  \
 						<button title="Logout" class="logout"></button> \
+						<button title="Process List" class="proc_list"></button> \
 					</div>';
 
 			if (temp = doc.getElementById(s._id)) {
@@ -214,7 +215,7 @@
 				, {}, function (res, req) {
 				var temp1 = doc.getElementById('students_submissions_select'),
 					temp2 = doc.getElementById('files_div');
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					if (!e || e.target.id === 'section_submissions_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 					}
@@ -255,7 +256,7 @@ Date: ' + new Date(f.date) + '"/>	\
 					maxDays = 0,
 					maxHolder,
 					curDays;
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					res.students.map(function (s) {
 						curDays = 0;
 						s.datesAttended = [];
@@ -309,7 +310,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				pre.setAttribute('id', 'logs_pre');
 				temp2.innerHTML = '';
 				temp2.appendChild(pre);
-				if (req.readyState === 4 && req.status === 200) {
+				if (req.status === 200) {
 					if (!e || e.target.id === 'section_logs_select') {
 						temp1.innerHTML = '<option value="all">Everyone</option>';
 						res.students.forEach(function (s) {
@@ -386,6 +387,12 @@ Date: ' + new Date(f.date) + '"/>	\
 						window.className = 'window_div ' + status;
 				});
 			});
+		},
+		loginIfCookieExists = function () {
+			if (cookies.has('focus')) {
+				doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
+				doc.getElementById('sign_in_button').click();
+			}
 		};
 
 
@@ -412,7 +419,6 @@ Date: ' + new Date(f.date) + '"/>	\
 		}
 		for (i in new_messages) {
 			if (!chatBlinkIntervals[i]) {
-				console.log(i);
 				var window = doc.getElementById(i),
 					temp = setInterval(function (window) {
 						if (window.classList.contains('new_message')) {
@@ -454,53 +460,62 @@ Date: ' + new Date(f.date) + '"/>	\
 
         password.disabled = username.disabled = 'disabled';
 
-        util.xhr('POST', url + 'instructor/login', {
-            username : username.value,
-            password : password.value
-        }, function (response, req) {
-            if (req.readyState === 4 && req.status === 401) {
-                self.innerHTML = 'ERROR!';
-                self.className = 'sign_in_error';
-                setTimeout(function () {
-                    self.className = '';
-                    self.innerHTML = 'SIGN IN!';
-                    password.disabled = username.disabled = '';
-                    username.focus();
-                }, 1000);
-            }
-            else if (req.readyState === 4 && req.status === 200){
-                _this = response;
-                doc.getElementById('user_greeting_b').innerHTML = (response.sex === 'F' ? 'Ma\'am ' : 'Sir ') + response.last_name;
+        util.xhr(
+			'POST',
+			url + 'instructor/login',
+			{
+				username : username.value,
+				password : password.value
+			},
+			function (response, req) {
+				if (req.status === 401) {
+					self.innerHTML = 'ERROR!';
+					self.className = 'sign_in_error';
+					setTimeout(function () {
+						self.className = '';
+						self.innerHTML = 'SIGN IN!';
+						password.disabled = username.disabled = '';
+						username.focus();
+					}, 1000);
+				}
+				else if (req.status === 200){
+					_this = response;
+					doc.getElementById('user_greeting_b').innerHTML = (response.sex === 'F' ? 'Ma\'am ' : 'Sir ') + response.last_name;
 
-                self.innerHTML = 'SUCCESS!';
-                self.className = 'sign_in_success';
-                setTimeout(function () {
-					var temp;
-                    doc.getElementById('front_section').className = 'active_section';
-                    doc.getElementById('nav_section').className = 'left-to-current';
-                    doc.getElementById('header_section').className = 'top-to-current';
-                    self.className = '';
-                    self.innerHTML = 'SIGN IN!';
-                    password.value = username.value = password.disabled = username.disabled = '';
+					self.innerHTML = 'SUCCESS!';
+					self.className = 'sign_in_success';
+					setTimeout(function () {
+						var temp;
+						doc.getElementById('front_section').className = 'active_section';
+						doc.getElementById('nav_section').className = 'left-to-current';
+						doc.getElementById('header_section').className = 'top-to-current';
+						self.className = '';
+						self.innerHTML = 'SIGN IN!';
+						password.value = username.value = password.disabled = username.disabled = '';
 
-                    if (_this.class.students) {
-						connectSocket();
-                        page.show('feed');
-                        temp = doc.getElementById('scrnsht_interval_input');
-                        ["keyup", "mouseup", "keypress"].map(function (ev) {
-                            temp.addEventListener(ev, startAutoRefresh, false);
-                        });
-                    }
-                    else {
-                        doc.getElementById('feed_a').remove();
-                        page.show('records');
-                    }
-                }, 250);
-            }
-        }, function (e) {
-            console.dir(e);
-            throw e;
-        }, {'Access-Control-Allow-Credentials' : 'true'});
+						if (_this.class.students) {
+							connectSocket();
+							page.show('feed');
+							temp = doc.getElementById('scrnsht_interval_input');
+							["keyup", "mouseup", "keypress"].map(function (ev) {
+								temp.addEventListener(ev, startAutoRefresh, false);
+							});
+						}
+						else {
+							doc.getElementById('feed_a').remove();
+							page.show('records');
+						}
+					}, 250);
+				}
+			},
+			function (e) {
+				console.dir(e);
+				throw e;
+			},
+			{
+				'Access-Control-Allow-Credentials' : 'true'
+			}
+		);
     }, true);
 
     doc.getElementById('feed_body_div').addEventListener('click', function (e) {
@@ -512,22 +527,62 @@ Date: ' + new Date(f.date) + '"/>	\
 		if (typeof student === 'undefined') return;
 		ip = 'http://' + student.ip_address + ':8286';
         if (temp.nodeName === 'BUTTON') {
-            switch(temp.className) {
-                case 'lock' :   util.xhr('POST', ip, {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
-                                    if (data.status === 'Locking') {
-                                        window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
-                                        window.className = window.className.replace(/off|active|idle/g, 'locked');
-                                    }
-                                });
+            switch (temp.className) {
+                case 'lock' :   util.xhr(
+									'POST',
+									ip,
+									{
+										command : 'lock',
+										hash : student.hash,
+										salt : student.salt
+									},
+									function (data) {
+										if (data.status === 'Locking') {
+											window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+											window.className = window.className.replace(/off|active|idle/g, 'locked');
+										}
+									}
+								);
                                 break;
-                case 'shutdown' :   util.xhr('POST', ip, {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
-                                    console.dir(data);
-                                });
+                case 'shutdown' :   util.xhr(
+									'POST',
+									ip,
+									{
+										command : 'shutdown',
+										hash : student.hash,
+										salt : student.salt
+									},
+									function (data) {
+										console.dir(data);
+									}
+								);
                                 break;
-                case 'logout' :   util.xhr('POST', ip, {command : 'logoff', hash : student.hash, salt : student.salt}, function (data) {
-                                    console.dir(data);
-                                });
+                case 'logout' :   util.xhr(
+									'POST',
+									ip,
+									{
+										command : 'logoff',
+										hash : student.hash,
+										salt : student.salt
+									},
+									function (data) {
+										console.dir(data);
+									}
+								);
                                 break;
+				case 'proc_list' : util.xhr(
+									'POST',
+									ip,
+									{
+										command : 'a',
+										hash : student.hash,
+										salt : student.salt
+									},
+									function (data, req) {
+										if (req.status === 200) {
+											console.dir(data);
+										}
+									}
                 case 'chat_button' :
                                     doc.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
                                     doc.getElementById('chat_div').style.display = 'block';
@@ -541,12 +596,21 @@ Date: ' + new Date(f.date) + '"/>	\
         }
         else if (temp.nodeName === 'IMG') {
             if (window.classList.contains('locked')) {
-                util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
-                    if (data.status === 'Unlocking') {
-                        window.childNodes[0].setAttribute('src', ip);
-                        window.className = window.className.replace(/locked|off|active/g, 'active');
-                    }
-                });
+                util.xhr(
+					'POST',
+					ip,
+					{
+						command : 'unlock',
+						hash : student.hash,
+						salt : student.salt
+					},
+					function (data) {
+						if (data.status === 'Unlocking') {
+							window.childNodes[0].setAttribute('src', ip);
+							window.className = window.className.replace(/locked|off|active/g, 'active');
+						}
+					}
+				);
             }
             else {
                 root.open(student.vnc);
@@ -655,22 +719,6 @@ Date: ' + new Date(f.date) + '"/>	\
 	doc.getElementById('to_logs_input').addEventListener('keyup', getLogs, true);
 
 	/**
-		Get configurations
-	*/
-	util.xhr(
-		'GET',
-		'http://ricolindo.uplb.edu.ph:8081/config.json',
-		{},
-		function (data) {
-			console.dir(data);
-			url = 'http://' + data.server + ':' + data.port;
-		},
-		function () {
-			console.dir('Unable to get config from ricolindo. Using default values.');
-		}
-	);
-
-	/**
 		Setup pages
 	*/
 
@@ -680,16 +728,23 @@ Date: ' + new Date(f.date) + '"/>	\
     page('logs', logs);
     page('logout', logout);
     page('*', login);
+    page.show('');
 
 
 	/**
-		Game!
+		Get configurations
 	*/
-
-    page.show('');
-
-    if (cookies.has('focus')) {
-		doc.getElementById('username_input').value = doc.getElementById('password_input').value = ' ';
-		doc.getElementById('sign_in_button').click();
-	}
+	util.xhr(
+		'GET',
+		'http://ricolindo.uplb.edu.ph:8081/config.json',
+		{},
+		function (data) {
+			url = 'http://' + data.server + ':' + data.port + '/';
+			loginIfCookieExists();
+		},
+		function () {
+			console.dir('Unable to get config from ricolindo. Using default values.');
+			loginIfCookieExists();
+		}
+	);
 }(this));

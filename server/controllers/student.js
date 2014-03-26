@@ -36,7 +36,7 @@ exports.login = function (req, res, next) {
             if (err) return next(err);
             if (item) {
 				if (process.env['NODE_ENV'] !== 'testing') {	// avoid test fails because of race condition
-					item.access_token = util.hash(+new Date + config.SALT);
+					// item.access_token = util.hash(+new Date + config.SALT);
 				}
                 item.last_login = +new Date;
                 logger.log('verbose', 'student:login updating student properties', data.username, data.student_number);
@@ -162,7 +162,7 @@ exports.login = function (req, res, next) {
 			}
 			else {
 				logger.log('info', 'student:login no current subject found');
-				return res.send(401, {message : 'Sorry but you have no lab class at this time'});
+				return res.send(400, {message : 'Sorry but you have no lab class as of this moment'});
 			}
 		},
 		getAttendanceCollection = function (err, item) {
@@ -196,7 +196,6 @@ exports.login = function (req, res, next) {
 		};
     logger.log('info', 'student:login student trying to login');
 	if (!data) return;
-	console.dir(req.connection.remoteAddress);
     data.ip_address = req.connection.remoteAddress;
 	db.get().collection(collectionName, getStudent)
 };
@@ -212,9 +211,19 @@ exports.logout = function (req, res, next) {
         updateStudent = function (err, item) {
             if (err) return next(err);
             if (item) {
-                collection.update({'_id' : item._id}, {$set : {access_token: null, socket_id : null}}, function (err) {
-                    if (err) return next(err);
-                });
+                /* collection.update(
+					{
+						'_id' : item._id
+					},
+					{
+						$set : {
+							access_token: null
+						}
+					},
+					function (err) {
+						if (err) return next(err);
+					}
+				); */
                 logger.log('info', 'student:logout Logout successful');
 				exports._log(item._id, 'logged out', item.first_name + ' ' + item.last_name);
                 return res.send({message : "Logout successful"});
