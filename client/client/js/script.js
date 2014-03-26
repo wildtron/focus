@@ -3,11 +3,9 @@
  *  - Contains full client app logic
 */
 
-// (function (root) {
-	root = this;
+(function (root) {
 	var socket,
 		url = 'http://10.0.5.49:8080/',
-		// url = 'http://ricolindo.uplb.edu.ph:8080/',
 		localServer = 'http://localhost:10610',
 
 		/**
@@ -99,26 +97,18 @@
 			chat_area.className = chat_area.value = '';
 			chat_area.disabled = false;
 			chat_area.focus();
+		},
+		loginIfCookieExists = function () {
+			if (cookies.has('FOCUSSESSID')) {
+				student_number.value = username.value = password.value = ' ';
+				doc.getElementById('sign_in_button').click();
+			}
 		};
 
 	/**
 		Attach Events
 	*/
 
-/*
-    (function(){
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8081/config.json', false);
-        xhr.send();
-
-        xhr.onreadyStateChange = function(){
-            if(xhr.readyState === 4 && xhr.){
-
-            }
-        };
-    })();
-
-*/
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
 			request = new XMLHttpRequest(),
@@ -364,10 +354,22 @@
 		Game!
 	*/
 
-	if (cookies.has('FOCUSSESSID')) {
-		student_number.value = username.value = password.value = ' ';
-		doc.getElementById('sign_in_button').click();
-	}
+    (function () {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://ricolindo.uplb.edu.ph:8081/config.json', true);
+
+        xhr.onreadystatechange = function () {
+			var data;
+            if(xhr.readyState === 4 && xhr.status === 200){
+				data = JSON.parse(xhr.responseText);
+				url = 'http://' + data.server + ':' + data.port + '/';
+            }
+			if (xhr.readyState === 4) {
+				loginIfCookieExists();
+            }
+        };
+        xhr.send();
+    })();
 
 	student_number.focus();
-// } (this) );
+} (this) );

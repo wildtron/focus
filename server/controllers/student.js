@@ -162,7 +162,7 @@ exports.login = function (req, res, next) {
 			}
 			else {
 				logger.log('info', 'student:login no current subject found');
-				return res.send(401, {message : 'Sorry but you have no lab class at this time'});
+				return res.send(400, {message : 'Sorry but you have no lab class as of this moment'});
 			}
 		},
 		getAttendanceCollection = function (err, item) {
@@ -196,7 +196,6 @@ exports.login = function (req, res, next) {
 		};
     logger.log('info', 'student:login student trying to login');
 	if (!data) return;
-	console.dir(req.connection.remoteAddress);
     data.ip_address = req.connection.remoteAddress;
 	db.get().collection(collectionName, getStudent)
 };

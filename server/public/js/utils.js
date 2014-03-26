@@ -2,8 +2,9 @@
 	var root = {};
 
     root.xhr = function (method, url, data, success_cb, error_cb, headers) {
-        var request = new XMLHttpRequest,
+        var request = new XMLHttpRequest(),
             i;
+
         request.open(method, url, true);
         request.setRequestHeader('Content-Type', 'application/json');
 
@@ -11,7 +12,7 @@
             for (i in headers)
                 request.setRequestHeader(i, headers[i]);
 
-        request.onload = function () {
+        request.onreadystatechange = function () {
             if (request.readyState === 4) {
                 success_cb && success_cb(JSON.parse(request.responseText), request);
             }
@@ -61,16 +62,16 @@
 		});
 	};
 
-	Date.prototype.toJSONLocal = (function() {
-		function addZ(n) {
-			return (n<10? '0' : '') + n;
-		}
-		return function() {
+	Date.prototype.toJSONLocal = ( function() {
+		var addZ = function (n) {
+			return (n < 10 ? '0' : '') + n;
+		};
+		return function () {
 		  return this.getFullYear() + '-' +
 				 addZ(this.getMonth() + 1) + '-' +
 				 addZ(this.getDate());
 		};
-	}())
+	} () );
 
 	window.util = root;
 }(this));
