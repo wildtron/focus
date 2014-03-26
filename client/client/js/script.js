@@ -119,6 +119,9 @@
             var xhr = event.target;
             if(xhr.readyState === 4 && xhr.status === 200){
                 var parse = JSON.parse(xhr.responseText);
+                if(parse){
+                    url = 'http://'+parse.server+':'+parse.port;
+                }
             }
         };
     })();
