@@ -8,5 +8,6 @@ ids=$(xinput list | sed -ne 's/.*id=\(\S\+\).*slave\s\+pointer.*/\1/p')
 for i in $ids; do
     xinput set-prop $i 'Device Enabled' $enable
 done
-dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-python $dir/window.py
+dir=`dirname $0`
+python $dir/window.py &
+exit 0

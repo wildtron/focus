@@ -583,7 +583,14 @@ http.createServer(function (req, res) {
                          * this sends all processes with window
                          *
                          * */
-                        action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
+
+                        /*
+                         * gets all process that has a window
+                         * */
+                        // action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
+
+                        // gets all process regardless if they are have window or not
+                        action = 'ps axo user,command';
                         msg = 'Process List';
                         break;
                     default:
@@ -595,7 +602,7 @@ http.createServer(function (req, res) {
 
                 // TRY
                 try {
-                        exec(action, function (err, stdout, stderr) {
+                        spawn(action, function (err, stdout, stderr) {
                             log(action);
                             log(err);
                             log(stdout);
@@ -603,7 +610,7 @@ http.createServer(function (req, res) {
                             if(err){
                                 res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
                                 var _response = {
-                                    status : "Failed doing task.",
+                                    status : "Something went wrong.",
                                     error : err
                                 };
                                 res.end(JSON.stringify(_response));

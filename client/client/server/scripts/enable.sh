@@ -9,6 +9,5 @@ for i in $ids; do
     xinput set-prop $i 'Device Enabled' $enable
 done
 
-xset dpms force on
-xset s reset
+kill `ps aux | grep window\.py | grep python | awk  '{ print $2 }'`
 killall gnome-screensaver

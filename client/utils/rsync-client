@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-rsync -ra -v -e "sshpass -p genius ssh -l codemagnus -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/ 192.168.1.40:/home/codemagnus/Desktop/focus
+rsync -ra -v -e "sshpass -p useruser ssh -l user -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --delete /var/www/focus/focus/client/out32 10.0.4.192:/home/user/Desktop/focus
