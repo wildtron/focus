@@ -22,6 +22,7 @@ var http = require('http'),
     net = require('net'),
     url = require('url'),
     crypto = require('crypto'),
+    util = require('util'),
     formidable = require('formidable'),
     config = require('./config'),
     masterConfig = {
@@ -43,7 +44,6 @@ var http = require('http'),
     lastTimePress= ((+new Date())/1000).toFixed(0),
     moodStatus='OTHER',
     typing = function(obj){
-        console.log(obj);
         lastTimePress = obj.timeS;
         if(obj.keyCode === 14) {
             backspaceCount++;
@@ -82,7 +82,6 @@ var http = require('http'),
                 keyboard[i].on('keydown', typing);
                 keyboard[i].on('keypress', typing);
                 keyboard[i].on('error', function(e){
-                    log(e);
                 });
             }
             log('binded to keyboard');
@@ -165,6 +164,7 @@ headers["Access-Control-Allow-Credentials"] = false;
 headers["Access-Control-Max-Age"] = '86400'; // 24 hours
 headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, X-Client-Locked";
 headers["Access-Control-Expose-Headers"] = "X-Client-Locked";
+headers['Content-Type'] = 'text/json'
 
 fs.chmodSync(__dirname+'/scripts/disable.sh', 0555);
 fs.chmodSync(__dirname+'/scripts/keyboard.sh',0555);
@@ -187,6 +187,7 @@ fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
 var main = function(){
+    console.log(masterConfig);
     // create a server that listens to localServer port
     http.createServer(function(req, res){
         var postData='',postRequest, decodedBody;
@@ -256,7 +257,7 @@ var main = function(){
                                                         status : "Session was set but VNC is unavailable"
                                                     };
 
-                                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                                    res.writeHead(200, headers);
                                                     res.end(JSON.stringify(_response));
                                                 }
                                             });
@@ -264,7 +265,7 @@ var main = function(){
                                                 log(data.toString());
                                             });
                                         }
-                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                        res.writeHead(200, headers);
                                         var _response = {
                                             status : "Session set."
                                         };
@@ -276,7 +277,7 @@ var main = function(){
                                             status : "Session was invalid."
                                         };
 
-                                        res.writeHead(401, headers, {'Content-Type' : 'text/json'});
+                                        res.writeHead(401, headers);
                                         res.end(JSON.stringify(_response));
                                     }
                                 } catch (e){
@@ -285,7 +286,7 @@ var main = function(){
                                         error : e
                                     };
 
-                                    res.writeHead(400, headers, {'Content-Type' : 'text/json'});
+                                    res.writeHead(400, headers);
                                     res.end(JSON.stringify(_response));
                                 }
                             });
@@ -298,7 +299,7 @@ var main = function(){
                                 error : e
                             };
 
-                            res.writeHead(500, headers, {'Content-Type': 'text/json'});
+                            res.writeHead(500, headers);
                             res.end(JSON.stringify(_response));
                         });
 
@@ -342,7 +343,7 @@ var main = function(){
                             status : "Session destroyed"
                         };
 
-                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                        res.writeHead(200, headers);
                         res.end(JSON.stringify(_response));
                     } else {
                         var _response = {
@@ -351,7 +352,7 @@ var main = function(){
 
                         log("No type was found from client request");
 
-                        res.writeHead(404, headers, {'Content-Type' : 'text/json'});
+                        res.writeHead(404, headers);
                         res.end(JSON.stringify(_response));
                     }
                 } catch (e) {
@@ -361,7 +362,7 @@ var main = function(){
 
                     log(e);
 
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
+                    res.writeHead(500, headers);
                     res.end(JSON.stringify(_response));
                     return;
                 }
@@ -371,7 +372,7 @@ var main = function(){
                 status : "I did not use that."
             };
 
-            res.writeHead(405, headers, {'Content-Type': 'text/json'});
+            res.writeHead(405, headers);
             res.end(JSON.stringify(_response));
         }
     }).listen(config.sessionPort,'localhost');
@@ -402,7 +403,7 @@ var main = function(){
                         status : "Token is not synchronized to localhost"
                     };
 
-                    res.writeHead(401, headers,{'Content-Type':'text/json'});
+                    res.writeHead(401, headers);
                     res.end(JSON.stringify(_response));
                 }
 
@@ -411,7 +412,7 @@ var main = function(){
                         status : "Missing parameters"
                     };
 
-                    res.writeHead(401, headers,{'Content-Type':'text/json'});
+                    res.writeHead(401, headers);
                     res.end(JSON.stringify(_response));
                 }
 
@@ -453,7 +454,7 @@ var main = function(){
 
                         log('No command');
 
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        res.writeHead(400, headers);
                         res.end(JSON.stringify(_response));
                     } else if(!parameters.salt){
                         var _response = {
@@ -462,7 +463,7 @@ var main = function(){
 
                         log('No salt');
 
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        res.writeHead(400, headers);
                         res.end(JSON.stringify(_response));
                     } else if(!parameters.hash){
                         var _response = {
@@ -471,7 +472,7 @@ var main = function(){
 
                         log('No hash');
 
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        res.writeHead(400, headers);
                         res.end(JSON.stringify(_response));
                     }
                     try {
@@ -482,7 +483,7 @@ var main = function(){
                                 status : "Token doesn't match."
                             };
 
-                            res.writeHead(401, headers,{'Content-Type':'text/json'});
+                            res.writeHead(401, headers);
                             res.end(JSON.stringify(_response));
                         } else if(hash === parameters.hash) {
                             log(SESSIONID);
@@ -494,7 +495,7 @@ var main = function(){
                             error : e
                         };
 
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        res.writeHead(400, headers);
                         res.end(JSON.stringify(_response));
                     }
                 } catch(e) {
@@ -503,7 +504,7 @@ var main = function(){
                         error : e
                     };
 
-                    res.writeHead(400, headers, {'Content-Type':'text/json'});
+                    res.writeHead(400, headers);
                     res.end(JSON.stringify(_response));
                 }
             };
@@ -542,7 +543,7 @@ var main = function(){
                                 error : err
                             };
 
-                            res.writeHead(500, headers, {'Content-Type':'text/json'});
+                            res.writeHead(500, headers);
                             res.end(JSON.stringify(_response));
                         }
 
@@ -553,7 +554,8 @@ var main = function(){
                         }
 
                         try{
-                            res.writeHead(200,headers, {'Content-Type' : 'image/png'});
+                            headers['Content-Type'] = 'image/png'
+                            res.writeHead(200,headers);
                             fs.createReadStream(dir).pipe(res);
 
                         } catch(e){
@@ -561,7 +563,7 @@ var main = function(){
                                 status : "Problem with image creation"
                             };
 
-                            res.writeHead(500, headers, {'Content-Type':'text/json'});
+                            res.writeHead(500, headers);
                             res.end(JSON.stringify(_response));
                         }
 
@@ -572,7 +574,7 @@ var main = function(){
                         error : e
                     };
 
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
+                    res.writeHead(500, headers);
                     res.end(JSON.stringify(_response));
                 }
             });
@@ -587,8 +589,39 @@ var main = function(){
                     var path = url.parse(req.url).pathname;
 
                     if(path === '/upload'){
+                        var form = new formidable.IncomingForm();
 
+                        form.parse(req, function(err, fields, files){
+                            if(err || files.file === undefined){
+                                var _response = {
+                                    status: 'missing file field'
+                                };
+                                res.writeHead(400, headers);
+                                res.end(JSON.stringify(_response));
 
+                            } else {
+                                var _response = {
+                                    status : 'Received file.'
+                                };
+
+                                var src = fs.createReadStream(files.file.path);
+                                var dest = fs.createWriteStream(process.env.HOME+'/Desktop/'+files.file.name);
+
+                                src.pipe(dest);
+
+                                src.on('end', function(){
+                                    res.writeHead(200, headers);
+                                    res.end(JSON.stringify(_response));
+                                });
+
+                                src.on('error', function(err){
+                                    _response.error = err;
+
+                                    res.writeHead(500, headers);
+                                    res.end(JSON.stringify(_response));
+                                });
+                            }
+                        });
                     } else {
                         switch(parameters.command){
                             // shutdown
@@ -667,7 +700,7 @@ var main = function(){
                                         status : msg
                                     };
 
-                                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                    res.writeHead(200, headers);
                                     res.end(JSON.stringify(_response));
                                 });
 
@@ -678,7 +711,7 @@ var main = function(){
                                             status : "Session was set but VNC is unavailable"
                                         };
 
-                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                        res.writeHead(200, headers);
                                         res.end(JSON.stringify(_response));
                                     }
                                 });
@@ -691,7 +724,7 @@ var main = function(){
                                     status : msg
                                 };
 
-                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                res.writeHead(200, headers);
                                 res.end(JSON.stringify(_response));
                             } else {
                                 exec(action, function (err, stdout, stderr) {
@@ -705,7 +738,7 @@ var main = function(){
                                             error : err
                                         };
 
-                                        res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
+                                        res.writeHead(500, headers);
                                         res.end(JSON.stringify(_response));
                                     }
 
@@ -716,8 +749,7 @@ var main = function(){
                                     } else if(parameters.command === 'proclist'){
                                         var out = stdout.split('\n');
 
-                                        headers['Content-Type'] = 'text/json';
-                                        res.writeHead(200, "OK", headers);
+                                        res.writeHead(200, headers);
                                         res.end(JSON.stringify({status: out}));
                                     }
 
@@ -725,7 +757,7 @@ var main = function(){
                                         status : msg
                                     };
 
-                                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                    res.writeHead(200, headers);
                                     res.end(JSON.stringify(_response));
                                 });
                             }
@@ -736,7 +768,7 @@ var main = function(){
                                 status : "Something wicked happened"
                             };
 
-                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                            res.writeHead(200, headers);
                             res.end(JSON.stringify(_response));
                         }
                     // CATCH-end
@@ -749,7 +781,7 @@ var main = function(){
                         status : "task unavailable"
                     };
 
-                    res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
+                    res.writeHead(404, headers);
                     res.end(JSON.stringify(_response));
             });
         }
@@ -769,14 +801,14 @@ var main = function(){
                 status : moodStatus
             };
 
-            res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
+            res.writeHead(200, headers);
             res.end(JSON.stringify(_response));
         } else {
             var _response = {
                 status : "Easter egg"
             };
 
-            res.writeHead(405,headers, {'Content-Type': 'text/json'});
+            res.writeHead(405,headers);
             res.end(JSON.stringify(_response));
         }
     }).listen(config.keyPort);
