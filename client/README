@@ -17,6 +17,14 @@ POST /
     &hash=sha1(salt+sessionID)
     &salt=md5(rand_string)
 
+    :8286/upload
+    command=<random_string>
+    &hash=sha1(salt+sessionID)
+    &salt=md5(command)
+
+    required field:
+        file
+
 VNC
     VNC starts when the the student logs in
 
