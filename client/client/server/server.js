@@ -21,6 +21,7 @@ var http = require('http'),
     net = require('net'),
     url = require('url'),
     crypto = require('crypto'),
+    formidable = require('formidable'),
     config = require('./config'),
     masterConfig = {
         server : config.motherHost,
@@ -183,537 +184,546 @@ fs.chmodSync(__dirname+'/client/utils/json2graph.py', 0555);
 fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 
 var main = function(){
-log(JSON.stringify(masterConfig));
+    // create a server that listens to localServer port
+    http.createServer(function(req, res){
+        var postData='',postRequest, decodedBody;
+        if (req.method === 'OPTIONS') {
+        res.writeHead(300, headers);
+        res.end();
+        } else if(req.method==='POST'){
+            log('localhost attempts to set SESSIONID');
+            req.on('data', function (chunk){
+                postData += chunk;
+            });
 
-// create a server that listens to localServer port
-http.createServer(function(req, res){
-    var postData='',postRequest, decodedBody;
-    if (req.method === 'OPTIONS') {
-      res.writeHead(300, headers);
-      res.end();
-    } else if(req.method==='POST'){
-        log('localhost attempts to set SESSIONID');
-        req.on('data', function (chunk){
-            postData += chunk;
-        });
+            req.on('end', function() {
+                log("Trying to set session to server");
+                try{
+                    decodedBody = JSON.parse(postData);
+                    log("JSON parse was successful.");
 
-        req.on('end', function() {
-            log("Trying to set session to server");
-            try{
-                decodedBody = JSON.parse(postData);
-                log("JSON parse was successful.");
+                    if(decodedBody.hasOwnProperty('session')){
+                        log("session was found from the payload");
+                        /*
+                        *  connect to motherServer and ensure the integrity of sent SESSIONID
+                        * */
+                        log("verifying session from server");
+                        var integrityCheckResult;
+                        postData = qs.stringify({
+                            'access_token' : decodedBody.session
+                        });
 
-                if(decodedBody.hasOwnProperty('session')){
-                    log("session was found from the payload");
-                    /*
-                    *  connect to motherServer and ensure the integrity of sent SESSIONID
-                    * */
-                    log("verifying session from server");
-                    var integrityCheckResult;
-                    postData = qs.stringify({
-                        'access_token' : decodedBody.session
-                    });
-
-                    postRequest = http.request({
-                        host: masterConfig.server,
-                        port: masterConfig.port,
-                        path: '/student/findByAccessToken',
-                        method: 'POST',
-                        headers : {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    }, function(response){
-                        log("Received response for verification from server");
-                        response.setEncoding('utf8');
-                        response.on('data', function(chunk){
-                            var json;
-                            integrityCheckResult = chunk;
-                            SESSIONID=decodedBody.session;
-                            try{
-                                log("Received data from server. Parsing...");
-                                json = JSON.parse(integrityCheckResult);
-                                if(json.access_token === SESSIONID){
-                                    log("Session was found valid.");
-                                    isLocked = false;
-                                    masterTimer.start();
-                                    if(!handle){
-                                        log('Starting vnc.');
-                                        var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
-                                        log(pass);
-                                        handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
-                                            env: {
-                                                LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH,
-                                               DISPLAY:':0.0'
-                                            }
-                                        });
-                                        log('Spawned it! :D');
-                                        handle.stderr.on('data', function(data){
-                                            log(data.toString());
-                                            if(/^execvp\(\)/.test(data)){
-                                                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                                var _response = {
-                                                    status : "Session was set but VNC is unavailable"
-                                                };
-                                                res.end(JSON.stringify(_response));
-                                            }
-                                        });
-                                        handle.stdout.on('data', function(data){
-                                            log(data.toString());
-                                        });
+                        postRequest = http.request({
+                            host: masterConfig.server,
+                            port: masterConfig.port,
+                            path: '/student/findByAccessToken',
+                            method: 'POST',
+                            headers : {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        }, function(response){
+                            log("Received response for verification from server");
+                            response.setEncoding('utf8');
+                            response.on('data', function(chunk){
+                                var json;
+                                integrityCheckResult = chunk;
+                                SESSIONID=decodedBody.session;
+                                try{
+                                    log("Received data from server. Parsing...");
+                                    json = JSON.parse(integrityCheckResult);
+                                    if(json.access_token === SESSIONID){
+                                        log("Session was found valid.");
+                                        isLocked = false;
+                                        masterTimer.start();
+                                        if(!handle){
+                                            log('Starting vnc.');
+                                            var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
+                                            log(pass);
+                                            handle = spawn(__dirname+'/scripts/linux-app-arm', [pass, config.vncport], {
+                                                env: {
+                                                    LD_LIBRARY_PATH: __dirname+'/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH,
+                                                DISPLAY:':0.0'
+                                                }
+                                            });
+                                            log('Spawned it! :D');
+                                            handle.stderr.on('data', function(data){
+                                                log(data.toString());
+                                                if(/^execvp\(\)/.test(data)){
+                                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                                    var _response = {
+                                                        status : "Session was set but VNC is unavailable"
+                                                    };
+                                                    res.end(JSON.stringify(_response));
+                                                }
+                                            });
+                                            handle.stdout.on('data', function(data){
+                                                log(data.toString());
+                                            });
+                                        }
+                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                        var _response = {
+                                            status : "Session set."
+                                        };
+                                        res.end(JSON.stringify(_response));
+                                    } else {
+                                        log("Session was found invalid.", json.access_token, SESSIONID);
+                                        res.writeHead(401, headers, {'Content-Type' : 'text/json'});
+                                        var _response = {
+                                            status : "Session was invalid."
+                                        };
+                                        res.end(JSON.stringify(_response));
                                     }
-                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                } catch (e){
+                                    res.writeHead(400, headers, {'Content-Type' : 'text/json'});
                                     var _response = {
-                                        status : "Session set."
-                                    };
-                                    res.end(JSON.stringify(_response));
-                                } else {
-                                    log("Session was found invalid.", json.access_token, SESSIONID);
-                                    res.writeHead(401, headers, {'Content-Type' : 'text/json'});
-                                    var _response = {
-                                        status : "Session was invalid."
+                                        status : "Failed to set session. Server did no respond accordingly",
+                                        error : e
                                     };
                                     res.end(JSON.stringify(_response));
                                 }
-                            } catch (e){
-                                res.writeHead(400, headers, {'Content-Type' : 'text/json'});
-                                var _response = {
-                                    status : "Failed to set session. Server did no respond accordingly",
-                                    error : e
-                                };
-                                res.end(JSON.stringify(_response));
-                            }
+                            });
                         });
-                    });
-                    log('Waiting for response from server');
-                    postRequest.write(postData);
-                    postRequest.on('error', function(e){
-                        res.writeHead(500, headers, {'Content-Type': 'text/json'});
+                        log('Waiting for response from server');
+                        postRequest.write(postData);
+                        postRequest.on('error', function(e){
+                            res.writeHead(500, headers, {'Content-Type': 'text/json'});
+                            var _response = {
+                                status : "Failed to ser session",
+                                error : e
+                            };
+                            res.end(JSON.stringify(_response));
+                        });
+                        postRequest.end();
+                    } else if(decodedBody.hasOwnProperty('destroy')){
+                        log("destroy was found from the payload");
+                        SESSIONID=undefined;
+                        masterTimer.stop();
+                        var killTimesApparmor=0, killTimesWebsock=0;
+                        try{
+                            handle.kill('SIGKILL');
+                            handle=undefined;
+                            // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
+                            // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
+                            var apparmorkill = setTimeout(function(){
+                                exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
+                                    log(err);
+                                    log(stdout);
+                                    log(stderr);
+                                    if(killTimesApparmor === 5) clearTimeout(apparmorkill);
+                                    killTimesApparmor++;
+                                });
+                            },5000);
+                            var websockKill = setTimeout(function(){
+                                exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
+                                    log(err);
+                                    log(stdout);
+                                    log(stderr);
+                                    if(killTimesWebsock === 5) clearTimeout(websockKill);
+                                    killTimesWebsock++;
+                                });
+                            }, 5000);
+                        } catch(e){
+                            log(e);
+                        }
+                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                         var _response = {
-                            status : "Failed to ser session",
+                            status : "Session destroyed"
+                        };
+                        res.end(JSON.stringify(_response));
+                    } else {
+                        log("No type was found from client request");
+                        res.writeHead(404, headers, {'Content-Type' : 'text/json'});
+                        var _response = {
+                            status : "Faled to do action"
+                        };
+                        res.end(JSON.stringify(_response));
+                    }
+                } catch (e) {
+                    log(e);
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
+                    var _response = {
+                        status : "Problem with POST data"
+                    };
+                    res.end(JSON.stringify(_response));
+                    return;
+                }
+            });
+        } else {
+            res.writeHead(405, headers, {'Content-Type': 'text/json'});
+            var _response = {
+                status : "I did not use that."
+            };
+            res.end(JSON.stringify(_response));
+        }
+    }).listen(config.sessionPort,'localhost');
+    log('listening to port '+config.sessionPort);
+
+
+    /*
+    * The server below controls the funtionalities of the following:
+    *      Lock/Unlock
+    *      Shutdown
+    *      Logoff
+    *
+    * */
+
+    http.createServer(function (req, res) {
+        var parameters=[],
+            checkSession=function(callback){
+
+            var parse = function(chunk){
+                var hash,
+                    payload,
+                    post={},
+                    get = url.parse(req.url,true).query || "",
+                    key;
+
+                if(!SESSIONID){
+                    res.writeHead(401, headers,{'Content-Type':'text/json'});
+                    var _response = {
+                        status : "Token is not synchronized to localhost"
+                    };
+                    res.end(JSON.stringify(_response));
+                }
+
+                if(chunk === undefined && req.method === 'POST'){
+                    res.writeHead(401, headers,{'Content-Type':'text/json'});
+                    var _response = {
+                        status : "Missing parameters"
+                    };
+                    res.end(JSON.stringify(_response));
+                }
+
+                payload = String(chunk);
+
+                if(chunk !== undefined){
+                    try{
+                        // try to parse in JSON format
+                        post = JSON.parse(payload);
+                    } catch(e) {
+                        // try to parse in normal payload format
+                        post = qs.parse(payload);
+                    }
+                }
+                log(JSON.stringify(get));
+
+                try {
+                    log('Parsing parameters...');
+
+                    if(get !== ""){
+                        for(key in get){
+                            parameters[key] = get[key];
+                        }
+                    }
+
+                    if(post !== undefined){
+                        for(key in post){
+                            parameters[key] = post[key];
+                        }
+                    }
+
+                    log(JSON.stringify(parameters));
+
+                    if(!parameters.command){
+                        log('No command');
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        var _response = {
+                            status : "Missing command."
+                        };
+                        res.end(JSON.stringify(_response));
+                    } else if(!parameters.salt){
+                        log('No salt');
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        var _response = {
+                            status : "Missing salt."
+                        };
+                        res.end(JSON.stringify(_response));
+                    } else if(!parameters.hash){
+                        log('No hash');
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        var _response = {
+                            status : "Missing hash"
+                        };
+                        res.end(JSON.stringify(_response));
+                    }
+                    try {
+                        hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
+                        if(hash !== parameters.hash){
+                            res.writeHead(401, headers,{'Content-Type':'text/json'});
+                            var _response = {
+                                status : "Token doesn't match."
+                            };
+                            res.end(JSON.stringify(_response));
+                        } else if(hash === parameters.hash) {
+                            log(SESSIONID);
+                            callback();
+                        }
+                    } catch(e) {
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
+                        var _response = {
+                            status : "Something wicked happened inside the server",
                             error : e
                         };
                         res.end(JSON.stringify(_response));
-                    });
-                    postRequest.end();
-                } else if(decodedBody.hasOwnProperty('destroy')){
-                    log("destroy was found from the payload");
-                    SESSIONID=undefined;
-                    masterTimer.stop();
-                    var killTimesApparmor=0, killTimesWebsock=0;
-                    try{
-                        handle.kill('SIGKILL');
-                        handle=undefined;
-                        // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
-                        // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
-                        var apparmorkill = setTimeout(function(){
-                            exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
-                                log(err);
-                                log(stdout);
-                                log(stderr);
-                                if(killTimesApparmor === 5) clearTimeout(apparmorkill);
-                                killTimesApparmor++;
-                            });
-                        },5000);
-                        var websockKill = setTimeout(function(){
-                            exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
-                                log(err);
-                                log(stdout);
-                                log(stderr);
-                                if(killTimesWebsock === 5) clearTimeout(websockKill);
-                                killTimesWebsock++;
-                            });
-                        }, 5000);
-                    } catch(e){
-                        log(e);
-                    }
-                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                    var _response = {
-                        status : "Session destroyed"
-                    };
-                    res.end(JSON.stringify(_response));
-                } else {
-                    log("No type was found from client request");
-                    res.writeHead(404, headers, {'Content-Type' : 'text/json'});
-                    var _response = {
-                        status : "Faled to do action"
-                    };
-                    res.end(JSON.stringify(_response));
-                }
-            } catch (e) {
-                log(e);
-                res.writeHead(500, headers, {'Content-Type':'text/json'});
-                var _response = {
-                    status : "Problem with POST data"
-                };
-                res.end(JSON.stringify(_response));
-                return;
-            }
-        });
-    } else {
-        res.writeHead(405, headers, {'Content-Type': 'text/json'});
-        var _response = {
-            status : "I did not use that."
-        };
-        res.end(JSON.stringify(_response));
-    }
-}).listen(config.sessionPort,'localhost');
-log('listening to port '+config.sessionPort);
-
-
-/*
- * The server below controls the funtionalities of the following:
- *      Lock/Unlock
- *      Shutdown
- *      Logoff
- *
- * */
-
-http.createServer(function (req, res) {
-    var parameters=[],
-        checkSession=function(callback){
-
-        var parse = function(chunk){
-            var hash,
-                payload,
-                post={},
-                get = url.parse(req.url,true).query || "",
-                key;
-
-            if(!SESSIONID){
-                res.writeHead(401, headers,{'Content-Type':'text/json'});
-                var _response = {
-                    status : "Token is not synchronized to localhost"
-                };
-                res.end(JSON.stringify(_response));
-            }
-
-            if(chunk === undefined && req.method === 'POST'){
-                res.writeHead(401, headers,{'Content-Type':'text/json'});
-                var _response = {
-                    status : "Missing parameters"
-                };
-                res.end(JSON.stringify(_response));
-            }
-
-            payload = String(chunk);
-
-            if(chunk !== undefined){
-                try{
-                    // try to parse in JSON format
-                    post = JSON.parse(payload);
-                } catch(e) {
-                    // try to parse in normal payload format
-                    post = qs.parse(payload);
-                }
-            }
-            log(JSON.stringify(get));
-
-            try {
-                log('Parsing parameters...');
-
-                if(get !== ""){
-                    for(key in get){
-                        parameters[key] = get[key];
-                    }
-                }
-
-                if(post !== undefined){
-                    for(key in post){
-                        parameters[key] = post[key];
-                    }
-                }
-
-                log(JSON.stringify(parameters));
-
-                if(!parameters.command){
-                    log('No command');
-                    res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    var _response = {
-                        status : "Missing command."
-                    };
-                    res.end(JSON.stringify(_response));
-                } else if(!parameters.salt){
-                    log('No salt');
-                    res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    var _response = {
-                        status : "Missing salt."
-                    };
-                    res.end(JSON.stringify(_response));
-                } else if(!parameters.hash){
-                    log('No hash');
-                    res.writeHead(400, headers, {'Content-Type':'text/json'});
-                    var _response = {
-                        status : "Missing hash"
-                    };
-                    res.end(JSON.stringify(_response));
-                }
-                try {
-                    hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
-                    if(hash !== parameters.hash){
-                        res.writeHead(401, headers,{'Content-Type':'text/json'});
-                        var _response = {
-                            status : "Token doesn't match."
-                        };
-                        res.end(JSON.stringify(_response));
-                    } else if(hash === parameters.hash) {
-                        log(SESSIONID);
-                        callback();
                     }
                 } catch(e) {
                     res.writeHead(400, headers, {'Content-Type':'text/json'});
                     var _response = {
-                        status : "Something wicked happened inside the server",
+                        status : "Problem with sent data",
                         error : e
                     };
                     res.end(JSON.stringify(_response));
                 }
-            } catch(e) {
-                res.writeHead(400, headers, {'Content-Type':'text/json'});
-                var _response = {
-                    status : "Problem with sent data",
-                    error : e
-                };
-                res.end(JSON.stringify(_response));
+            };
+
+            if(req.method === 'GET'){
+                log("GET was used. :D");
+                parse();
             }
+
+            req.on('data', parse);
+
         };
 
-        if(req.method === 'GET'){
-            log("GET was used. :D");
-            parse();
-        }
-
-        req.on('data', parse);
-
-    };
-
-    if (req.method === 'OPTIONS') {
-        log('OPTIONS');
-        res.writeHead(200, headers);
-        res.end();
-    } else if(req.method === 'GET') {
-        checkSession(function(){
-            log('Received GET Request.');
-            type = (parameters.command === 'png')? 'png' : 'jpeg';
-            var dir = "/tmp/"+SESSIONID+type,
-                cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
-            try{
-                exec(cmd, function (err, stdout, stderr) {
-                    log(err);
-                    log(stdout);
-                    log(stderr);
-                    if(err){
-                        res.writeHead(500, headers, {'Content-Type':'text/json'});
-                        var _response = {
-                            status : "Problem with sent data",
-                            error : err
-                        };
-                        res.end(JSON.stringify(_response));
-                    }
-
-                    if(isLocked){
-                        headers['X-Client-Locked'] = true;
-                    } else {
-                        headers['X-Client-Locked'] = false;
-                    }
-                    res.writeHead(200,headers, {'Content-Type' : 'image/png'});
-                    try{
-                        fs.createReadStream(dir).pipe(res);
-                    } catch(e){
-                        res.writeHead(500, headers, {'Content-Type':'text/json'});
-                        var _response = {
-                            status : "Problem with image creation"
-                        };
-                        res.end(JSON.stringify(_response));
-                    }
-                });
-            } catch (e){
-                res.writeHead(500, headers, {'Content-Type':'text/json'});
-                var _response = {
-                    status : "Problem with sent data",
-                    error : e
-                };
-                res.end(JSON.stringify(_response));
-            }
-        });
-    } else if(req.method === 'POST'){
-        checkSession(function(){
-            log('Received POST Request.');
-            req.on('end', function () {
-                var action = '',
-                    msg = '';
-                log('end-part response.');
-                switch(parameters.command){
-                    // shutdown
-                    case 'shutdown':
-                        log('Shutdown command initiated.');
-                        action = 'shutdown -h now';
-                        msg = 'Shutting down';
-                        break;
-                    // logoff
-                    case 'logoff':
-                        log('Logoff command initiated.');
-                        action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
-                        msg = 'Logging off';
-                        break;
-                    // lock
-                    case 'lock':
-                        log('System Lock On');
-                        /*
-                        *  turn off screen and enable screensaver
-                        *  xset dpms force off
-                        * */
-                        action = __dirname+'/scripts/disable.sh';
-                        msg ='Locking';
-                        break;
-                    // unlock
-                    case 'unlock':
-                        log('System Lock Off');
-                        /*
-                        * turn on screen and disable screensaver
-                        * xset dpms force on
-                        * xset s reset
-                        * killall gnome-screensaver
-                        *
-                        * */
-                        action = 'sh '+__dirname+'/scripts/enable.sh';
-                        msg = 'Unlocking';
-                        break;
-                    // send the active window
-                    case 'proclist':
-                        /*
-                         * this sends all processes with window
-                         *
-                         * */
-
-                        /*
-                         * gets all process that has a window
-                         * */
-                        // action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
-
-                        // gets all process regardless if they are have window or not
-                        action = 'ps axo user,command';
-                        msg = 'Process List';
-                        break;
-                    default:
-                        action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                        parameters.command='';
-                        msg='ActiveWindow';
-                        break;
-                }
-
-                // TRY
-                try {
-                    if(parameters.command === 'lock'){
-                        isLocked = true;
-                    } else if(parameters.command === 'unlock'){
-                        isLocked = false;
-                    }
-                    if(parameters.command === 'lock'){
-                        log(action);
-                        var child = spawn(action,[], {}, function(){
-                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+        if (req.method === 'OPTIONS') {
+            log('OPTIONS');
+            res.writeHead(200, headers);
+            res.end();
+        } else if(req.method === 'GET') {
+            checkSession(function(){
+                log('Received GET Request.');
+                type = (parameters.command === 'png')? 'png' : 'jpeg';
+                var dir = "/tmp/"+SESSIONID+type,
+                    cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
+                try{
+                    exec(cmd, function (err, stdout, stderr) {
+                        log(err);
+                        log(stdout);
+                        log(stderr);
+                        if(err){
+                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             var _response = {
-                                status : msg
+                                status : "Problem with sent data",
+                                error : err
                             };
                             res.end(JSON.stringify(_response));
-                        });
-                        child.stderr.on('data', function(data){
-                            log(data.toString());
-                            if(/^execvp\(\)/.test(data)){
-                                res.writeHead(200, headers, {'Content-Type' : 'text/json'});
-                                var _response = {
-                                    status : "Session was set but VNC is unavailable"
-                                };
-                                res.end(JSON.stringify(_response));
-                            }
-                        });
-                        child.stdout.on('data', function(data){
-                            log(data.toString());
-                        });
-                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                        var _response = {
-                            status : msg
-                        };
-                        res.end(JSON.stringify(_response));
-                    } else {
-                        exec(action, function (err, stdout, stderr) {
-                            log(err);
-                            log(stdout);
-                            log(stderr);
-                            if(err){
-                                res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
-                                var _response = {
-                                    status : "Something went wrong.",
-                                    error : err
-                                };
-                                res.end(JSON.stringify(_response));
-                            }
+                        }
 
-                            if(parameters.command === ''){
-                                msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                                var t = msg.split("WM_CLASS(STRING) = ");
-                                msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                            } else if(parameters.command === 'proclist'){
-                                var out = stdout.split('\n');
-                                headers['Content-Type'] = 'text/json';
-                                res.writeHead(200, "OK", headers);
-                                res.end(JSON.stringify({status: out}));
-                            }
-
-                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                        if(isLocked){
+                            headers['X-Client-Locked'] = true;
+                        } else {
+                            headers['X-Client-Locked'] = false;
+                        }
+                        res.writeHead(200,headers, {'Content-Type' : 'image/png'});
+                        try{
+                            fs.createReadStream(dir).pipe(res);
+                        } catch(e){
+                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             var _response = {
-                                status : msg
+                                status : "Problem with image creation"
                             };
                             res.end(JSON.stringify(_response));
-                        });
-                    }
+                        }
+                    });
                 } catch (e){
-                    log(e);
-                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
                     var _response = {
-                        status : "Something wicked happened"
+                        status : "Problem with sent data",
+                        error : e
                     };
                     res.end(JSON.stringify(_response));
                 }
-                // CATCH-end
-
             });
-       });
-    } else {
-       checkSession(function(){
-            res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
+        } else if(req.method === 'POST'){
+            checkSession(function(){
+                log('Received POST Request.');
+                req.on('end', function () {
+                    var action = '',
+                        msg = '';
+                    log('end-part response.');
+
+
+
+
+
+
+
+
+
+
+
+                    switch(parameters.command){
+                        // shutdown
+                        case 'shutdown':
+                            log('Shutdown command initiated.');
+                            action = 'shutdown -h now';
+                            msg = 'Shutting down';
+                            break;
+                        // logoff
+                        case 'logoff':
+                            log('Logoff command initiated.');
+                            action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
+                            msg = 'Logging off';
+                            break;
+                        // lock
+                        case 'lock':
+                            log('System Lock On');
+                            /*
+                            *  turn off screen and enable screensaver
+                            *  xset dpms force off
+                            * */
+                            action = __dirname+'/scripts/disable.sh';
+                            msg ='Locking';
+                            break;
+                        // unlock
+                        case 'unlock':
+                            log('System Lock Off');
+                            /*
+                            * turn on screen and disable screensaver
+                            * xset dpms force on
+                            * xset s reset
+                            * killall gnome-screensaver
+                            *
+                            * */
+                            action = 'sh '+__dirname+'/scripts/enable.sh';
+                            msg = 'Unlocking';
+                            break;
+                        // send the active window
+                        case 'proclist':
+                            /*
+                            * this sends all processes with window
+                            *
+                            * */
+
+                            /*
+                            * gets all process that has a window
+                            * */
+                            action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
+
+                            // gets all process regardless if they are have window or not
+                            //action = 'ps axo user,command';
+                            msg = 'Process List';
+                            break;
+                        default:
+                            action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
+                            parameters.command='';
+                            msg='ActiveWindow';
+                            break;
+                    }
+
+                    // TRY
+                    try {
+                        if(parameters.command === 'lock'){
+                            isLocked = true;
+                        } else if(parameters.command === 'unlock'){
+                            isLocked = false;
+                        }
+                        if(parameters.command === 'lock'){
+                            log(action);
+                            var child = spawn(action,[], {}, function(){
+                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                var _response = {
+                                    status : msg
+                                };
+                                res.end(JSON.stringify(_response));
+                            });
+                            child.stderr.on('data', function(data){
+                                log(data.toString());
+                                if(/^execvp\(\)/.test(data)){
+                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                    var _response = {
+                                        status : "Session was set but VNC is unavailable"
+                                    };
+                                    res.end(JSON.stringify(_response));
+                                }
+                            });
+                            child.stdout.on('data', function(data){
+                                log(data.toString());
+                            });
+                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                            var _response = {
+                                status : msg
+                            };
+                            res.end(JSON.stringify(_response));
+                        } else {
+                            exec(action, function (err, stdout, stderr) {
+                                log(err);
+                                log(stdout);
+                                log(stderr);
+                                if(err){
+                                    res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
+                                    var _response = {
+                                        status : "Something went wrong.",
+                                        error : err
+                                    };
+                                    res.end(JSON.stringify(_response));
+                                }
+
+                                if(parameters.command === ''){
+                                    msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                                    var t = msg.split("WM_CLASS(STRING) = ");
+                                    msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                                } else if(parameters.command === 'proclist'){
+                                    var out = stdout.split('\n');
+                                    headers['Content-Type'] = 'text/json';
+                                    res.writeHead(200, "OK", headers);
+                                    res.end(JSON.stringify({status: out}));
+                                }
+
+                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                var _response = {
+                                    status : msg
+                                };
+                                res.end(JSON.stringify(_response));
+                            });
+                        }
+                    } catch (e){
+                        log(e);
+                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                        var _response = {
+                            status : "Something wicked happened"
+                        };
+                        res.end(JSON.stringify(_response));
+                    }
+                    // CATCH-end
+
+                });
+        });
+        } else {
+        checkSession(function(){
+                res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
+                var _response = {
+                    status : "task unavailable"
+                };
+                res.end(JSON.stringify(_response));
+        });
+        }
+    }).listen(config.activityPort);
+    log("listening on port "+config.activityPort);
+
+
+    // this server is for the typed keys of the user
+    // this will not logged the user's keys but instead
+    // will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
+
+
+    http.createServer(function(req,res){
+        if (req.method === 'OPTIONS') {
+            res.writeHead(300, headers);
+            res.end();
+        } else if(req.method === 'PUT') {
+            res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
             var _response = {
-                status : "task unavailable"
+                status : moodStatus
             };
             res.end(JSON.stringify(_response));
-       });
-    }
-}).listen(config.activityPort);
-log("listening on port "+config.activityPort);
-
-
-// this server is for the typed keys of the user
-// this will not logged the user's keys but instead
-// will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
-
-
-http.createServer(function(req,res){
-    if (req.method === 'OPTIONS') {
-      res.writeHead(300, headers);
-      res.end();
-    } else if(req.method === 'PUT') {
-        res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
-        var _response = {
-            status : moodStatus
-        };
-        res.end(JSON.stringify(_response));
-    } else {
-        res.writeHead(405,headers, {'Content-Type': 'text/json'});
-        var _response = {
-            status : "Easter egg"
-        };
-        res.end(JSON.stringify(_response));
-    }
-}).listen(config.keyPort);
-log('listening on port '+config.keyPort);
+        } else {
+            res.writeHead(405,headers, {'Content-Type': 'text/json'});
+            var _response = {
+                status : "Easter egg"
+            };
+            res.end(JSON.stringify(_response));
+        }
+    }).listen(config.keyPort);
+    log('listening on port '+config.keyPort);
 };
