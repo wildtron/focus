@@ -608,7 +608,8 @@ section{
     border: 2px solid #000000;
 }
 .window_div.new_message{
-	background: #463D8A;
+	background: #000;
+	border: 2px solid #000;
 }
 .window_div img{
     width: 350px;

@@ -10,7 +10,7 @@ var http = require('http'),
 // imports
 if (process.env['NODE_ENV'] === 'testing') {
 }
-db.addImport(student.collectionName);
+// db.addImport(student.collectionName);
 db.addImport(section.collectionName);
 db.addImport(instructor.collectionName);
 
@@ -224,7 +224,7 @@ exports.handleSocket = function (io) {
 				room = rooms[room];
 				if (room.instructor === socket.id) {
 					logger.log('silly', 'disconnecting from', room.id);
-					socket.broadcast.to(room.id).emit('disconnect');
+					socket.broadcast.to(room.id).emit('instructor_leave');
 					socket.leave(room.id);
 					room.instructor = room.instructor_id = null;
 					if (!room.student)
@@ -232,7 +232,7 @@ exports.handleSocket = function (io) {
 				}
 				else if (room.student === socket.id) {
 					logger.log('silly', 'disconnecting from', room.id);
-					socket.broadcast.to(room.id).emit('disconnect', room.student_id);
+					socket.broadcast.to(room.id).emit('student_leave', room.student_id);
 					socket.leave(room.id);
 					room.student = room.student_id = null;
 					if (!room.instructor)
@@ -252,7 +252,7 @@ exports.handleSocket = function (io) {
 		for (room in rooms) {
 			room = rooms[room];
 			if (room.student && room.instructor) {
-				logger.log('silly', 'sending http request');
+				// logger.log('silly', 'sending http request');
 				(function (room) {
 					req = http.request({
 						host: room.student_ip,
@@ -268,8 +268,8 @@ exports.handleSocket = function (io) {
 						response.on('end', function () {
 							var translation = {
 									'other' : 'active',
-									'bored' : 'idle',
-									'confused' : 'off'
+									'bored' : 'off',
+									'confused' : 'idle'
 								},
 								status = translation[JSON.parse(data).status.toLowerCase()];
 							if (room.student_status != status) {

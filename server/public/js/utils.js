@@ -64,6 +64,10 @@
 		return str.match(/\S{1,30}/g).join(' ');
 	};
 
+	root.pad = function (num, size) {
+		return ('000000000' + num).substr(-(size || 2));
+	};
+
 	Date.prototype.toJSONLocal = ( function() {
 		var addZ = function (n) {
 			return (n < 10 ? '0' : '') + n;
