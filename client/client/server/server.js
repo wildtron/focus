@@ -9,6 +9,7 @@
 /*
  * Usage is found in README outside the local server directory
  *
+ *
  * */
 
 
@@ -42,6 +43,7 @@ var http = require('http'),
     lastTimePress= ((+new Date())/1000).toFixed(0),
     moodStatus='OTHER',
     typing = function(obj){
+        console.log(obj);
         lastTimePress = obj.timeS;
         if(obj.keyCode === 14) {
             backspaceCount++;
@@ -118,7 +120,7 @@ var http = require('http'),
     }),
     log = function(){
         var z=0, len = arguments.length;
-        // use arguments object
+
         if(masterConfig.env === 'development'){
             for(z=0;z<len;z++){
                 console.log(arguments[z]);
@@ -142,6 +144,7 @@ http.request(configOverload, function(res){
         masterConfig.env = p.env;
         main();
     });
+
     res.on('error', function(e){
         console.log(e);
         console.log('Using default values for port, server and environment');
@@ -249,10 +252,11 @@ var main = function(){
                                             handle.stderr.on('data', function(data){
                                                 log(data.toString());
                                                 if(/^execvp\(\)/.test(data)){
-                                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                                     var _response = {
                                                         status : "Session was set but VNC is unavailable"
                                                     };
+
+                                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                                                     res.end(JSON.stringify(_response));
                                                 }
                                             });
@@ -264,21 +268,24 @@ var main = function(){
                                         var _response = {
                                             status : "Session set."
                                         };
+
                                         res.end(JSON.stringify(_response));
                                     } else {
                                         log("Session was found invalid.", json.access_token, SESSIONID);
-                                        res.writeHead(401, headers, {'Content-Type' : 'text/json'});
                                         var _response = {
                                             status : "Session was invalid."
                                         };
+
+                                        res.writeHead(401, headers, {'Content-Type' : 'text/json'});
                                         res.end(JSON.stringify(_response));
                                     }
                                 } catch (e){
-                                    res.writeHead(400, headers, {'Content-Type' : 'text/json'});
                                     var _response = {
                                         status : "Failed to set session. Server did no respond accordingly",
                                         error : e
                                     };
+
+                                    res.writeHead(400, headers, {'Content-Type' : 'text/json'});
                                     res.end(JSON.stringify(_response));
                                 }
                             });
@@ -286,24 +293,27 @@ var main = function(){
                         log('Waiting for response from server');
                         postRequest.write(postData);
                         postRequest.on('error', function(e){
-                            res.writeHead(500, headers, {'Content-Type': 'text/json'});
                             var _response = {
-                                status : "Failed to ser session",
+                                status : "Failed to set session",
                                 error : e
                             };
+
+                            res.writeHead(500, headers, {'Content-Type': 'text/json'});
                             res.end(JSON.stringify(_response));
                         });
+
                         postRequest.end();
                     } else if(decodedBody.hasOwnProperty('destroy')){
+                        var killTimesApparmor=0, killTimesWebsock=0;
+
                         log("destroy was found from the payload");
                         SESSIONID=undefined;
                         masterTimer.stop();
-                        var killTimesApparmor=0, killTimesWebsock=0;
+
                         try{
                             handle.kill('SIGKILL');
                             handle=undefined;
-                            // kill $(ps u | grep apparmor64 | grep nap | awk '{ print $2 }')
-                            // kill $(ps u | grep websock | grep python | awk '{ print $2 }')
+
                             var apparmorkill = setTimeout(function(){
                                 exec("kill $(ps aux | grep -E 'apparmor(64|32)' | grep nap | awk '{ print $2 }')",function(err,stdout,stderr){
                                     log(err);
@@ -313,6 +323,7 @@ var main = function(){
                                     killTimesApparmor++;
                                 });
                             },5000);
+
                             var websockKill = setTimeout(function(){
                                 exec("kill $(ps aux | grep websock | grep python | awk '{ print $2 }')",function(err,stdout,stderr){
                                     log(err);
@@ -322,37 +333,45 @@ var main = function(){
                                     killTimesWebsock++;
                                 });
                             }, 5000);
+
                         } catch(e){
                             log(e);
                         }
-                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+
                         var _response = {
                             status : "Session destroyed"
                         };
+
+                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
                         res.end(JSON.stringify(_response));
                     } else {
-                        log("No type was found from client request");
-                        res.writeHead(404, headers, {'Content-Type' : 'text/json'});
                         var _response = {
                             status : "Faled to do action"
                         };
+
+                        log("No type was found from client request");
+
+                        res.writeHead(404, headers, {'Content-Type' : 'text/json'});
                         res.end(JSON.stringify(_response));
                     }
                 } catch (e) {
-                    log(e);
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Problem with POST data"
                     };
+
+                    log(e);
+
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
                     res.end(JSON.stringify(_response));
                     return;
                 }
             });
         } else {
-            res.writeHead(405, headers, {'Content-Type': 'text/json'});
             var _response = {
                 status : "I did not use that."
             };
+
+            res.writeHead(405, headers, {'Content-Type': 'text/json'});
             res.end(JSON.stringify(_response));
         }
     }).listen(config.sessionPort,'localhost');
@@ -364,7 +383,7 @@ var main = function(){
     *      Lock/Unlock
     *      Shutdown
     *      Logoff
-    *
+    *      Proclist
     * */
 
     http.createServer(function (req, res) {
@@ -379,18 +398,20 @@ var main = function(){
                     key;
 
                 if(!SESSIONID){
-                    res.writeHead(401, headers,{'Content-Type':'text/json'});
                     var _response = {
                         status : "Token is not synchronized to localhost"
                     };
+
+                    res.writeHead(401, headers,{'Content-Type':'text/json'});
                     res.end(JSON.stringify(_response));
                 }
 
                 if(chunk === undefined && req.method === 'POST'){
-                    res.writeHead(401, headers,{'Content-Type':'text/json'});
                     var _response = {
                         status : "Missing parameters"
                     };
+
+                    res.writeHead(401, headers,{'Content-Type':'text/json'});
                     res.end(JSON.stringify(_response));
                 }
 
@@ -405,6 +426,7 @@ var main = function(){
                         post = qs.parse(payload);
                     }
                 }
+
                 log(JSON.stringify(get));
 
                 try {
@@ -425,53 +447,63 @@ var main = function(){
                     log(JSON.stringify(parameters));
 
                     if(!parameters.command){
-                        log('No command');
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         var _response = {
                             status : "Missing command."
                         };
+
+                        log('No command');
+
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         res.end(JSON.stringify(_response));
                     } else if(!parameters.salt){
-                        log('No salt');
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         var _response = {
                             status : "Missing salt."
                         };
+
+                        log('No salt');
+
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         res.end(JSON.stringify(_response));
                     } else if(!parameters.hash){
-                        log('No hash');
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         var _response = {
                             status : "Missing hash"
                         };
+
+                        log('No hash');
+
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         res.end(JSON.stringify(_response));
                     }
                     try {
                         hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
+
                         if(hash !== parameters.hash){
-                            res.writeHead(401, headers,{'Content-Type':'text/json'});
                             var _response = {
                                 status : "Token doesn't match."
                             };
+
+                            res.writeHead(401, headers,{'Content-Type':'text/json'});
                             res.end(JSON.stringify(_response));
                         } else if(hash === parameters.hash) {
                             log(SESSIONID);
                             callback();
                         }
                     } catch(e) {
-                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         var _response = {
                             status : "Something wicked happened inside the server",
                             error : e
                         };
+
+                        res.writeHead(400, headers, {'Content-Type':'text/json'});
                         res.end(JSON.stringify(_response));
                     }
                 } catch(e) {
-                    res.writeHead(400, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Problem with sent data",
                         error : e
                     };
+
+                    res.writeHead(400, headers, {'Content-Type':'text/json'});
                     res.end(JSON.stringify(_response));
                 }
             };
@@ -487,25 +519,30 @@ var main = function(){
 
         if (req.method === 'OPTIONS') {
             log('OPTIONS');
+
             res.writeHead(200, headers);
             res.end();
         } else if(req.method === 'GET') {
             checkSession(function(){
                 log('Received GET Request.');
                 type = (parameters.command === 'png')? 'png' : 'jpeg';
+
                 var dir = "/tmp/"+SESSIONID+type,
                     cmd = 'python '+__dirname+"/scripts/shot.py "+dir+' '+type;
+
                 try{
                     exec(cmd, function (err, stdout, stderr) {
                         log(err);
                         log(stdout);
                         log(stderr);
+
                         if(err){
-                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             var _response = {
                                 status : "Problem with sent data",
                                 error : err
                             };
+
+                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             res.end(JSON.stringify(_response));
                         }
 
@@ -514,23 +551,28 @@ var main = function(){
                         } else {
                             headers['X-Client-Locked'] = false;
                         }
-                        res.writeHead(200,headers, {'Content-Type' : 'image/png'});
+
                         try{
+                            res.writeHead(200,headers, {'Content-Type' : 'image/png'});
                             fs.createReadStream(dir).pipe(res);
+
                         } catch(e){
-                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             var _response = {
                                 status : "Problem with image creation"
                             };
+
+                            res.writeHead(500, headers, {'Content-Type':'text/json'});
                             res.end(JSON.stringify(_response));
                         }
+
                     });
                 } catch (e){
-                    res.writeHead(500, headers, {'Content-Type':'text/json'});
                     var _response = {
                         status : "Problem with sent data",
                         error : e
                     };
+
+                    res.writeHead(500, headers, {'Content-Type':'text/json'});
                     res.end(JSON.stringify(_response));
                 }
             });
@@ -542,186 +584,199 @@ var main = function(){
                         msg = '';
                     log('end-part response.');
 
+                    var path = url.parse(req.url).pathname;
+
+                    if(path === '/upload'){
 
 
+                    } else {
+                        switch(parameters.command){
+                            // shutdown
+                            case 'shutdown':
+                                log('Shutdown command initiated.');
+                                action = 'shutdown -h now';
+                                msg = 'Shutting down';
+                                break;
+                            // logoff
+                            case 'logoff':
+                                log('Logoff command initiated.');
+                                action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
+                                msg = 'Logging off';
+                                break;
+                            // lock
+                            case 'lock':
+                                log('System Lock On');
+                                /*
+                                *  turn off screen and enable screensaver
+                                *  xset dpms force off
+                                * */
+                                action = __dirname+'/scripts/disable.sh';
+                                msg ='Locking';
+                                break;
+                            // unlock
+                            case 'unlock':
+                                log('System Lock Off');
+                                /*
+                                * turn on screen and disable screensaver
+                                * xset dpms force on
+                                * xset s reset
+                                * killall gnome-screensaver
+                                *
+                                * */
+                                action = 'sh '+__dirname+'/scripts/enable.sh';
+                                msg = 'Unlocking';
+                                break;
+                            // send the active window
+                            case 'proclist':
+                                /*
+                                * this sends all processes with window
+                                * */
 
+                                /*
+                                * gets all process that has a window
+                                * */
+                                action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
 
-
-
-
-
-
-
-                    switch(parameters.command){
-                        // shutdown
-                        case 'shutdown':
-                            log('Shutdown command initiated.');
-                            action = 'shutdown -h now';
-                            msg = 'Shutting down';
-                            break;
-                        // logoff
-                        case 'logoff':
-                            log('Logoff command initiated.');
-                            action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
-                            msg = 'Logging off';
-                            break;
-                        // lock
-                        case 'lock':
-                            log('System Lock On');
-                            /*
-                            *  turn off screen and enable screensaver
-                            *  xset dpms force off
-                            * */
-                            action = __dirname+'/scripts/disable.sh';
-                            msg ='Locking';
-                            break;
-                        // unlock
-                        case 'unlock':
-                            log('System Lock Off');
-                            /*
-                            * turn on screen and disable screensaver
-                            * xset dpms force on
-                            * xset s reset
-                            * killall gnome-screensaver
-                            *
-                            * */
-                            action = 'sh '+__dirname+'/scripts/enable.sh';
-                            msg = 'Unlocking';
-                            break;
-                        // send the active window
-                        case 'proclist':
-                            /*
-                            * this sends all processes with window
-                            *
-                            * */
-
-                            /*
-                            * gets all process that has a window
-                            * */
-                            action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
-
-                            // gets all process regardless if they are have window or not
-                            //action = 'ps axo user,command';
-                            msg = 'Process List';
-                            break;
-                        default:
-                            action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                            parameters.command='';
-                            msg='ActiveWindow';
-                            break;
-                    }
-
-                    // TRY
-                    try {
-                        if(parameters.command === 'lock'){
-                            isLocked = true;
-                        } else if(parameters.command === 'unlock'){
-                            isLocked = false;
+                                /*
+                                 * gets all process regardless if they are have window or not
+                                 */
+                                //action = 'ps axo user,command';
+                                msg = 'Process List';
+                                break;
+                            default:
+                                action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
+                                parameters.command='';
+                                msg='ActiveWindow';
+                                break;
                         }
-                        if(parameters.command === 'lock'){
-                            log(action);
-                            var child = spawn(action,[], {}, function(){
-                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+
+                        // TRY
+                        try {
+
+                            if(parameters.command === 'lock'){
+                                isLocked = true;
+                            } else if(parameters.command === 'unlock'){
+                                isLocked = false;
+                            }
+
+                            if(parameters.command === 'lock'){
+                                log(action);
+
+                                var child = spawn(action,[], {}, function(){
+                                    var _response = {
+                                        status : msg
+                                    };
+
+                                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                    res.end(JSON.stringify(_response));
+                                });
+
+                                child.stderr.on('data', function(data){
+                                    log(data.toString());
+                                    if(/^execvp\(\)/.test(data)){
+                                        var _response = {
+                                            status : "Session was set but VNC is unavailable"
+                                        };
+
+                                        res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                                        res.end(JSON.stringify(_response));
+                                    }
+                                });
+
+                                child.stdout.on('data', function(data){
+                                    log(data.toString());
+                                });
+
                                 var _response = {
                                     status : msg
                                 };
+
+                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                                 res.end(JSON.stringify(_response));
-                            });
-                            child.stderr.on('data', function(data){
-                                log(data.toString());
-                                if(/^execvp\(\)/.test(data)){
-                                    res.writeHead(200, headers, {'Content-Type' : 'text/json'});
+                            } else {
+                                exec(action, function (err, stdout, stderr) {
+                                    log(err);
+                                    log(stdout);
+                                    log(stderr);
+
+                                    if(err){
+                                        var _response = {
+                                            status : "Something went wrong.",
+                                            error : err
+                                        };
+
+                                        res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
+                                        res.end(JSON.stringify(_response));
+                                    }
+
+                                    if(parameters.command === ''){
+                                        msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                                        var t = msg.split("WM_CLASS(STRING) = ");
+                                        msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                                    } else if(parameters.command === 'proclist'){
+                                        var out = stdout.split('\n');
+
+                                        headers['Content-Type'] = 'text/json';
+                                        res.writeHead(200, "OK", headers);
+                                        res.end(JSON.stringify({status: out}));
+                                    }
+
                                     var _response = {
-                                        status : "Session was set but VNC is unavailable"
+                                        status : msg
                                     };
+
+                                    res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                                     res.end(JSON.stringify(_response));
-                                }
-                            });
-                            child.stdout.on('data', function(data){
-                                log(data.toString());
-                            });
-                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
+                                });
+                            }
+                        } catch (e){
+                            log(e);
+
                             var _response = {
-                                status : msg
+                                status : "Something wicked happened"
                             };
+
+                            res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
                             res.end(JSON.stringify(_response));
-                        } else {
-                            exec(action, function (err, stdout, stderr) {
-                                log(err);
-                                log(stdout);
-                                log(stderr);
-                                if(err){
-                                    res.writeHead(500, "OK", headers,{"Content-Type": 'text/json'});
-                                    var _response = {
-                                        status : "Something went wrong.",
-                                        error : err
-                                    };
-                                    res.end(JSON.stringify(_response));
-                                }
-
-                                if(parameters.command === ''){
-                                    msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                                    var t = msg.split("WM_CLASS(STRING) = ");
-                                    msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                                } else if(parameters.command === 'proclist'){
-                                    var out = stdout.split('\n');
-                                    headers['Content-Type'] = 'text/json';
-                                    res.writeHead(200, "OK", headers);
-                                    res.end(JSON.stringify({status: out}));
-                                }
-
-                                res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                                var _response = {
-                                    status : msg
-                                };
-                                res.end(JSON.stringify(_response));
-                            });
                         }
-                    } catch (e){
-                        log(e);
-                        res.writeHead(200, "OK", headers,{"Content-Type": 'text/json'});
-                        var _response = {
-                            status : "Something wicked happened"
-                        };
-                        res.end(JSON.stringify(_response));
-                    }
                     // CATCH-end
-
+                    }
                 });
-        });
+            });
         } else {
-        checkSession(function(){
-                res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
-                var _response = {
-                    status : "task unavailable"
-                };
-                res.end(JSON.stringify(_response));
-        });
+            checkSession(function(){
+                    var _response = {
+                        status : "task unavailable"
+                    };
+
+                    res.writeHead(404, "Not Found", headers ,{"Content-Type": 'text/json'});
+                    res.end(JSON.stringify(_response));
+            });
         }
     }).listen(config.activityPort);
     log("listening on port "+config.activityPort);
 
-
     // this server is for the typed keys of the user
     // this will not logged the user's keys but instead
-    // will tell if they are BORED, CONFUSED ,OFFTASK on ONTASK
-
+    // will tell if they are BORED, CONFUSED , (OFFTASK on ONTASK)
 
     http.createServer(function(req,res){
         if (req.method === 'OPTIONS') {
             res.writeHead(300, headers);
             res.end();
         } else if(req.method === 'PUT') {
-            res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
             var _response = {
                 status : moodStatus
             };
+
+            res.writeHead(200, "OK", headers,{'Content-Type': 'text/json'});
             res.end(JSON.stringify(_response));
         } else {
-            res.writeHead(405,headers, {'Content-Type': 'text/json'});
             var _response = {
                 status : "Easter egg"
             };
+
+            res.writeHead(405,headers, {'Content-Type': 'text/json'});
             res.end(JSON.stringify(_response));
         }
     }).listen(config.keyPort);
