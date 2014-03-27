@@ -25,9 +25,7 @@
 
 
 		wbr = function (str) {
-			return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
-				return text + " " + char;
-			});
+			return str.match(/\S{1,30}/g).join(' ');
 		},
 		toTitleCase = function (str) {
 			return str.replace(/\w\S*/g, function (txt) {
@@ -68,8 +66,19 @@
 					doc.getElementById('name_div').className = 'online';
 				});
 
-				socket.on('disconnect', function () {
+				socket.on('instructor_leave', function () {
 					doc.getElementById('name_div').className = '';
+				});
+
+				socket.on('disconnect', function () {
+					console.log('got disconnected from the server');
+				});
+				socket.on('reconnecting', function () {
+					console.log('reconnecting');
+				});
+				socket.on('reconnect', function () {
+					console.log('successfully reconnected');
+					socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
 				});
 			});
 		},
@@ -324,7 +333,7 @@
 					self.className += ' success';
 					setTimeout(function () {
 						resetChatArea();
-						chat_content.innerHTML += '<li class="incoming">' + JSON.parse(xhr.responseText).message + '</li>';
+						chat_content.innerHTML += '<li>' + JSON.parse(xhr.responseText).message + '</li>';
 						socket.emit('s_update_chat', JSON.parse(xhr.responseText).message);
 						chat_content.parentElement.scrollTop = chat_content.parentElement.scrollHeight
 					}, 500);

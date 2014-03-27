@@ -608,7 +608,8 @@ section{
     border: 2px solid #000000;
 }
 .window_div.new_message{
-	background: #463D8A;
+	background: #000;
+	border: 2px solid #000;
 }
 .window_div img{
     width: 350px;
@@ -652,6 +653,24 @@ section{
     background-color: #CCCCCC;
     background-position: 0 -75px;
 }
+.proc_list_div{
+    display: none;
+	position: absolute;
+	padding: 5px;
+	right: 26px;
+	top: 1px;
+	width: 150px;
+	height: 214px;
+	max-height: 214px;
+	overflow: auto;
+	background: #FFF;
+	z-index: 1;
+	text-align: left;
+	color: #000;
+	font-size: 12px;
+    line-height: 12px;
+}
+
 .chat_button{
     position: absolute;
     background: url(../img/chat-icon.png);
@@ -763,9 +782,9 @@ section{
     border: 1px solid #CCC;
 	overflow: auto;
 }
-.off_span, .off{color: #C0392B;}
-.active_span, .active{color: #27AE60;}
-.idle_span, .idle{color: #F39C12;}
+span.off{color: #C0392B;}
+span.active{color: #27AE60;}
+span.idle{color: #F39C12;}
 
 #chat_div{
     width: 206px;

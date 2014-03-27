@@ -1,4 +1,5 @@
-(function (root) {
+// (function (root) {
+	root = this;
     var _this,
         socket,
         blinkTimer,
@@ -27,7 +28,7 @@
             doc.getElementById('feed_a').className = 'active_nav';
             doc.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
-            setTimeout(setupScreenshots, 500);
+            root.setTimeout(setupScreenshots, 500);
         },
         records = function () {
             var active = doc.getElementsByClassName('active_section')[0],
@@ -91,7 +92,7 @@
 			temp.setDate(temp.getDate() - 7);
 			doc.getElementById('from_logs_input').value = temp.toJSONLocal().substring(0, 10);
 			doc.getElementById('to_logs_input').value = (new Date()).toJSONLocal().substring(0, 10);
-			setTimeout(getLogs, 500);
+			root.setTimeout(getLogs, 500);
         },
         logout = function () {
 			clearInterval(refreshInterval);
@@ -111,7 +112,7 @@
 		*/
 
         buildWindow = function (s) {
-            var window_div = doc.createElement('div'),
+			var window_div = doc.createElement('div'),
 				img = doc.createElement('img'),
 				button = doc.createElement('button'),
 				dom = doc.getElementById('feed_body_div'),
@@ -141,6 +142,7 @@
 						<button title="Lock" class="lock"></button>  \
 						<button title="Logout" class="logout"></button> \
 						<button title="Process List" class="proc_list"></button> \
+						<div class="proc_list_div"></div> \
 					</div>';
 
 			if (temp = doc.getElementById(s._id)) {
@@ -149,6 +151,20 @@
 			else {
 				dom.appendChild(window_div);
 			}
+			util.xhr(
+				'GET',
+				'http://' + s.ip_address + ':8286/?command=jpeg' + '&hash=' + s.hash + '&salt=' + s.salt,
+				{},
+				function (data, req) {
+					var window = doc.getElementById(s._id);
+					if (req.status === 200) {
+						if (''+req.getResponseHeader('X-Client-Locked') !== 'false') {
+							window.className = window.className.replace(/off|active|idle/g, 'locked');
+							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+						}
+					}
+				}
+			);
 		},
 		setupScreenshots = function () {
             var dom = doc.getElementById('feed_body_div');
@@ -156,18 +172,21 @@
             _this.class.students.forEach(buildWindow);
             dom.innerHTML += '<br class="clearfix" />';
             doc.getElementById('scrnsht_interval_input').value = cookies.get('interval') || 10;
+			root.onfocus();
             startAutoRefresh();
         },
         startAutoRefresh = function (e) {
             var interval;
             if (e) {
                 interval = e.target.value;
+				if (isNaN(interval) || interval < 3) {
+					e.target.value = cookies.get('interval') || 10;
+				}
             }
             else {
                 interval = doc.getElementById('scrnsht_interval_input').value;
             }
-            doc.cookie = 'interval='+interval+';path=/;';
-            // console.log('Setting auto-refresh to ', interval);
+			cookies.set('interval', interval);
             clearInterval(refreshInterval);
             refreshInterval = setInterval(function () {
                 var students = _this.class.students,
@@ -321,12 +340,12 @@ Date: ' + new Date(f.date) + '"/>	\
 						});
 					}
 					for (i=0, j = res.logs.length; i < j; i++) {
-						setTimeout(function (l) {
+						root.setTimeout(function (l) {
 							var date = new Date(l.date);
-							date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+							date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + util.pad(date.getMinutes()) + ':' + util.pad(date.getSeconds());
 							pre.innerHTML += date + ' ' + l.name + ' ' + l.log + '<br />';
 							temp2.scrollTop = temp2.scrollHeight;
-						}, 1, res.logs[i]);
+						}, 0, res.logs[i]);
 					}
 				} else {
 					logout();
@@ -337,19 +356,24 @@ Date: ' + new Date(f.date) + '"/>	\
 			util.loadScript(url + 'socket.io/socket.io.js',
 			function () {
 				socket = io.connect(url);
+
 				socket.emit('i_join_room', cookies.get('focus'));
+
 				socket.on('warning', function (data) {
 					console.log('warning');
 					console.dir(data);
 				});
-				socket.on('disconnect', function (sn) {
+
+				socket.on('student_leave', function (sn) {
 					var window = doc.getElementById(sn);
 					if (window) {
 						window.className = 'window_div not_connected';
 						window.childNodes[0].setAttribute('src', '/img/not-connected.png');
 					}
 				});
+
 				socket.on('history', buildChatHistory);
+
 				socket.on('online', function (s) {
 					var student = getStudentBySN(s._id);
 					if (student) {
@@ -363,6 +387,7 @@ Date: ' + new Date(f.date) + '"/>	\
 					}
 					buildWindow(s);
 				});
+
 				socket.on('update_chat', function (student_number, message) {
 					var student = getStudentBySN(student_number),
 						dom = doc.getElementById('chat_list'),
@@ -381,10 +406,24 @@ Date: ' + new Date(f.date) + '"/>	\
 					new_messages[student_number] = util.toTitleCase(student.first_name);
 					root.onfocus();
 				});
+
 				socket.on('status', function (sn, status) {
 					var window = doc.getElementById(sn);
-					if (window)
+					if (window && !window.classList.contains('locked'))
 						window.className = 'window_div ' + status;
+				});
+
+				socket.on('disconnect', function () {
+					console.log('got disconnected from the server');
+				});
+
+				socket.on('reconnecting', function () {
+					console.log('reconnecting');
+				});
+
+				socket.on('reconnect', function () {
+					console.log('successfully reconnected');
+					socket.emit('i_join_room', cookies.get('focus'));
 				});
 			});
 		},
@@ -419,15 +458,15 @@ Date: ' + new Date(f.date) + '"/>	\
 		}
 		for (i in new_messages) {
 			if (!chatBlinkIntervals[i]) {
-				var window = doc.getElementById(i),
-					temp = setInterval(function (window) {
+				var temp = setInterval(function (i) {
+						var window = doc.getElementById(i);
 						if (window.classList.contains('new_message')) {
 							window.classList.remove('new_message');
 						}
 						else {
 							window.classList.add('new_message');
 						}
-					}, 1000, window);
+					}, 800, i);
 				chatBlinkIntervals[i] = temp;
 			}
 		}
@@ -471,7 +510,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				if (req.status === 401) {
 					self.innerHTML = 'ERROR!';
 					self.className = 'sign_in_error';
-					setTimeout(function () {
+					root.setTimeout(function () {
 						self.className = '';
 						self.innerHTML = 'SIGN IN!';
 						password.disabled = username.disabled = '';
@@ -484,7 +523,7 @@ Date: ' + new Date(f.date) + '"/>	\
 
 					self.innerHTML = 'SUCCESS!';
 					self.className = 'sign_in_success';
-					setTimeout(function () {
+					root.setTimeout(function () {
 						var temp;
 						doc.getElementById('front_section').className = 'active_section';
 						doc.getElementById('nav_section').className = 'left-to-current';
@@ -538,13 +577,15 @@ Date: ' + new Date(f.date) + '"/>	\
 									},
 									function (data) {
 										if (data.status === 'Locking') {
-											window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
 											window.className = window.className.replace(/off|active|idle/g, 'locked');
+											window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
 										}
 									}
 								);
                                 break;
-                case 'shutdown' :   util.xhr(
+                case 'shutdown' :
+								if (!confirm("Are you sure you want to shutdown this computer?")) return;
+								util.xhr(
 									'POST',
 									ip,
 									{
@@ -557,7 +598,9 @@ Date: ' + new Date(f.date) + '"/>	\
 									}
 								);
                                 break;
-                case 'logout' :   util.xhr(
+                case 'logout' :
+								if (!confirm("Are you sure you want to logout this computer?")) return;
+								util.xhr(
 									'POST',
 									ip,
 									{
@@ -570,7 +613,17 @@ Date: ' + new Date(f.date) + '"/>	\
 									}
 								);
                                 break;
-				case 'proc_list' : util.xhr(
+				case 'proc_list' :
+								temp = window.childNodes[3].childNodes[9];
+								if (student.proc_list_opened) {
+									delete student.proc_list_opened;
+									temp.style.display = 'none';
+									return;
+								}
+								student.proc_list_opened = true;
+								temp.style.display = 'block';
+								temp.innerHTML = 'Process List :<br />';
+								util.xhr(
 									'POST',
 									ip,
 									{
@@ -579,9 +632,13 @@ Date: ' + new Date(f.date) + '"/>	\
 										salt : student.salt
 									},
 									function (data, req) {
+										var b = doc.createElement('b');
+										b.className = 'twilight';
 										if (req.status === 200) {
 											student.active_process = data.status;
-											console.log(data.status);
+											b.appendChild(doc.createTextNode('Active: ' + data.status.replace('<:>', '-').replace(/"/gi, '')));
+											temp.appendChild(b);
+											temp.appendChild(doc.createElement('br'));
 										}
 									}
 								);
@@ -596,12 +653,17 @@ Date: ' + new Date(f.date) + '"/>	\
 									function (data, req) {
 										if (req.status === 200) {
 											student.process_list = data.status;
-											console.log(data.status);
+											data.status.forEach(function (s, i) {
+												temp.appendChild(doc.createTextNode(s));
+												if (i != data.status.length - 1)
+													temp.appendChild(doc.createElement('br'));
+											});
 										}
 									}
 								);
 								break;
                 case 'chat_button' :
+									window.classList.remove('new_message');
                                     doc.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
                                     doc.getElementById('chat_div').style.display = 'block';
                                     temp.style.backgroundImage = 'url(../img/chat-icon.png)';
@@ -624,14 +686,14 @@ Date: ' + new Date(f.date) + '"/>	\
 					},
 					function (data) {
 						if (data.status === 'Unlocking') {
-							window.childNodes[0].setAttribute('src', ip);
+							window.childNodes[0].setAttribute('src', ip + '/?command=jpeg' + '&hash=' + student.hash + '&salt=' + student.salt);
 							window.className = window.className.replace(/locked|off|active/g, 'active');
 						}
 					}
 				);
             }
             else {
-                root.open(student.vnc);
+                root.open(student.vnc, '_blank');
             }
         }
     }, true);
@@ -675,12 +737,21 @@ Date: ' + new Date(f.date) + '"/>	\
 			_this.class.students.forEach(function (student) {
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
-					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'lock', hash : student.hash, salt : student.salt}, function (data) {
-						if (data.status === 'Locking') {
-							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
-							window.className = window.className.replace(/off|active|idle/g, 'locked');
+					util.xhr(
+						'POST',
+						'http://' + student.ip_address + ':8286',
+						{
+							command : 'lock',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							if (data.status === 'Locking') {
+								window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+								window.className = window.className.replace(/off|active|idle/g, 'locked');
+							}
 						}
-					});
+					);
 				})(window, student);
 			});
 		}
@@ -692,15 +763,21 @@ Date: ' + new Date(f.date) + '"/>	\
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
 					var ip = 'http://' + student.ip_address + ':8286';
-					util.xhr('POST', ip, {command : 'unlock', hash : student.hash, salt : student.salt}, function (data) {
-                        window.childNodes[0].setAttribute('src', ip);
-                        window.className = window.className.replace(/locked|off|active/g, 'active');
-					});
+					util.xhr(
+						'POST',
+						ip,
+						{
+							command : 'unlock',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							window.childNodes[0].setAttribute('src', ip + '/?command=jpeg' + '&hash=' + student.hash + '&salt=' + student.salt);
+							window.className = window.className.replace(/locked|off|active/g, 'active');
+						}
+					);
 				})(window, student);
 			});
-			setTimeout(function() {
-				location.reload();
-			}, 3000);
 		}
 	}, true);
 
@@ -709,9 +786,18 @@ Date: ' + new Date(f.date) + '"/>	\
 			_this.class.students.forEach(function (student) {
 				var window = doc.getElementById(student._id);
 				(function (window, student) {
-					util.xhr('POST', 'http://' + student.ip_address + ':8286', {command : 'shutdown', hash : student.hash, salt : student.salt}, function (data) {
-						console.dir(data);
-					});
+					util.xhr(
+						'POST',
+						'http://' + student.ip_address + ':8286',
+						{
+							command : 'shutdown',
+							hash : student.hash,
+							salt : student.salt
+						},
+						function (data) {
+							console.dir(data);
+						}
+					);
 				})(window, student);
 			});
 		}
@@ -765,4 +851,4 @@ Date: ' + new Date(f.date) + '"/>	\
 			loginIfCookieExists();
 		}
 	);
-}(this));
+// }(this));

@@ -61,9 +61,11 @@
 	};
 
 	root.wbr = function (str) {
-		return str.replace(RegExp("(\\w{30})(\\w)", "g"), function(all, text, char){
-			return text + " " + char;
-		});
+		return str.match(/\S{1,30}/g).join(' ');
+	};
+
+	root.pad = function (num, size) {
+		return ('000000000' + num).substr(-(size || 2));
 	};
 
 	Date.prototype.toJSONLocal = ( function() {
