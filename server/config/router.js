@@ -54,9 +54,10 @@ exports.handleSocket = function (io) {
 
     io.sockets.on('connection', function (socket) {
 
-        socket.on('join_room', function (data) {
-			data = util.chk_rqd(['identifier', 'instructor', 'student_number'], data);
+        socket.on('s_join_room', function (data) {
+			data = util.chk_rqd(['access_token', 'instructor'], data);
             if (data) {
+				student._findByAccessToken(data.access_token);
                 if (!rooms[data.student_number + data.instructor]) {
 					rooms[data.student_number + data.instructor] = {
 						student_number : data.student_number,
@@ -77,6 +78,9 @@ exports.handleSocket = function (io) {
                 socket.emit('warning', 'incomplete data on join_room');
             }
         });
+
+		socket.on('get_history', function (data) {
+		});
 
         socket.on('update_chat', function (data) {
             if (data.student_number && data.message) {

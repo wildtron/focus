@@ -2,14 +2,7 @@ var collectionName = 'instructors',
     util = require(__dirname + '/../helpers/util'),
     db = require(__dirname + '/../config/database'),
     logger = require(__dirname + '/../lib/logger'),
-    config = require(__dirname + '/../config/config').config,
-    _findByAccessToken = function (access_token, cb, next, where) {
-        var getInstructor = function(err, collection) {
-                if (err) return next(err);
-                collection.findOne(where || {access_token : access_token}, {password : 0}, cb);
-            };
-        db.get().collection(collectionName, getInstructor);
-    };
+    config = require(__dirname + '/../config/config').config;
 
 exports.collectionName = collectionName;
 
@@ -149,7 +142,7 @@ exports.logout = function (req, res, next) {
 			return res.send({message : "Logout successful"});
         };
     logger.log('info', 'instructor:logout someone is trying to logout');
-	_findByAccessToken(req.signedCookies['focus'] || '#', getCollection, next);
+	exports._findByAccessToken(req.signedCookies['focus'] || '#', getCollection, next);
 };
 
 exports.getLogs = function (req, res, next) {
@@ -220,8 +213,19 @@ exports.getLogs = function (req, res, next) {
     logger.log('info', 'instructor:getLogs someone is trying to get the logs');
 
 	// verify instructor
-	_findByAccessToken(false, getSectionCollection, next, {
+	exports._findByAccessToken(false, getSectionCollection, next, {
 		access_token : req.signedCookies['focus'] || '#',
 		classes : {$in : [data.section_id]}
 	});
 };
+
+
+/** Instructor related utilities**/
+
+exports._findByAccessToken = function (access_token, cb, next, where) {
+	var getInstructor = function(err, collection) {
+			if (err) return next(err);
+			collection.findOne(where || {access_token : access_token}, {password : 0}, cb);
+		};
+	db.get().collection(collectionName, getInstructor);
+}
