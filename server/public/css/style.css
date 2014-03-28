@@ -684,7 +684,7 @@ section{
     cursor: pointer;
 }
 
-#lock_all_button, #unlock_all_button, #shutdown_all_button{
+#lock_all_button, #unlock_all_button, #shutdown_all_button, #share_file_button{
     background: #463D8A;
     padding: 13px;
     color: #FFF;

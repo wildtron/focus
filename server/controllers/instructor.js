@@ -85,7 +85,9 @@ exports.login = function (req, res, next) {
             if (err) return next(err);
             logger.log('verbose', data.username, ': login successful with current class and students');
 			docs.map(function (d) {
-				d.salt = util.hash(util.randomString());
+				d.name = util.toTitleCase(d.first_name + ' ' + d.last_name);
+				d.randString = util.randomString();
+				d.salt = util.hash(d.randString);
 				d.hash = util.hash(d.salt + d.access_token, 'sha1');
 				d.vnc = 'http://' + d.ip_address + ':6080/index.html?password=' + util.hash(d.access_token + d.access_token, 'sha1');
 				delete d.access_token;

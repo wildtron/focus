@@ -103,6 +103,8 @@ exports.login = function (req, res, next) {
                 return res.send(401, {message : 'Wrong username or password'});
             }
             else {
+				temp.first_name = util.toTitleCase(temp.first_name);
+				temp.last_name = util.toTitleCase(temp.last_name);
                 temp.username = data.username;
                 temp._id = data.student_number;
                 temp.password = util.hash(util.hash(data.password) + config.SALT);
