@@ -13,7 +13,7 @@ try:
             if (sys.argv[2] == "png"):
                 pb.save(sys.argv[1],"png")
             else:
-                pb.save(sys.argv[1], "jpeg", {"quality": "70"})
+                pb.save(sys.argv[1], "jpeg", {"quality": "10"})
         else:
             print "Unable to get the screenshot."
     else:

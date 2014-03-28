@@ -1,4 +1,4 @@
-exports.motherHost = '10.0.5.49';
+exports.motherHost = '192.168.1.50';
 exports.motherPort = 3000;
 
 exports.activityPort = 8286;
