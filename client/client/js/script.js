@@ -119,23 +119,6 @@
 	*/
 
 
-    (function(){
-        var req = new XMLHttpRequest();
-        req.open('GET', 'http://ricolindo.uplb.edu.ph:8080/config.json', false);
-        req.send();
-
-        req.onreadyStateChange = function(){
-            var xhr = event.target;
-            if(xhr.readyState === 4 && xhr.status === 200){
-                var parse = JSON.parse(xhr.responseText);
-                if(parse){
-                    url = 'http://'+parse.server+':'+parse.port;
-                }
-            }
-        };
-    })();
-
-
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
 			request = new XMLHttpRequest(),

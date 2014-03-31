@@ -1,0 +1,122 @@
+[
+    {
+        "_id": "instructor1",
+        "access_token": "b597fb20ec6d30982f395475cbc333d0",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-1L"
+        ]
+    },
+    {
+        "_id": "instructor2",
+        "access_token": "4e098a72f90c61ea2107954480f9ba8c",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-2L"
+        ]
+    },
+    {
+        "_id": "instructor3",
+        "access_token": "c4a6abb885b4980166e87aaf31173ffe",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-3L"
+        ]
+    },
+    {
+        "_id": "instructor4",
+        "access_token": "0a0a80153571c893245cf92a4d88d4a5",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-4L"
+        ]
+    },
+    {
+        "_id": "instructor5",
+        "access_token": "b14769f08d6ac20c7fff596ab91a67e5",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-5L"
+        ]
+    },
+    {
+        "_id": "instructor6",
+        "access_token": "bbc3ae8a2a08169b00b62d9a18eacdce",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-6L"
+        ]
+    },
+    {
+        "_id": "instructor7",
+        "access_token": "7485bb81c494b02f5208c5ddf5f072a4",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-7L"
+        ]
+    },
+    {
+        "_id": "instructor8",
+        "access_token": "ba592b7d0c049dd3f4db76d8c0edaa6a",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-8L"
+        ]
+    },
+    {
+        "_id": "instructor9",
+        "access_token": "1df0afc52c02163ca0c3997e6e6b80c2",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-9L"
+        ]
+    },
+    {
+        "_id": "instructor10",
+        "access_token": "697ab8cc488d467512b8eab86db48835",
+        "first_name": "Exam",
+        "middle_name": "",
+        "last_name": "Supervisor",
+        "sex": "F",
+        "password": "12345",
+        "classes": [
+            "IT EXAM-10L"
+        ]
+    }
+]

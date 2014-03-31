@@ -1,5 +1,4 @@
-// (function (root) {
-	root = this;
+(function (root) {
     var _this,
         socket,
         blinkTimer,
@@ -96,7 +95,6 @@
         },
         logout = function () {
 			clearInterval(refreshInterval);
-            _this = null;
             util.xhr('POST', url + 'instructor/logout');
             doc.getElementsByClassName('active_nav')[0].className = '';
             doc.getElementsByClassName('active_section')[0].className = 'current-to-' + util.randomEffect();
@@ -134,7 +132,7 @@
 			button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
 
 			window_div.appendChild(img);
-			window_div.appendChild(doc.createTextNode(util.toTitleCase(s.first_name + ' ' + s.last_name) +' | '+ s._id));
+			window_div.appendChild(doc.createTextNode(s.name +' | '+ s._id));
 			window_div.appendChild(button);
 
 			window_div.innerHTML += '<div class="unit_mngr_div"> \
@@ -245,13 +243,13 @@
 					else {
 						res.forEach(function (s) {
 							if (!e || e.target.id === 'section_submissions_select') {
-								temp1.innerHTML += '<option value="'+s._id+'">'+util.toTitleCase(s.first_name + ' ' + s.last_name)+'</option>';
+								temp1.innerHTML += '<option value="' + s._id + '">' + s.name + '</option>';
 							}
 							s.files&&s.files.forEach(function (f) {
 								temp2.innerHTML += '	\
 							<div class="file_div">	\
 								<img onclick="window.open(\'/student/getFile?path=' + f.path + '\');" class="'+f.name.split('.')[1]+'" src="img/file-icon.png"	 alt="'+f.name+'" width="128" height="128" title="Click to Download\r\n\
-Owner: ' + util.toTitleCase(s.first_name + ' ' + s.last_name) +'\r\n\
+Owner: ' + s.name +'\r\n\
 File Name: ' + f.name + '\r\n\
 Version: ' + f.version + '\r\n\
 Size: ' + f.size + ' bytes\r\n\
@@ -303,7 +301,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				res.students.forEach(function (s) {
 					var i,
 						j = maxHolder.datesAttended.length;
-					tableString += '<tr><td>' + s._id + '</td><td>' + util.toTitleCase(s.name) + '</td>';
+					tableString += '<tr><td>' + s._id + '</td><td>' + s.name + '</td>';
 					for (i=0; i < j; i++) {
 						tableString += '<td>' + ((~s.datesAttended.indexOf(maxHolder.datesAttended[i])) ? 'P' : '<span class="blood">A</span>') +'</td>';
 					}
@@ -375,17 +373,19 @@ Date: ' + new Date(f.date) + '"/>	\
 				socket.on('history', buildChatHistory);
 
 				socket.on('online', function (s) {
-					var student = getStudentBySN(s._id);
-					if (student) {
-						student.ip_address = s.ip_address;
-						student.salt = s.salt;
-						student.hash = s.hash;
-						student.vnc = s.vnc;
+					if (s) {
+						var student = getStudentBySN(s._id);
+						if (student) {
+							student.ip_address = s.ip_address;
+							student.salt = s.salt;
+							student.hash = s.hash;
+							student.vnc = s.vnc;
+						}
+						else {
+							_this.class.students.push(s);
+						}
+						buildWindow(s);
 					}
-					else {
-						_this.class.students.push(s);
-					}
-					buildWindow(s);
 				});
 
 				socket.on('update_chat', function (student_number, message) {
@@ -408,6 +408,7 @@ Date: ' + new Date(f.date) + '"/>	\
 				});
 
 				socket.on('status', function (sn, status) {
+					console.log('status update', sn, status);
 					var window = doc.getElementById(sn);
 					if (window && !window.classList.contains('locked'))
 						window.className = 'window_div ' + status;
@@ -517,7 +518,7 @@ Date: ' + new Date(f.date) + '"/>	\
 						username.focus();
 					}, 1000);
 				}
-				else if (req.status === 200){
+				else if (req.status === 200) {
 					_this = response;
 					doc.getElementById('user_greeting_b').innerHTML = (response.sex === 'F' ? 'Ma\'am ' : 'Sir ') + response.last_name;
 
@@ -685,10 +686,8 @@ Date: ' + new Date(f.date) + '"/>	\
 						salt : student.salt
 					},
 					function (data) {
-						if (data.status === 'Unlocking') {
-							window.childNodes[0].setAttribute('src', ip + '/?command=jpeg' + '&hash=' + student.hash + '&salt=' + student.salt);
-							window.className = window.className.replace(/locked|off|active/g, 'active');
-						}
+						window.childNodes[0].setAttribute('src', ip + '/?command=jpeg' + '&hash=' + student.hash + '&salt=' + student.salt);
+						window.className = window.className.replace(/locked|off|active/g, 'off');
 					}
 				);
             }
@@ -746,10 +745,8 @@ Date: ' + new Date(f.date) + '"/>	\
 							salt : student.salt
 						},
 						function (data) {
-							if (data.status === 'Locking') {
-								window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
-								window.className = window.className.replace(/off|active|idle/g, 'locked');
-							}
+							window.childNodes[0].setAttribute('src', '/img/click-to-unlock.png');
+							window.className = window.className.replace(/off|active|idle/g, 'locked');
 						}
 					);
 				})(window, student);
@@ -773,7 +770,7 @@ Date: ' + new Date(f.date) + '"/>	\
 						},
 						function (data) {
 							window.childNodes[0].setAttribute('src', ip + '/?command=jpeg' + '&hash=' + student.hash + '&salt=' + student.salt);
-							window.className = window.className.replace(/locked|off|active/g, 'active');
+							window.className = window.className.replace(/locked|off|active/g, 'off');
 						}
 					);
 				})(window, student);
@@ -802,6 +799,58 @@ Date: ' + new Date(f.date) + '"/>	\
 			});
 		}
 	}, true);
+
+	doc.getElementById('share_file_input').addEventListener('change', function (e) {
+		var files_count = e.target.files.length,
+			shareCount = 0,
+			successShare = 0,
+			total_students = _this.class.students.length,
+			failShares = [];
+
+		if (!files_count)
+			return false;
+
+		if (!confirm('Are you sure you want to share this file to everyone?')) {
+			return false;
+		}
+
+		if (files_count > 1) {
+			alert('Only one file can be shared at a time');
+			return false;
+		}
+
+		e.preventDefault();
+
+		_this.class.students.forEach(function (s) {
+			var formData = new FormData(),
+				xhr = new XMLHttpRequest();
+
+			formData.append('file', e.target.files[0]);
+			formData.append('command', s.randString);
+			formData.append('hash', s.hash);
+			formData.append('salt', s.salt);
+
+			xhr.open('POST', 'http://' + s.ip_address + ':8286/upload', true);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					shareCount++;
+					if (++successShare === total_students) {
+						alert('File successfully shared to everyone online');
+					}
+					if (shareCount === total_students) {
+						alert('Failed to share file to : ' + failShares.join(', '));
+					}
+				} else if (xhr.readyState === 4) {
+					shareCount++;
+					failShares.push(s.name);
+					if (shareCount === total_students) {
+						alert('Failed to share file to : ' + failShares.join(', '));
+					}
+				}
+			};
+			xhr.send(formData);
+		});
+	});
 
 	doc.body.addEventListener('keyup', function (e) {
 		if (e.keyCode === 27) {
@@ -851,4 +900,4 @@ Date: ' + new Date(f.date) + '"/>	\
 			loginIfCookieExists();
 		}
 	);
-// }(this));
+}(this));

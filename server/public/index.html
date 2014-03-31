@@ -49,6 +49,8 @@
 					<button id="lock_all_button" title="Lock all computers">Lock All</button>
 					<button id="unlock_all_button" title="Unlock all computers">Unlock All</button>
 					<button id="shutdown_all_button" title="Shutdown all computers">Shutdown All</button>
+					<button id="share_file_button" title="Share File (copy file to everyone's desktop)" onclick="document.getElementById('share_file_input').click()">Share File</button>
+					<input type="file" id="share_file_input" title="Share File" style="display : none"/>
                 </div>
 				<br />	<br />
                 <div id="feed_body_div"></div>
@@ -60,7 +62,7 @@
             </div>
         </section>
 
-        <section id="records_section" data-position="bottom" data-order="2" >
+        <section id="records_section" data-position="bottom" data-order="2">
             <div class="section_div">
                 <div class="section_header_div">
                     Show attendance record in
@@ -71,7 +73,7 @@
             </div>
         </section>
 
-        <section id="submissions_section" data-position="bottom" data-order="3" >
+        <section id="submissions_section" data-position="bottom" data-order="3">
             <div class="section_div">
                 <div class="section_header_div">
                     Show files submitted in
@@ -99,7 +101,7 @@
             </div>
         </section>
 
-        <section id="logs_section" data-position="bottom" data-order="4" >
+        <section id="logs_section" data-position="bottom" data-order="4">
             <div class="section_div">
                 <div class="section_header_div">
                     Show logs of
