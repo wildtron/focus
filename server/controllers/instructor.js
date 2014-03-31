@@ -79,7 +79,7 @@ exports.login = function (req, res, next) {
 					files : 0,
                     password : 0
                 }
-            ).toArray(sendResponse);
+            ).sort({ip_address : 1}).toArray(sendResponse);
         },
         sendResponse = function (err, docs) {
             if (err) return next(err);

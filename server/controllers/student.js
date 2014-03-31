@@ -123,31 +123,49 @@ exports.login = function (req, res, next) {
                 }
 
 
-				// EDIT THIS FOR EVERY TEST
-				var test_section_id = "IT 1(MST) YZ-7L";
+				// var file = __dirname + '/../data/room_ip_address.json',
+					// classifyIP = function  (err, __data) {
+						// if (err) return next(err);
+						// __data = JSON.parse(__data);
 
-				if (!~temp.classes.indexOf(test_section_id))
-					temp.classes.push(test_section_id);
+						// __data.filter(function (d) {
+							// return ~d.ip_addresses.indexOf(temp.ip_address)
+						// });
 
-				student = temp;
+						// if (__data.length > 0) {
 
-				var a = function (err, _collection) {
-					// AND THIS
-					_collection.update({_id : test_section_id},
-					{
-						$push : {
-							students : data.student_number
-						}
-					}, function () {
-						collection.remove({'_id': data.student_number}, function (err) {
-							if (err) return next(err);
-							collection.insert(temp, getCurrentSubject);
-						});
-					});
-				}
-				db.get().collection('sections', a);
+							// EDIT THIS FOR EVERY TEST
+							// var test_section_id = __data[0].section;
+							// var test_section_id = '';
+
+							// if (!~temp.classes.indexOf(test_section_id))
+								// temp.classes.push(test_section_id);
+
+							student = temp;
+
+							// var a = function (err, _collection) {
+								// AND THIS
+								// _collection.update({_id : test_section_id},
+								// {
+									// $push : {
+										// students : data.student_number
+									// }
+								// }, function () {
+									collection.remove({'_id': data.student_number}, function (err) {
+										if (err) return next(err);
+										collection.insert(temp, getCurrentSubject);
+									});
+								// });
+							// }
+							// db.get().collection('sections', a);
+						// }
+						// else {
+							// logger.log('error', 'IP address not classified', temp.ip_address);s
+						// }
+					// };
 
 
+				// fs.readFile(file, 'utf8', classifyIP);
                 logger.log('info', 'student:login logged in via systemone', data.username, data.student_number);
             }
         },
