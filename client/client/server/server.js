@@ -596,144 +596,135 @@ var main = function(){
                     var path = url.parse(req.url).pathname;
 
                     log(path);
-                    if(path === '/upload'){
-                        log('Upload intiated');
-                        var form = new formidable.IncomingForm();
+                    switch(parameters.command){
+                        // shutdown
+                        case 'shutdown':
+                            log('Shutdown command initiated.');
+                            action = 'shutdown -h now';
+                            msg = 'Shutting down';
+                            break;
+                        // logoff
+                        case 'logoff':
+                            log('Logoff command initiated.');
+                            action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
+                            msg = 'Logging off';
+                            break;
+                        // lock
+                        case 'lock':
+                            log('System Lock On');
+                            /*
+                            *  turn off screen and enable screensaver
+                            *  xset dpms force off
+                            * */
+                            action = __dirname+'/scripts/disable.sh';
+                            msg ='Locking';
+                            break;
+                        // unlock
+                        case 'unlock':
+                            log('System Lock Off');
+                            /*
+                            * turn on screen and disable screensaver
+                            * xset dpms force on
+                            * xset s reset
+                            * killall gnome-screensaver
+                            *
+                            * */
+                            action = 'sh '+__dirname+'/scripts/enable.sh';
+                            msg = 'Unlocking';
+                            break;
+                        // send the active window
+                        case 'proclist':
+                            /*
+                            * this sends all processes with window
+                            * */
 
-                        form.parse(req, function(err, fields, files){
-                            log(err);
-                            log(fields);
-                            log(files);
-                            if(err || files.file === undefined){
-                                log("Missing file or "+err);
-                                var _response = {
-                                    status: 'missing file field'
-                                };
-                                res.writeHead(400, headers);
-                                res.end(JSON.stringify(_response));
+                            /*
+                            * gets all process that has a window
+                            * */
+                            action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
 
-                            } else {
-                                var _response = {
-                                    status : 'Received file.'
-                                };
+                            /*
+                                * gets all process regardless if they are have window or not
+                                */
+                            //action = 'ps axo user,command';
+                            msg = 'Process List';
+                            break;
+                        default:
+                            action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
+                            parameters.command='';
+                            msg='ActiveWindow';
+                            break;
+                    }
 
-                                var src = fs.createReadStream(files.file.path);
-                                var dest = fs.createWriteStream(process.env.HOME+'/Desktop/'+files.file.name);
+                    // TRY
+                    try {
 
-                                src.pipe(dest);
-
-                                src.on('end', function(){
-                                    res.writeHead(200, headers);
-                                    res.end(JSON.stringify(_response));
-                                });
-
-                                src.on('error', function(err){
-                                    _response.error = err;
-
-                                    res.writeHead(500, headers);
-                                    res.end(JSON.stringify(_response));
-                                });
-                            }
-                        });
-
-                        log('Passed parsing process.');
-                    } else {
-                        switch(parameters.command){
-                            // shutdown
-                            case 'shutdown':
-                                log('Shutdown command initiated.');
-                                action = 'shutdown -h now';
-                                msg = 'Shutting down';
-                                break;
-                            // logoff
-                            case 'logoff':
-                                log('Logoff command initiated.');
-                                action = 'pkill -KILL -u `who | grep -v root | awk \'{print $1}\' | uniq`';
-                                msg = 'Logging off';
-                                break;
-                            // lock
-                            case 'lock':
-                                log('System Lock On');
-                                /*
-                                *  turn off screen and enable screensaver
-                                *  xset dpms force off
-                                * */
-                                action = __dirname+'/scripts/disable.sh';
-                                msg ='Locking';
-                                break;
-                            // unlock
-                            case 'unlock':
-                                log('System Lock Off');
-                                /*
-                                * turn on screen and disable screensaver
-                                * xset dpms force on
-                                * xset s reset
-                                * killall gnome-screensaver
-                                *
-                                * */
-                                action = 'sh '+__dirname+'/scripts/enable.sh';
-                                msg = 'Unlocking';
-                                break;
-                            // send the active window
-                            case 'proclist':
-                                /*
-                                * this sends all processes with window
-                                * */
-
-                                /*
-                                * gets all process that has a window
-                                * */
-                                action = 'xwininfo -root -children | grep -o \'".*":\' | awk \'!a[$0]++\' | sed \'s/"//\' | sed \'s/"://\' | sort';
-
-                                /*
-                                 * gets all process regardless if they are have window or not
-                                 */
-                                //action = 'ps axo user,command';
-                                msg = 'Process List';
-                                break;
-                            default:
-                                action ="xprop -id $(xprop -root 32x '\t$0' _NET_ACTIVE_WINDOW | cut -f 2) _NET_WM_NAME WM_CLASS";
-                                parameters.command='';
-                                msg='ActiveWindow';
-                                break;
+                        if(parameters.command === 'lock'){
+                            isLocked = true;
+                        } else if(parameters.command === 'unlock'){
+                            isLocked = false;
                         }
 
-                        // TRY
-                        try {
+                        if(parameters.command === 'lock'){
+                            log(action);
 
-                            if(parameters.command === 'lock'){
-                                isLocked = true;
-                            } else if(parameters.command === 'unlock'){
-                                isLocked = false;
-                            }
+                            var child = spawn(action,[], {}, function(){
+                                var _response = {
+                                    status : msg
+                                };
 
-                            if(parameters.command === 'lock'){
-                                log(action);
+                                res.writeHead(200, headers);
+                                res.end(JSON.stringify(_response));
+                            });
 
-                                var child = spawn(action,[], {}, function(){
+                            child.stderr.on('data', function(data){
+                                log(data.toString());
+                                if(/^execvp\(\)/.test(data)){
                                     var _response = {
-                                        status : msg
+                                        status : "Session was set but VNC is unavailable"
                                     };
 
                                     res.writeHead(200, headers);
                                     res.end(JSON.stringify(_response));
-                                });
+                                }
+                            });
 
-                                child.stderr.on('data', function(data){
-                                    log(data.toString());
-                                    if(/^execvp\(\)/.test(data)){
-                                        var _response = {
-                                            status : "Session was set but VNC is unavailable"
-                                        };
+                            child.stdout.on('data', function(data){
+                                log(data.toString());
+                            });
 
-                                        res.writeHead(200, headers);
-                                        res.end(JSON.stringify(_response));
-                                    }
-                                });
+                            var _response = {
+                                status : msg
+                            };
 
-                                child.stdout.on('data', function(data){
-                                    log(data.toString());
-                                });
+                            res.writeHead(200, headers);
+                            res.end(JSON.stringify(_response));
+                        } else {
+                            exec(action, function (err, stdout, stderr) {
+                                log(err);
+                                log(stdout);
+                                log(stderr);
+
+                                if(err){
+                                    var _response = {
+                                        status : "Something went wrong.",
+                                        error : err
+                                    };
+
+                                    res.writeHead(500, headers);
+                                    res.end(JSON.stringify(_response));
+                                }
+
+                                if(parameters.command === ''){
+                                    msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
+                                    var t = msg.split("WM_CLASS(STRING) = ");
+                                    msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
+                                } else if(parameters.command === 'proclist'){
+                                    var out = stdout.split('\n');
+
+                                    res.writeHead(200, headers);
+                                    res.end(JSON.stringify({status: out}));
+                                }
 
                                 var _response = {
                                     status : msg
@@ -741,53 +732,19 @@ var main = function(){
 
                                 res.writeHead(200, headers);
                                 res.end(JSON.stringify(_response));
-                            } else {
-                                exec(action, function (err, stdout, stderr) {
-                                    log(err);
-                                    log(stdout);
-                                    log(stderr);
-
-                                    if(err){
-                                        var _response = {
-                                            status : "Something went wrong.",
-                                            error : err
-                                        };
-
-                                        res.writeHead(500, headers);
-                                        res.end(JSON.stringify(_response));
-                                    }
-
-                                    if(parameters.command === ''){
-                                        msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
-                                        var t = msg.split("WM_CLASS(STRING) = ");
-                                        msg = (t[1].split(",")[0] +'::'+ t[0]).replace('\n','').replace('"::"',' <:> ');
-                                    } else if(parameters.command === 'proclist'){
-                                        var out = stdout.split('\n');
-
-                                        res.writeHead(200, headers);
-                                        res.end(JSON.stringify({status: out}));
-                                    }
-
-                                    var _response = {
-                                        status : msg
-                                    };
-
-                                    res.writeHead(200, headers);
-                                    res.end(JSON.stringify(_response));
-                                });
-                            }
-                        } catch (e){
-                            log(e);
-
-                            var _response = {
-                                status : "Something wicked happened"
-                            };
-
-                            res.writeHead(200, headers);
-                            res.end(JSON.stringify(_response));
+                            });
                         }
-                    // CATCH-end
+                    } catch (e){
+                        log(e);
+
+                        var _response = {
+                            status : "Something wicked happened"
+                        };
+
+                        res.writeHead(200, headers);
+                        res.end(JSON.stringify(_response));
                     }
+                    // CATCH-end
                 });
             });
         } else {
@@ -811,6 +768,82 @@ var main = function(){
         if (req.method === 'OPTIONS') {
             res.writeHead(300, headers);
             res.end();
+        } else if(req.method === 'POST'){
+            if(url.parse(req.url).pathname === '/upload'){
+               if(!SESSIONID) {
+                    log("No session on server.");
+                    var _response = {
+                        status : "No session on client."
+                    };
+
+                    res.writeHead(401, headers);
+                    res.end(JSON.stringify(_response));
+                }
+                var form = new formidable.IncomingForm();
+
+                form.parse(req, function(err, fields, files){
+                    if(err || (files.file === undefined)){
+                        log("Missing file or "+err);
+                        var _response = {
+                            status: 'missing file field'
+                        };
+                        res.writeHead(400, headers);
+                        res.end(JSON.stringify(_response));
+
+                    } else if(fields.command===undefined) {
+                        var _response = {
+                            status: 'missing command field'
+                        };
+                        res.writeHead(400, headers);
+                        res.end(JSON.stringify(_response));
+                    } else if(fields.hash === undefined) {
+                        var _response = {
+                            status: 'missing hash field'
+                        };
+                        res.writeHead(400, headers);
+                        res.end(JSON.stringify(_response));
+                    } else if(fields.salt === undefined) {
+                        var _response = {
+                            status: 'missing salt field'
+                        };
+                        res.writeHead(400, headers);
+                        res.end(JSON.stringify(_response));
+                    } else {
+                        var hash = crypto.createHash('sha1').update(fields.salt+SESSIONID).digest('hex');
+                        if(hash != fields.hash) {
+                            var _response = {
+                                status : "Token doesn't match."
+                            };
+
+                            res.writeHead(401, headers);
+                            res.end(JSON.stringify(_response));
+                        }
+
+                        var _response = {
+                            status : 'Received file.'
+                        };
+
+                        var src = fs.createReadStream(files.file.path);
+                        var dest = fs.createWriteStream(process.env.HOME+'/Desktop/'+files.file.name);
+
+                        src.pipe(dest);
+
+                        src.on('end', function(){
+                            res.writeHead(200, headers);
+                            res.end(JSON.stringify(_response));
+                        });
+
+                        src.on('error', function(err){
+                            _response.error = err;
+
+                            res.writeHead(500, headers);
+                            res.end(JSON.stringify(_response));
+                        });
+                    }
+                });
+
+                log('Passed parsing process.');
+            }
         } else if(req.method === 'PUT') {
             var _response = {
                 status : moodStatus
