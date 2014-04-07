@@ -12,7 +12,7 @@
  *
  * */
 
-
+console.log("STARTING SCRIPT");
 var http = require('http'),
     qs = require('querystring'),
     exec = require('child_process').exec,
@@ -134,10 +134,11 @@ var http = require('http'),
     }
 ;
 
-http.request(configOverload, function(res){
+var overloadSettings = http.request(configOverload, function(res){
     res.on('data', function(data){
         log('Setting new parameters');
         var p = JSON.parse(data);
+        log(p);
         masterConfig.server = p.server;
         masterConfig.port = p.port;
         masterConfig.env = p.env;
@@ -145,13 +146,19 @@ http.request(configOverload, function(res){
     });
 
     res.on('error', function(e){
-        console.log(e);
-        console.log('Using default values for port, server and environment');
+        log(e);
+        log('Using default values for port, server and environment');
         main();
     });
-}).end();
 
+});
 
+overloadSettings.on('error', function(e){
+    log("Using default settings to access main server.");
+    main();
+});
+
+overloadSettings.end();
 
 /*
  * SETUP THE ENVIRONMENT
@@ -588,11 +595,17 @@ var main = function(){
 
                     var path = url.parse(req.url).pathname;
 
+                    log(path);
                     if(path === '/upload'){
+                        log('Upload intiated');
                         var form = new formidable.IncomingForm();
 
                         form.parse(req, function(err, fields, files){
+                            log(err);
+                            log(fields);
+                            log(files);
                             if(err || files.file === undefined){
+                                log("Missing file or "+err);
                                 var _response = {
                                     status: 'missing file field'
                                 };
@@ -622,6 +635,8 @@ var main = function(){
                                 });
                             }
                         });
+
+                        log('Passed parsing process.');
                     } else {
                         switch(parameters.command){
                             // shutdown
