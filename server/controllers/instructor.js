@@ -79,11 +79,10 @@ exports.login = function (req, res, next) {
 					files : 0,
                     password : 0
                 }
-            ).sort({ip_address : 1}).toArray(sendResponse);
+            ).toArray(getChatCollection);
         },
-        sendResponse = function (err, docs) {
+		getChatCollection = function (err, docs) {
             if (err) return next(err);
-            logger.log('verbose', data.username, ': login successful with current class and students');
 			docs.map(function (d) {
 				d.name = util.toTitleCase(d.first_name + ' ' + d.last_name);
 				d.randString = util.randomString();
@@ -94,6 +93,23 @@ exports.login = function (req, res, next) {
 				return d;
 			});
             item.class.students = docs;
+			db.get().collection('chat_history', getChatHistory);
+		},
+		getChatHistory = function (err, collection) {
+            if (err) return next(err);
+			collection.find({
+				instructor : item._id,
+				student_number : {
+					$in : item.class.students.map(function (s) {
+						return s._id;
+					})
+				}
+			}).sort({date : 1}).toArray(sendResponse);
+		},
+        sendResponse = function (err, docs) {
+            if (err) return next(err);
+			item.chat_history = docs;
+            logger.log('verbose', data.username, ': login successful with current class and students');
             return res.send(item);
         };
     logger.log('info', data.username, 'is trying to login');

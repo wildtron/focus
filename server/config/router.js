@@ -102,7 +102,9 @@ exports.handleSocket = function (io) {
 					socket.join(_student._id + item._id);
 
 					// generate hash and salt
-					_student.salt = util.hash(util.randomString());
+					_student.name = util.toTitleCase(_student.first_name + ' ' + _student.last_name);
+					_student.randString = util.randomString();
+					_student.salt = util.hash(_student.randString);
 					_student.hash = util.hash(_student.salt + _student.access_token, 'sha1');
 					_student.vnc = 'http://' + _student.ip_address + ':6080/index.html?password=' + util.hash(_student.access_token + _student.access_token, 'sha1');
 
@@ -178,20 +180,6 @@ exports.handleSocket = function (io) {
                 socket.emit('warning', 'access_token is missing');
             }
         });
-
-		socket.on('i_get_history', function (student_number) {
-			var room = getRoomBySocketId(socket.id),
-				sendHistory = function (err, docs) {
-					if (err) return console.dir(err);
-					socket.emit('history', docs);
-				};
-			if (room) {
-				logger.log('silly', 'socket i_get_history', student_number);
-				db.getChatHistory(student_number, sendHistory);
-			} else {
-				socket.emit('warning', 'get_history Socket id not in a room');
-			}
-		});
 
         socket.on('s_update_chat', function (message) {
             var room = getRoomBySocketId(socket.id);
