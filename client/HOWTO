@@ -1,0 +1,12 @@
+# COMPILE
+    run build.sh and wait for the script to finish
+    build will create two folders
+        out32 - 32 bit version
+        out64 - 64 bit version
+
+# INSTALL
+    run install.sh
+    this will copy files to /opt/focus
+
+# RUN
+

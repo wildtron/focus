@@ -17,7 +17,6 @@
     "webkit" : {
         "plugin" : true
     },
-    "single-instance" : true,
-    "node-main" : "server/server.js"
+    "single-instance" : true
 }
 

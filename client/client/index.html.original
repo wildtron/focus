@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <title>:FOCUS</title>
+        <link rel="shortcut icon" href="favicon.png" />
+        <link rel="stylesheet" href="css/client.css" />
+    </head>
+    <body>
+        <section id="front_section" data-position="current" data-order="0" >
+            <form action="#" method="POST" id="login_form" onsubmit="return false;">
+                <img src="img/logo-full.png" alt=":FOCUS" width="180" height="40" /><br />
+                <input type="text" placeholder="Student Number" id="student_number_input" required="required" autofocus="true" pattern="(19|20)[0-9]{2}-[0-9]{5}" maxlength="10"/><br />
+                <input type="text" placeholder="Username" id="username_input" required="required"/><br />
+                <input type="password" placeholder="Password" id="password_input" required="required"/><br/>
+                <button id="sign_in_button">Login via SystemOne</button>
+            </form>
+        </section>
+
+        <section id="progress_bar">
+            <progress></progress>
+        </section>
+
+        <section id="main_section" data-position="right">
+            <div id="holder"></div>
+            <div id="name_div"></div>
+            <button id="logout_button"></button>
+            <div id="chat_div">
+                <ul id="chat_content"></ul>
+            </div>
+            <textarea id="chat_area"></textarea>
+        </section>
+        <script type="text/javascript" src="js/cookies.js"></script>
+        <script type="text/javascript">
+            if (typeof require !== 'undefined') {
+                var gui = require('nw.gui'),
+                    win = gui.Window.get();
+                win.on('close', function () {
+                    this.minimize();
+                });
+                setInterval(function(){
+                    if(!cookies.get('FOCUSSESSID')){
+                        win.focus();
+                    }
+                }, 400);
+
+            }
+        </script>
+        <script type="text/javascript" src="js/script.js"></script>
+    </body>
+</html>

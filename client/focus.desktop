@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=FOCUS
+Comment=Client for FOCUS
+GenericName=Kiosk
+Icon=focus
+Exec=/opt/focus/run
+Terminal=false
+X-GNOME-Autostart-Delay=10

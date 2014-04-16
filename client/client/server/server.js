@@ -131,27 +131,29 @@ var http = require('http'),
         port: 8080,
         path: '/config.json',
         method: 'GET'
-    }
-;
+    },
+    overloadSettings = http.request(configOverload, function(res){
+        res.on('data', function(data){
+            log('Setting new parameters');
+            var p = JSON.parse(data);
+            log(p);
+            masterConfig.server = p.server;
+            masterConfig.port = p.port;
+            masterConfig.env = p.env;
+            main();
+        });
 
-var overloadSettings = http.request(configOverload, function(res){
-    res.on('data', function(data){
-        log('Setting new parameters');
-        var p = JSON.parse(data);
-        log(p);
-        masterConfig.server = p.server;
-        masterConfig.port = p.port;
-        masterConfig.env = p.env;
-        main();
-    });
+        res.on('error', function(e){
+            log(e);
+            log('Using default values for port, server and environment');
+            main();
+        });
+    }),
+    activityServer,
+    sessionServer,
+    keyServer
+    ;
 
-    res.on('error', function(e){
-        log(e);
-        log('Using default values for port, server and environment');
-        main();
-    });
-
-});
 
 overloadSettings.on('error', function(e){
     log("Using default settings to access main server.");
@@ -196,7 +198,8 @@ fs.chmodSync(__dirname+'/client/utils/img2js.py', 0555);
 var main = function(){
     console.log(masterConfig);
     // create a server that listens to localServer port
-    http.createServer(function(req, res){
+
+    sessionServer = http.createServer(function(req, res){
         var postData='',postRequest, decodedBody;
         if (req.method === 'OPTIONS') {
         res.writeHead(300, headers);
@@ -394,7 +397,7 @@ var main = function(){
     *      Proclist
     * */
 
-    http.createServer(function (req, res) {
+    activityServer = http.createServer(function (req, res) {
         var parameters=[],
             checkSession=function(callback){
 
@@ -764,7 +767,7 @@ var main = function(){
     // this will not logged the user's keys but instead
     // will tell if they are BORED, CONFUSED , (OFFTASK on ONTASK)
 
-    http.createServer(function(req,res){
+    keyServer = http.createServer(function(req,res){
         if (req.method === 'OPTIONS') {
             res.writeHead(300, headers);
             res.end();
@@ -861,4 +864,20 @@ var main = function(){
         }
     }).listen(config.keyPort);
     log('listening on port '+config.keyPort);
+
+
+    // server catches
+    activityServer.on('error', function(e){
+        log(e)
+    });
+
+    sessionServer.on('error', function(e){
+        log(e)
+    });
+
+    keyServer.on('error', function(e){
+        log(e)
+    });
 };
+
+
