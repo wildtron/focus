@@ -4,6 +4,6 @@ Name=FOCUS
 Comment=Client for FOCUS
 GenericName=Kiosk
 Icon=focus
-Exec=/opt/focus/run
+Exec=sudo /opt/focus/run
 Terminal=false
 X-GNOME-Autostart-Delay=10
