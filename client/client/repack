@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-zip -r -u app.nw index.html package.json css/* font/* img/* js/* server/lib$1 server/client/* server/server.js server/package.json server/node_modules/* server/apparmor/bin/apparmor$1 server/config.js server/scripts/* server/img/ node_modules/**
+zip -r -u app.nw index.html package.json css/* font/* img/* js/* server/lib$1 server/client/* server/server.js server/package.json server/node_modules/* server/apparmor/bin/apparmor$1 server/config.js server/scripts/* server/img/ node_modules/*
