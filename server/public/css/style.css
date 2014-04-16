@@ -787,16 +787,15 @@ span.active{color: #27AE60;}
 span.idle{color: #F39C12;}
 
 #chat_div{
-    width: 206px;
-    height: 260px;
+    width: 266px;
+    height: 25px;
     border: 1px solid #1D0F87;
     position: fixed;
     right: 10px;
     bottom: 0;
-    display: none;
 	background: #FFF;
 }
-#chat_name_div{
+#chat_header_div{
     cursor: pointer;
     font-family: OpenSans;
     width: 100%;
@@ -811,25 +810,25 @@ span.idle{color: #F39C12;}
     overflow: auto;
     background: #FFF;
     width: 100%;
-    height: 165px;
+    height: 465px;
 }
 #chat_list li{
     padding: 3px 5px;
-    text-align: right;
+    text-align: left;
     color: #000;
     background: #CCC;
 }
 #chat_list li.incoming{
     background: #FFF;
-    text-align: left;
+    /* text-align: right; */
 }
 #chat_textarea{
     float: left;
-    width: 190px;
+    width: 250px;
     margin-left: 5px;
     resize: none;
     border-radius: 10px;
-    height: 60px;
+    height: 75px;
     color: #FFF;
     background: #463D8A;
 }

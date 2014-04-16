@@ -1,7 +1,3 @@
-if (!process.env['NODE_ENV']) {	// if env is not set, make it development
-	process.env['NODE_ENV'] = 'development';
-}
-
 var express = require('express'),
     app = express(),
     fs = require('fs'),
@@ -13,6 +9,9 @@ var express = require('express'),
     router = require(__dirname + '/config/router'),
     config = require(__dirname + '/config/config').config;
 
+if (!process.env['NODE_ENV']) {	// if env is not set, make it development
+	process.env['NODE_ENV'] = 'development';
+}
 
 logger.log('info', 'initializing FOCUS. ENV = ', process.env['NODE_ENV']);
 

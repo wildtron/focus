@@ -84,6 +84,7 @@ exports.saveChatHistory = function (message, instructor, student_number, from_st
 	var save = function (err, collection) {
 		if (err) return console.dir(err);
 		collection.insert({
+			date : +new Date(),
 			message : message.match(/\S{1,30}/g).join(' '),
 			instructor : instructor,
 			student_number : student_number,
@@ -100,7 +101,7 @@ exports.getChatHistory = function (student_number, cb) {
 		if (err) return console.dir(err);
 		collection.find({
 			student_number : student_number
-		}).toArray(cb);
+		}).sort({date : 1}).toArray(cb);
 	};
 	db.collection('chat_history', getHistory);
 };

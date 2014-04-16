@@ -2,13 +2,14 @@
     var _this,
         socket,
         blinkTimer,
-		currentChat,
+		chat_box = true,
         refreshInterval,
 		new_messages = {},
 		util = root.util,
 		doc = root.document,
 		chatBlinkIntervals = {},
         url = 'http://10.0.5.49:8080/',
+        // url = 'http://localhost:8080/',
 
 		/**
 			Page Actions
@@ -28,6 +29,7 @@
             doc.getElementById('header_title_div').innerHTML = '<span class="twilight">' + _this.class._id + '</span> on <span class="twilight">' + _this.class.room + '</span>';
 
             root.setTimeout(setupScreenshots, 500);
+			setupChat();
         },
         records = function () {
             var active = doc.getElementsByClassName('active_section')[0],
@@ -112,7 +114,6 @@
         buildWindow = function (s) {
 			var window_div = doc.createElement('div'),
 				img = doc.createElement('img'),
-				button = doc.createElement('button'),
 				dom = doc.getElementById('feed_body_div'),
 				temp;
 
@@ -127,13 +128,8 @@
 			img.setAttribute('data-sn', s._id);
 			img.setAttribute('onerror', 'javascript:this.src="/img/not-connected.png";this.parentNode&&(this.parentNode.className="window_div not_connected")');
 
-			button.className = 'chat_button';
-			button.setAttribute('id', s._id + '_chat_button');
-			button.setAttribute('title', 'Chat with '+ util.toTitleCase(s.first_name));
-
 			window_div.appendChild(img);
 			window_div.appendChild(doc.createTextNode(s.name +' | '+ s._id));
-			window_div.appendChild(button);
 
 			window_div.innerHTML += '<div class="unit_mngr_div"> \
 						<button title="Shutdown" class="shutdown"></button>  \
@@ -170,9 +166,30 @@
             _this.class.students.forEach(buildWindow);
             dom.innerHTML += '<br class="clearfix" />';
             doc.getElementById('scrnsht_interval_input').value = cookies.get('interval') || 10;
-			root.onfocus();
+			// root.onfocus();
             startAutoRefresh();
         },
+		setupChat = function () {
+			var dom = doc.getElementById('chat_name_select');
+			dom.innerHTML = '<option value="all">All</option>';
+			_this.class.students.forEach(function (s) {
+				var option = doc.createElement('option');
+				option.setAttribute('value', s._id);
+				option.appendChild(doc.createTextNode(s.name));
+				dom.appendChild(option);
+			});
+            dom = doc.getElementById('chat_list');
+            dom.innerHTML = '';
+			_this.chat_history.forEach(function (h) {
+				var li = doc.createElement('li'),
+					s = getStudentBySN(h.student_number);
+				li.appendChild(doc.createTextNode(s.first_name.charAt(0) + '. ' + s.last_name + ': ' + h.message));
+                if (h.from_student)
+                    li.className = "incoming";
+				dom.appendChild(li);
+			});
+            dom.scrollTop = dom.scrollHeight;
+		},
         startAutoRefresh = function (e) {
             var interval;
             if (e) {
@@ -203,18 +220,8 @@
 					}
                 }
             }, (+interval) * 1000);
-        },
-        buildChatHistory = function (history) {
-            var dom = doc.getElementById('chat_list');
-            dom.innerHTML = '';
-			history.forEach(function (h) {
-				var li = doc.createElement('li');
-				li.appendChild(doc.createTextNode(h.message));
-                if (h.from_student)
-                    li.className = "incoming";
-				dom.appendChild(li);
-			});
-            dom.scrollTop = dom.scrollHeight;
+
+			// remove this after revamping chat area
         },
         getStudentBySN = function (sn) {
             var cache = _this.class.students,
@@ -313,7 +320,7 @@ Date: ' + new Date(f.date) + '"/>	\
 		},
 		getLogs = function (e) {
 			var _from = new Date(doc.getElementById('to_logs_input').value),
-				_fromPlusOne = new Date(_from.getTime() + (24 * 60 * 60 * 1000));;
+				_fromPlusOne = new Date(_from.getTime() + (24 * 60 * 60 * 1000));
 			util.xhr('GET', url + 'instructor/getLogs?'
 				+ 'section_id=' + doc.getElementById('section_logs_select').value
 				+ '&from=' + +new Date(doc.getElementById('from_logs_input').value)
@@ -370,8 +377,6 @@ Date: ' + new Date(f.date) + '"/>	\
 					}
 				});
 
-				socket.on('history', buildChatHistory);
-
 				socket.on('online', function (s) {
 					if (s) {
 						var student = getStudentBySN(s._id);
@@ -393,18 +398,13 @@ Date: ' + new Date(f.date) + '"/>	\
 						dom = doc.getElementById('chat_list'),
 						li = doc.createElement('li');
 
-					if (currentChat === student_number) {
-						li.className = 'incoming';
-						li.appendChild(doc.createTextNode(message));
-						dom.appendChild(li);
-						dom.scrollTop = dom.scrollHeight;
-					}
-					else {
-						doc.getElementById(student_number + '_chat_button').style.backgroundImage = 'url(../img/chat-new-icon.png)';
-					}
+					li.className = 'incoming';
+					li.appendChild(doc.createTextNode(student.first_name.charAt(0) + ' ' + student.last_name + ': ' + message));
+					dom.appendChild(li);
+					dom.scrollTop = dom.scrollHeight;
 
 					new_messages[student_number] = util.toTitleCase(student.first_name);
-					root.onfocus();
+					// root.onfocus();
 				});
 
 				socket.on('status', function (sn, status) {
@@ -440,7 +440,7 @@ Date: ' + new Date(f.date) + '"/>	\
 		Attach Events
 	*/
 
-
+	/*
 	root.onfocus = function () {
 		var names = '',
 			i;
@@ -472,6 +472,7 @@ Date: ' + new Date(f.date) + '"/>	\
 			}
 		}
 	};
+	*/
 
     root.onresize = function () {
         var temp1 = doc.getElementsByClassName('section_div'),
@@ -663,16 +664,6 @@ Date: ' + new Date(f.date) + '"/>	\
 									}
 								);
 								break;
-                case 'chat_button' :
-									window.classList.remove('new_message');
-                                    doc.getElementById('chat_name_div').innerHTML = temp.getAttribute('title');
-                                    doc.getElementById('chat_div').style.display = 'block';
-                                    temp.style.backgroundImage = 'url(../img/chat-icon.png)';
-                                    doc.getElementById('chat_textarea').setAttribute('data-sn', student._id);
-                                    doc.getElementById('chat_textarea').focus();
-									currentChat = student._id;
-									socket.emit('i_get_history', student._id);
-                                break;
             }
         }
         else if (temp.nodeName === 'IMG') {
@@ -697,38 +688,42 @@ Date: ' + new Date(f.date) + '"/>	\
         }
     }, true);
 
-    doc.getElementById('chat_name_div').addEventListener('click', function (e) {
-		currentChat = null;
-        e.target.parentNode.style.display = 'none';
+    doc.getElementById('chat_header_div').addEventListener('click', function (e) {
+		e.target.parentNode.style.height = chat_box ? '25px' : '600px';
+		chat_box = !chat_box;
     }, true);
 
     doc.getElementById('chat_textarea').addEventListener('keypress', function (e) {
-        var sn = e.target.getAttribute('data-sn'),
-            student = getStudentBySN(sn),
+        var sn = doc.getElementById('chat_name_select').value,
             list = doc.getElementById('chat_list'),
-			li = doc.createElement('li');
+			li = doc.createElement('li'),
+			student;
         if (e.ctrlKey && e.keyCode == 10) {
-            socket.emit('i_update_chat', e.target.value, sn);
-            li.appendChild(doc.createTextNode(util.wbr(e.target.value)));
+			if (sn === 'all') {
+				_this.class.students.forEach(function (s) {
+					socket.emit('i_update_chat', e.target.value, s._id);
+				});
+				li.appendChild(doc.createTextNode('All: ' + util.wbr(e.target.value)));
+			} else {
+				socket.emit('i_update_chat', e.target.value, sn);
+				student = getStudentBySN(sn);
+				li.appendChild(doc.createTextNode(student.first_name.charAt(0) + ' ' + student.last_name + ': '+ util.wbr(e.target.value)));
+			}
 			list.appendChild(li);
-            list.scrollTop = list.scrollHeight;
-            e.target.value = '';
+			list.scrollTop = list.scrollHeight;
+			e.target.value = '';
         }
-		if (new_messages[sn]) {
-			delete new_messages[sn];
-			root.onfocus();
-		}
+		new_messages = [];
+		// root.onfocus();
     }, true);
 
     doc.getElementById('chat_textarea').addEventListener('focus', function (e) {
-		var sn = e.target.getAttribute('data-sn');
-		if (new_messages[sn]) {
-			clearInterval();
-			delete new_messages[sn];
-			clearInterval(chatBlinkIntervals[sn]);
-			delete chatBlinkIntervals[sn];
-			root.onfocus();
-		}
+		new_messages = [];
+		chatBlinkIntervals.forEach(function (i) {
+			clearInterval(i);
+		});
+		chatBlinkIntervals = [];
+		// root.onfocus();
 	});
 
 	doc.getElementById('lock_all_button').addEventListener('click', function (e) {
@@ -826,11 +821,20 @@ Date: ' + new Date(f.date) + '"/>	\
 				xhr = new XMLHttpRequest();
 
 			formData.append('file', e.target.files[0]);
-			formData.append('command', s.randString);
-			formData.append('hash', s.hash);
-			formData.append('salt', s.salt);
+			// formData.append('command', s.randString);
+			// formData.append('hash', s.hash);
+			// formData.append('salt', s.salt);
 
-			xhr.open('POST', 'http://' + s.ip_address + ':8286/upload', true);
+			xhr.open(
+				'POST',
+				'http://'
+				+ s.ip_address
+				+ ':8286/upload?command='
+				+ s.randString
+				+ '&hash='
+				+ s.hash
+				+ '&salt='
+				+ s.salt, true);
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState === 4 && xhr.status === 200) {
 					shareCount++;
@@ -854,7 +858,8 @@ Date: ' + new Date(f.date) + '"/>	\
 
 	doc.body.addEventListener('keyup', function (e) {
 		if (e.keyCode === 27) {
-			document.getElementById('chat_div').style.display = 'none';
+			chat_box = false;
+			document.getElementById('chat_div').style.height = '25px';
 		}
 	});
 
@@ -891,9 +896,11 @@ Date: ' + new Date(f.date) + '"/>	\
 		'GET',
 		'http://ricolindo.uplb.edu.ph:8080/config.json',
 		{},
-		function (data) {
-			url = 'http://' + data.server + ':' + data.port + '/';
-			loginIfCookieExists();
+		function (data, req) {
+			if (req.status === 200) {
+				url = 'http://' + data.server + ':' + data.port + '/';
+				loginIfCookieExists();
+			}
 		},
 		function () {
 			console.dir('Unable to get config from ricolindo. Using default values.');

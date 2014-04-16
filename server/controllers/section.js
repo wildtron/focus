@@ -76,6 +76,10 @@ exports.getStudentsWithFiles = function (req, res, next) {
         },
         sendResponse = function (err, docs) {
             if (err) return next(err);
+			docs = docs.map(function (d) {
+				d.name = util.toTitleCase(d.first_name + ' ' + d.last_name);
+				return d;
+			});
             logger.log('verbose', 'section:getStudent successful');
             return res.send(docs);
         };

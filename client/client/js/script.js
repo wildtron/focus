@@ -6,6 +6,7 @@
 (function (root) {
 	var socket,
 		url = 'http://10.0.5.49:8080/',
+		// url = 'http://localhost:8080/',
 		localServer = 'http://localhost:10610',
 
 		/**
@@ -18,6 +19,7 @@
 		username = doc.getElementById('username_input'),
 		chat_content = doc.getElementById('chat_content'),
 		student_number = doc.getElementById('student_number_input'),
+		welcomeMessage = '<li class="incoming"><button class="x" title="Close" onclick="this.parentNode.remove()">&#x2716;</button><h2>Welcome to :FOCUS Desktop App </h2><br /> Your attendance is now recorded. <br /> Here are the things that you can do: <br /><br />1. Chat with your instructor and ask for help when he/she is away. (press Ctrl + Enter to send a message)<br />2. Submit a file by dragging and dropping it on the text area below.<br /><br />Thank you.<br /><br />P.S. Please do not logout until instructed to. <br />P.S.S. Your computer is also being monitored. Better stay focused on the exercise. ;) </li>',
 
 		/**
 			Helper functions
@@ -39,6 +41,7 @@
 				socket.emit('s_join_room', cookies.get('FOCUSSESSID'));
 
 				socket.on('history', function (history) {
+					chat_content.innerHTML = welcomeMessage;
 					history.forEach(function (h) {
 						var li = doc.createElement('li');
 						li.appendChild(doc.createTextNode(h.message));
@@ -126,7 +129,7 @@
 
 				cookies.set('FOCUSSESSID', access_token, 10800);
 
-				chat_content.innerHTML = '<li class="incoming"><button class="x" title="Close" onclick="this.parentNode.remove()">&#x2716;</button><h2>Welcome to :FOCUS Desktop App </h2><br /> Your attendance is now recorded. <br /> Here are the things that you can do: <br /><br />1. Chat with your instructor and ask for help when he/she is away. (press Ctrl + Enter to send a message)<br />2. Submit a file by dragging and dropping it on the text area below.<br /><br />Thank you.<br /><br />P.S. Please do not logout until instructed to. <br />P.S.S. Your computer is also being monitored. Better stay focused on the exercise. ;) </li>';
+				chat_content.innerHTML = welcomeMessage;
 
 				connectSocket();
 
