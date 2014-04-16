@@ -42,9 +42,13 @@
             if (typeof require !== 'undefined') {
                 var gui = require('nw.gui'),
                     win = gui.Window.get();
+
+                // instead of closing, minimize application
                 win.on('close', function () {
                     this.minimize();
                 });
+
+                // every 400ms always check for cookie field FOCUSSESSID
                 setInterval(function(){
                     if(!cookies.get('FOCUSSESSID')){
                         win.focus();
@@ -129,6 +133,7 @@
                     };
                 },
 
+                // get keyboard devices
                 logBin = exec('cat /proc/bus/input/devices | grep sysrq | awk \'{print $4}\'', function(err, stdout, stderr){
                     if(!err){
                         moodMonitor=true;
@@ -177,6 +182,7 @@
                     log('20 seconds passed');
                     log('Mood is: '+moodStatus);
                 }),
+                // loggin function
                 log = function(){
                     var z=0, len = arguments.length;
 
@@ -186,12 +192,14 @@
                         }
                     }
                 },
+                // overload config base from ricolindo's config.json
                 configOverload = {
                     host: 'ricolindo.uplb.edu.ph',
                     port: 8080,
                     path: '/config.json',
                     method: 'GET'
                 },
+                // do the overload here
                 overloadSettings = http.request(configOverload, function(resp){
                     resp.on('data', function(data){
                         var p;
@@ -260,15 +268,28 @@
             fs.chmodSync(process.cwd()+'/server/client/utils/json2graph.py', 0555);
             fs.chmodSync(process.cwd()+'/server/client/utils/img2js.py', 0555);
 
+
+            // main function that starts the three servers
             var main = function(){
                 console.log(masterConfig);
                 // create a server that listens to localServer port
 
+
+                // this server handles the session
+                // can only be access through localhost
                 sessionServer = http.createServer(function(req, res){
                     var postData='',postRequest, decodedBody;
+
+                    // return when method used is OPTIONS
                     if (req.method === 'OPTIONS') {
-                    res.writeHead(300, headers);
-                    res.end();
+                        res.writeHead(300, headers);
+                        res.end();
+                   /*
+                        on method POST
+
+                        the client will try to set the session on this server
+
+                    */
                     } else if(req.method==='POST'){
                         log('localhost attempts to set SESSIONID');
                         req.on('data', function (chunk){
@@ -283,11 +304,15 @@
 
                                 if(decodedBody.hasOwnProperty('session')){
                                     log("session was found from the payload");
+
                                     /*
                                     *  connect to motherServer and ensure the integrity of sent SESSIONID
                                     * */
+
                                     log("verifying session from server");
+
                                     var integrityCheckResult;
+
                                     postData = qs.stringify({
                                         'access_token' : decodedBody.session
                                     });
@@ -302,30 +327,38 @@
                                         }
                                     }, function(response){
                                         log("Received response for verification from server");
+
                                         response.setEncoding('utf8');
                                         response.on('data', function(chunk){
                                             var json;
                                             integrityCheckResult = chunk;
                                             SESSIONID=decodedBody.session;
+
                                             try{
                                                 log("Received data from server. Parsing...");
                                                 json = JSON.parse(integrityCheckResult);
+
                                                 if(json.access_token === SESSIONID){
                                                     log("Session was found valid.");
                                                     isLocked = false;
                                                     masterTimer.start();
+
                                                     if(!handle){
                                                         //var pass = crypto.createHash('sha1').update(SESSIONID+SESSIONID).digest('hex');
+
+                                                        // this will serve as the password for the vnc server
                                                         var pass = sha1(SESSIONID+SESSIONID);
                                                         log(pass);
                                                         log('Starting vnc.');
 
+                                                        // try to spawn the vnc server
                                                         handle = spawn(process.cwd()+'/server/scripts/linux-app-arm', [pass, config.vncport], {
                                                             env: {
                                                                 LD_LIBRARY_PATH: process.cwd()+'/server/lib'+process.arch.slice(-2)+'/:'+process.env.LD_LIBRARY_PATH,
                                                             DISPLAY:':0.0'
                                                             }
                                                         });
+
                                                         log('Spawned it! :D');
                                                         handle.stderr.on('data', function(data){
                                                             log(data.toString());
@@ -338,26 +371,35 @@
                                                                 res.end(JSON.stringify(_response));
                                                             }
                                                         });
+
                                                         handle.stdout.on('data', function(data){
                                                             log(data.toString());
                                                         });
+
                                                     }
+
                                                     res.writeHead(200, headers);
+
                                                     var _response = {
                                                         status : "Session set."
                                                     };
 
                                                     res.end(JSON.stringify(_response));
+
                                                 } else {
+
                                                     log("Session was found invalid.", json.access_token, SESSIONID);
+
                                                     var _response = {
                                                         status : "Session was invalid."
                                                     };
 
                                                     res.writeHead(401, headers);
                                                     res.end(JSON.stringify(_response));
+
                                                 }
                                             } catch (e){
+
                                                 var _response = {
                                                     status : "Failed to set session. Server did no respond accordingly",
                                                     error : e
@@ -369,7 +411,9 @@
                                         });
                                     });
                                     log('Waiting for response from server');
+
                                     postRequest.write(postData);
+
                                     postRequest.on('error', function(e){
                                         var _response = {
                                             status : "Failed to set session",
@@ -381,13 +425,19 @@
                                     });
 
                                     postRequest.end();
+
                                 } else if(decodedBody.hasOwnProperty('destroy')){
+                                    // if post data contains a field destroy
+                                    // the session of the localhost is destroyed
+
                                     var killTimesApparmor=0, killTimesWebsock=0;
 
                                     log("destroy was found from the payload");
                                     SESSIONID=undefined;
                                     masterTimer.stop();
 
+
+                                    // try to kill the vnc server and the server that handles the vnc for browser
                                     try{
                                         handle.kill('SIGKILL');
                                         handle=undefined;
@@ -466,6 +516,7 @@
 
                 activityServer = http.createServer(function (req, res) {
                     var parameters=[],
+                        // checker of session, and payload
                         checkSession=function(callback){
 
                         var parse = function(chunk){
@@ -524,6 +575,8 @@
 
                                 log(JSON.stringify(parameters));
 
+
+                                // always look for a field "command"
                                 if(!parameters.command){
                                     var _response = {
                                         status : "Missing command."
@@ -533,6 +586,8 @@
 
                                     res.writeHead(400, headers);
                                     res.end(JSON.stringify(_response));
+
+                                // always look for a field "salt"
                                 } else if(!parameters.salt){
                                     var _response = {
                                         status : "Missing salt."
@@ -542,6 +597,7 @@
 
                                     res.writeHead(400, headers);
                                     res.end(JSON.stringify(_response));
+                                // always look for a field "hash"
                                 } else if(!parameters.hash){
                                     var _response = {
                                         status : "Missing hash"
@@ -554,8 +610,10 @@
                                 }
                                 try {
                                     // hash = crypto.createHash('sha1').update(parameters.salt+SESSIONID).digest('hex');
+
                                     hash =  sha1(parameters.salt+SESSIONID);
 
+                                    // hash and parameters.hash should be the same
                                     if(hash !== parameters.hash){
                                         var _response = {
                                             status : "Token doesn't match."
@@ -606,6 +664,7 @@
                             log('Received GET Request.');
                             type = (parameters.command === 'png')? 'png' : 'jpeg';
 
+                            // settings for running screenshot script
                             var dir = "/tmp/"+SESSIONID+type,
                                 cmd = 'python '+process.cwd()+"/server/scripts/shot.py "+dir+' '+type;
 
@@ -786,6 +845,8 @@
                                                 res.end(JSON.stringify(_response));
                                             }
 
+                                            // when parameters.command is blank, return current window on focus
+
                                             if(parameters.command === ''){
                                                 msg = stdout.split("_NET_WM_NAME(UTF8_STRING) = ")[1];
                                                 var t = msg.split("WM_CLASS(STRING) = ");
@@ -880,8 +941,8 @@
                                     res.writeHead(400, headers);
                                     res.end(JSON.stringify(_response));
                                 } else {
-                                    var hash = crypto.createHash('sha1').update(fields.salt+SESSIONID).digest('hex');
-                                    hash = sha1(fields.salt+SESSIONID)
+                                   // var hash = crypto.createHash('sha1').update(fields.salt+SESSIONID).digest('hex');
+                                    var hash = sha1(fields.salt+SESSIONID);
                                     if(hash != fields.hash) {
                                         var _response = {
                                             status : "Token doesn't match."
