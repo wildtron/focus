@@ -8,12 +8,13 @@
 		url = 'http://10.0.5.49:8080/',
 		// url = 'http://localhost:8080/',
 		localServer = 'http://localhost:10610',
+        url='http://192.168.1.53:8080/',
 
 		/**
 			Cached DOM elements
 		*/
 
-		doc = root.document;
+		doc = root.document,
 		chat_area = doc.getElementById('chat_area'),
 		password = doc.getElementById('password_input'),
 		username = doc.getElementById('username_input'),
