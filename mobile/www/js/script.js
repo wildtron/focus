@@ -4,7 +4,7 @@
 		current,
 		doc = root.document,
 		// url = 'http://localhost:8080/',
-		url = 'http://10.0.5.49:8080/',
+		url = 'http://192.168.1.53:8080/',
 
 
 		/** Helper Functions **/
@@ -73,7 +73,7 @@
 							xhr('POST', ip, {command : 'proclist', hash : current.hash, salt : current.salt}, function (data, req) {
 								if (req.status === 200) {
 									doc.getElementById('details_div').innerHTML +=
-									['Process List (ps aux user, command) :<br />'].concat(
+									['Process List (applications with windows) :<br />'].concat(
 										data.status
 										.sort()
 										.reverse()
