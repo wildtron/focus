@@ -121,9 +121,6 @@
 		Attach Events
 	*/
 
-					doc.getElementById('front_section').className = 'current-to-left';
-					doc.getElementById('main_section').className = 'right-to-current';
-
 	doc.getElementById('sign_in_button').addEventListener('click', function (e) {
 		var self = e.target,
 			request = new XMLHttpRequest(),

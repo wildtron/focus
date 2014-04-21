@@ -7,9 +7,11 @@
         <link rel="shortcut icon" href="favicon.png" />
         <link rel="stylesheet" href="css/client.css" />
         <script>
-            if(process.env.USER !== "root") {
-                alert("Please run FOCUS as root.");
-                process.exit(1);
+            if (typeof require !== 'undefined') {
+                if(process.env.USER !== "root") {
+                    alert("Please run FOCUS as root.");
+                    process.exit(1);
+                }
             }
         </script>
     </head>
@@ -71,6 +73,7 @@
             * */
 
 
+            if (typeof require !== 'undefined') {
             console.log("STARTING SCRIPT");
             var http = require('http'),
                 qs = require('querystring'),
@@ -1012,6 +1015,7 @@
                     process.exit(1);
                 });
             };
+        }
         </script>
         <script type="text/javascript" src="js/script.js"></script>
     </body>
